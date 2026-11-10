@@ -140,23 +140,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to main operational workspace
       </a>
 
-      {/* Top Reference-Matched Header Bar */}
-      <header className="bg-surface border-b border-border-subtle px-4 sm:px-6 py-3 sticky top-0 z-30">
+      {/* Top Application Bar - Modern Minimalist Style matching C:/ti & C:/hellyoshaqiqie */}
+      <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 py-2.5 sticky top-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
         <div className="max-w-[1640px] mx-auto flex items-center justify-between gap-3">
-          {/* Left: Terracotta Brand Square + Horizontal Navigation Tabs */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Left: Brand Wordmark + Horizontal Pill Tabs */}
+          <div className="flex items-center gap-3 sm:gap-4">
             <Link
               href="/"
               aria-label="EVORA Adaptive Evacuation Intelligence Home"
-              className="inline-flex items-center gap-2.5 pr-2 shrink-0 group"
+              className="inline-flex items-center gap-2.5 pr-2 shrink-0 group cursor-pointer"
               title="EVORA Adaptive Evacuation Decision-Support System"
             >
-              <span className="w-9 h-9 rounded-[8px] bg-[#C84B28] group-hover:bg-[#A93B1D] text-white flex items-center justify-center transition-colors">
-                <Compass className="w-4 h-4" aria-hidden="true" />
+              <span className="w-9 h-9 rounded-xl bg-slate-900 group-hover:bg-blue-600 text-white flex items-center justify-center transition-all shadow-xs">
+                <Compass className="w-4 h-4 text-white" aria-hidden="true" />
               </span>
-              <span className="font-bold tracking-tight text-sm text-[#18181B]">
-                EVORA
-              </span>
+              <div className="flex flex-col">
+                <span className="font-extrabold tracking-tight text-sm text-slate-900 leading-none">
+                  EVORA
+                </span>
+                <span className="text-[10px] font-mono font-medium text-slate-500 leading-tight">
+                  HSE Pertamina
+                </span>
+              </div>
             </Link>
 
             {/* Mobile Menu Button */}
@@ -165,16 +170,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               onClick={() => setMobileNavOpen(true)}
               aria-expanded={mobileNavOpen}
               aria-controls="mobile-navigation-drawer"
-              className="lg:hidden inline-flex items-center gap-1.5 px-3.5 h-10 rounded-[6px] bg-pill text-ink-primary text-xs font-semibold border border-transparent hover:border-border-control"
+              className="lg:hidden inline-flex items-center gap-1.5 px-3 h-9 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 hover:bg-slate-200/70 cursor-pointer"
             >
               <Menu className="w-4 h-4" aria-hidden="true" />
               <span>Menu</span>
             </button>
 
-            {/* Desktop Horizontal Pill Tabs (Matching Assembly | Machines | Maintenance...) */}
+            {/* Desktop Horizontal Pill Tabs */}
             <nav
               aria-label="Main navigation"
-              className="hidden lg:flex items-center gap-2"
+              className="hidden lg:flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80"
             >
               {NAV_ITEMS.map((item) => {
                 const isActive =
@@ -187,10 +192,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     key={item.href}
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
-                    className={`px-5 h-10 inline-flex items-center justify-center rounded-[6px] text-xs font-semibold transition-colors ${
+                    className={`px-4 h-8 inline-flex items-center justify-center rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? "bg-[#18181B] text-white"
-                        : "bg-pill text-ink-primary hover:bg-[#E4E0D8]"
+                        ? "bg-white text-slate-900 shadow-xs font-bold"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                     }`}
                   >
                     {item.label}
@@ -200,10 +205,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </nav>
           </div>
 
-          {/* Right: Search Bar + Notification Bell + Settings/Facility Sliders + Operator Box */}
+          {/* Right: Search Bar + Notification Bell + Operator Box */}
           <div className="flex items-center gap-2">
             {/* Search Input Box */}
-            <div className="relative hidden sm:block w-56 md:w-72">
+            <div className="relative hidden sm:block w-52 md:w-64">
               <label htmlFor="global-header-search" className="sr-only">
                 Search depot assets, sensors, or routes
               </label>
@@ -217,11 +222,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   setGlobalQuery(e.target.value);
                   setSearchFocused(true);
                 }}
-                placeholder="Search : Ctrl + K"
-                className="w-full h-10 pl-3.5 pr-9 rounded-[6px] bg-pill text-xs font-medium text-ink-primary placeholder:text-ink-secondary border border-transparent focus:bg-surface focus:border-border-control"
+                placeholder="Search (Ctrl + K)"
+                className="w-full h-9 pl-3.5 pr-8 rounded-xl bg-slate-100 text-xs font-medium text-slate-800 placeholder:text-slate-400 border border-slate-200/80 focus:bg-white focus:border-slate-400 transition-all"
               />
               <Search
-                className="w-4 h-4 text-ink-primary absolute right-3 top-3 pointer-events-none"
+                className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5 pointer-events-none"
                 aria-hidden="true"
               />
 
@@ -229,15 +234,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div
                   role="region"
                   aria-label="Quick search results"
-                  className="absolute left-0 right-0 mt-1.5 bg-surface border border-border-control rounded-card shadow-lg z-50 p-2 text-xs"
+                  className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-2 text-xs"
                 >
                   {searchResults.length === 0 ? (
-                    <div className="p-2.5 text-ink-secondary">
+                    <div className="p-2.5 text-slate-500">
                       No matching depot assets, sensors, or routes for &quot;
                       {globalQuery}&quot;.
                     </div>
                   ) : (
-                    <ul className="divide-y divide-border-subtle">
+                    <ul className="divide-y divide-slate-100">
                       {searchResults.map((res) => (
                         <li key={res.id}>
                           <button
@@ -247,12 +252,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                               setGlobalQuery("");
                               router.push(res.href);
                             }}
-                            className="w-full text-left px-2.5 py-2 hover:bg-canvas rounded flex items-center justify-between gap-2"
+                            className="w-full text-left px-2.5 py-2 hover:bg-slate-50 rounded-lg flex items-center justify-between gap-2 cursor-pointer"
                           >
-                            <span className="font-semibold text-ink-primary truncate">
+                            <span className="font-semibold text-slate-900 truncate">
                               {res.title}
                             </span>
-                            <span className="text-[10px] font-mono text-ink-secondary shrink-0">
+                            <span className="text-[10px] font-mono text-slate-500 shrink-0">
                               {res.category}
                             </span>
                           </button>
@@ -264,7 +269,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            {/* Notification Bell Square Button */}
+            {/* Notification Bell Button */}
             <div className="relative">
               <button
                 type="button"
@@ -275,12 +280,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 }}
                 aria-expanded={notificationsOpen}
                 aria-label={`Safety notifications (${unacknowledgedCount} unacknowledged)`}
-                className="w-10 h-10 rounded-[6px] bg-pill hover:bg-[#E4E0D8] flex items-center justify-center relative text-ink-primary"
+                className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200/80 hover:bg-slate-200/70 flex items-center justify-center relative text-slate-700 cursor-pointer transition-colors"
               >
                 <Bell className="w-4 h-4" aria-hidden="true" />
                 {unacknowledgedCount > 0 && (
                   <span
-                    className="w-2 h-2 rounded-full bg-[#C84B28] absolute top-2 right-2"
+                    className="w-2 h-2 rounded-full bg-rose-500 absolute top-2 right-2 ring-2 ring-white"
                     aria-hidden="true"
                   />
                 )}
@@ -290,17 +295,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div
                   role="dialog"
                   aria-label="Active facility alerts"
-                  className="absolute right-0 mt-2 w-80 sm:w-96 rounded-card bg-surface border border-border-control shadow-lg z-40 p-4"
+                  className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl z-40 p-4"
                 >
-                  <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-border-subtle">
-                    <span className="text-sm font-bold text-ink-primary">
+                  <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-100">
+                    <span className="text-sm font-bold text-slate-900">
                       Active Safety Alerts ({alerts.length})
                     </span>
                     <button
                       type="button"
                       onClick={() => setNotificationsOpen(false)}
                       aria-label="Close alerts panel"
-                      className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded text-ink-secondary hover:bg-canvas"
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
                     </button>

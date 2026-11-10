@@ -21,29 +21,29 @@ function Badge({
   ...props
 }: BadgeProps) {
   const variantClasses: Record<NonNullable<BadgeProps["variant"]>, string> = {
-    default: "bg-[#18181B] text-white border-transparent",
-    secondary: "bg-[#F1F1EE] text-[#18181B] border-[#E2E2DE]",
-    outline: "bg-white text-[#18181B] border-[#E2E2DE]",
-    safe: "bg-white text-[#18181B] border-[#E2E2DE]",
-    warning: "bg-white text-[#18181B] border-[#E2E2DE]",
-    critical: "bg-white text-[#18181B] border-[#E2E2DE]",
-    neutral: "bg-[#F7F7F4] text-[#52525B] border-[#E2E2DE]",
+    default: "bg-slate-900 text-white border-slate-900 shadow-xs",
+    secondary: "bg-slate-100 text-slate-800 border-slate-200",
+    outline: "bg-white text-slate-800 border-slate-200 shadow-xs",
+    safe: "bg-emerald-50 text-emerald-800 border-emerald-200/90",
+    warning: "bg-amber-50 text-amber-900 border-amber-200/90",
+    critical: "bg-rose-50 text-rose-900 border-rose-200/90",
+    neutral: "bg-slate-50 text-slate-600 border-slate-200",
   };
 
   const dotColors: Record<NonNullable<BadgeProps["variant"]>, string> = {
     default: "bg-white",
-    secondary: "bg-[#52525B]",
-    outline: "bg-[#52525B]",
+    secondary: "bg-slate-500",
+    outline: "bg-slate-400",
     safe: "bg-emerald-500",
     warning: "bg-amber-500",
-    critical: "bg-[#C84B28]",
-    neutral: "bg-zinc-400",
+    critical: "bg-rose-500",
+    neutral: "bg-slate-400",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-0.5 text-xs font-medium leading-5 transition-colors",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium leading-5 transition-colors",
         variantClasses[variant],
         className
       )}

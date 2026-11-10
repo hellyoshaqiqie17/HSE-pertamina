@@ -573,6 +573,16 @@ export function FacilitySchematicMap({
                     r={Math.max(14, hz.radius * 0.42)}
                     fill="none"
                     stroke={stroke}
+                    strokeWidth="1.5"
+                    className="animate-radar-wave"
+                    opacity="0.75"
+                  />
+                  <circle
+                    cx={hz.x}
+                    cy={hz.y}
+                    r={Math.max(14, hz.radius * 0.42)}
+                    fill="none"
+                    stroke={stroke}
                     strokeWidth="1"
                     strokeDasharray="3 3"
                     strokeOpacity="0.4"
@@ -649,6 +659,18 @@ export function FacilitySchematicMap({
                       strokeLinejoin="round"
                       markerEnd={markerEnd}
                     />
+                    {route.status === "recommended" && (
+                      <polyline
+                        points={pointsAttr}
+                        fill="none"
+                        stroke="#86EFAC"
+                        strokeWidth="2"
+                        strokeDasharray="6 12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="animate-route-flow pointer-events-none"
+                      />
+                    )}
                   </g>
                 );
               })}
