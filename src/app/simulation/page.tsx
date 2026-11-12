@@ -1,28 +1,41 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Activity,
+  AlertCircle,
   AlertTriangle,
   ArrowRight,
+  CheckCircle2,
+  ChevronRight,
   Compass,
+  Eye,
   FastForward,
   Flame,
   Heart,
   Layers,
+  MapPin,
+  Maximize2,
+  Navigation,
   Pause,
   Play,
   Radio,
   RotateCcw,
+  Shield,
   ShieldAlert,
   ShieldCheck,
+  Sliders,
   Sparkles,
   StepBack,
   StepForward,
+  Thermometer,
   UserCheck,
   Users,
   Volume2,
+  VolumeX,
   Waypoints,
   Wind,
+  Zap,
 } from "lucide-react";
 import { useEvora } from "@/lib/evora-context";
 import { RiskBadge, RouteStatusBadge } from "@/components/shared/status-badge";
@@ -32,81 +45,101 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Point2D } from "@/types/evora";
 
-interface SimulatedAgent {
+interface WorkerAgentSpec {
   id: string;
   name: string;
   role: string;
   originZone: string;
+  startPos: Point2D;
+  baseDelaySec: number;
+  speedMps: number;
+  assignedRoute: "Route A" | "Route B";
+  targetMuster: "AP-ALPHA" | "AP-BRAVO";
+}
+
+interface SimulatedAgentState extends WorkerAgentSpec {
   x: number;
   y: number;
   progress: number;
-  speedMps: number;
   heartRate: number;
-  status: "evacuated" | "moving" | "waiting" | "affected";
-  routeCode: "Route A" | "Route B" | "Route C";
-  targetMuster: "AP-ALPHA" | "AP-BRAVO";
+  status: "waiting" | "moving" | "diverted" | "evacuated" | "affected";
   distanceRemainingM: number;
+  headingDeg: number;
+  stressLevel: "Normal" | "Elevated" | "High" | "Critical";
 }
 
-// 42 Authentic Pertamina Depot Personnel Roster for Realistic Multi-Agent Simulation
-const DEPOT_PERSONNEL_ROSTER = [
-  { name: "Ahmad Fauzi", role: "Loading Rack Tech", zone: "LB-01 Gantry A" },
-  { name: "Budi Santoso", role: "Senior Gauger", zone: "T-102 Bund" },
-  { name: "Cahyo Wibowo", role: "Valve Specialist", zone: "PIPE-01 Manifold" },
-  { name: "Dedi Prasetyo", role: "Truck Driver", zone: "LB-01 Gantry A" },
-  { name: "Eko Wahyudi", role: "HSE Inspector", zone: "OPS-01 Building" },
-  { name: "Fajar Nugroho", role: "Pump Operator", zone: "VRU-01 Vapor Unit" },
-  { name: "Gilang Pratama", role: "Tank Farm Operator", zone: "T-101 West" },
-  { name: "Hadi Susanto", role: "Loading Bay Tech", zone: "LB-02 Gantry B" },
-  { name: "Indra Kusuma", role: "Contractor Welder", zone: "PIPE-01 Manifold" },
-  { name: "Joko Widodo", role: "Safety Officer", zone: "OPS-01 Building" },
-  { name: "Kurniawan D.", role: "Truck Driver", zone: "LB-02 Gantry B" },
-  { name: "Lukman Hakim", role: "Electrical Tech", zone: "VRU-01 Vapor Unit" },
-  { name: "Muhamad Rizki", role: "Loading Inspector", zone: "LB-01 Gantry A" },
-  { name: "Nanang Supriatna", role: "Firewatch Tech", zone: "T-103 East" },
-  { name: "Oki Setiawan", role: "Terminal Operator", zone: "PIPE-01 Manifold" },
-  { name: "Panji Gumilang", role: "Truck Driver", zone: "LB-01 Gantry A" },
-  { name: "Rendra Kurnia", role: "Piping Engineer", zone: "PIPE-01 Manifold" },
-  { name: "Surya Saputra", role: "Gauging Specialist", zone: "T-104 North" },
-  { name: "Teguh Wibowo", role: "Loading Bay Tech", zone: "LB-02 Gantry B" },
-  { name: "Untung Slamet", role: "Facility Security", zone: "EX-W1 Exit" },
-  { name: "Vicky Prasetya", role: "Mechanical Tech", zone: "VRU-01 Vapor Unit" },
-  { name: "Wahyu Hidayat", role: "Tank Inspector", zone: "T-102 Bund" },
-  { name: "Yudi Arisandi", role: "Loading Driver", zone: "LB-02 Gantry B" },
-  { name: "Zainal Abidin", role: "Instrument Tech", zone: "OPS-01 Building" },
-  { name: "Agus Triyono", role: "Field Welder", zone: "PIPE-01 Manifold" },
-  { name: "Bambang Irawan", role: "Loading Operator", zone: "LB-01 Gantry A" },
-  { name: "Cecep Suparman", role: "Fire Brigade Lead", zone: "OPS-01 Building" },
-  { name: "Danang Setiawan", role: "Pump Maintenance", zone: "VRU-01 Vapor Unit" },
-  { name: "Edi Purwanto", role: "Field Gauger", zone: "T-101 West" },
-  { name: "Firman Syah", role: "Terminal Logistics", zone: "LB-02 Gantry B" },
-  { name: "Gunawan S.", role: "Pipeline Operator", zone: "PIPE-01 Manifold" },
-  { name: "Heri Purnomo", role: "HSE Field Lead", zone: "OPS-01 Building" },
-  { name: "Irfan Hakim", role: "Truck Driver", zone: "LB-01 Gantry A" },
-  { name: "Junaedi", role: "Safety Watcher", zone: "T-103 East" },
-  { name: "Kusnandar", role: "Loading Rack Tech", zone: "LB-02 Gantry B" },
-  { name: "Luthfi Ansori", role: "VRU Technician", zone: "VRU-01 Vapor Unit" },
-  { name: "Mulyadi", role: "Site Security", zone: "EX-S2 Exit" },
-  { name: "Nugroho Adji", role: "Tank Gauger", zone: "T-104 North" },
-  { name: "Oman Suherman", role: "Operations Lead", zone: "OPS-01 Building" },
-  { name: "Purnomo Sidi", role: "Field Mechanic", zone: "PIPE-01 Manifold" },
-  { name: "Rian Hidayat", role: "Loading Driver", zone: "LB-01 Gantry A" },
-  { name: "Sigit Pramono", role: "Electrical Eng", zone: "VRU-01 Vapor Unit" },
+// 42 Authentic Pertamina Depot Personnel Roster with Realistic Starting Positions Across All 6 Depot Zones
+const DEPOT_WORKER_SPECS: WorkerAgentSpec[] = [
+  // Tank Farm Cohort (8 personnel across T-101..104)
+  { id: "AG-01", name: "Ahmad Fauzi", role: "Tank Farm Gauger", originZone: "Tank T-101", startPos: { x: 235, y: 130 }, baseDelaySec: 2, speedMps: 1.38, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-02", name: "Budi Santoso", role: "Senior Tank Gauger", originZone: "Tank T-101", startPos: { x: 255, y: 140 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-03", name: "Cahyo Wibowo", role: "Rim-Seal Inspector", originZone: "Tank T-102", startPos: { x: 385, y: 125 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-04", name: "Dedi Prasetyo", role: "Bund Wall Watcher", originZone: "Tank T-102", startPos: { x: 405, y: 140 }, baseDelaySec: 3, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-05", name: "Eko Wahyudi", role: "Drain Valve Tech", originZone: "Tank T-103", startPos: { x: 535, y: 130 }, baseDelaySec: 5, speedMps: 1.30, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-06", name: "Fajar Nugroho", role: "Level Sensor Tech", originZone: "Tank T-103", startPos: { x: 555, y: 140 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-07", name: "Gilang Pratama", role: "Tank Farm Operator", originZone: "Tank T-104", startPos: { x: 685, y: 130 }, baseDelaySec: 4, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-08", name: "Hadi Susanto", role: "Cathodic Prot Tech", originZone: "Tank T-104", startPos: { x: 705, y: 140 }, baseDelaySec: 6, speedMps: 1.28, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+
+  // Central Pipe Manifold Cohort (8 personnel along PIPE-01)
+  { id: "AG-09", name: "Indra Kusuma", role: "Manifold Flange Welder", originZone: "PIPE-01 West", startPos: { x: 260, y: 234 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-10", name: "Joko Widodo", role: "Valve Pit Operator", originZone: "PIPE-01 Center", startPos: { x: 380, y: 234 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-11", name: "Kurniawan D.", role: "Piping Maintenance", originZone: "PIPE-01 Center", startPos: { x: 420, y: 234 }, baseDelaySec: 2, speedMps: 1.48, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-12", name: "Lukman Hakim", role: "Pressure Relief Tech", originZone: "PIPE-01 Center", startPos: { x: 460, y: 234 }, baseDelaySec: 1, speedMps: 1.52, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-13", name: "Muhamad Rizki", role: "Flow Meter Inspector", originZone: "PIPE-01 East", startPos: { x: 540, y: 234 }, baseDelaySec: 3, speedMps: 1.35, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-14", name: "Nanang Supriatna", role: "Corrosion Specialist", originZone: "PIPE-01 East", startPos: { x: 590, y: 234 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-15", name: "Oki Setiawan", role: "Flange F-12 Inspector", originZone: "PIPE-01 Center", startPos: { x: 435, y: 234 }, baseDelaySec: 0, speedMps: 1.55, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-16", name: "Panji Gumilang", role: "Transfer Pump Tech", originZone: "PIPE-01 West", startPos: { x: 310, y: 234 }, baseDelaySec: 3, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+
+  // Loading Gantry Bay A Cohort (10 personnel at LB-01)
+  { id: "AG-17", name: "Rendra Kurnia", role: "Gantry Bay A Lead", originZone: "LB-01 Gantry A", startPos: { x: 230, y: 345 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-18", name: "Surya Saputra", role: "Bottom Loading Tech", originZone: "LB-01 Gantry A", startPos: { x: 250, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-19", name: "Teguh Wibowo", role: "Vapor Hose Specialist", originZone: "LB-01 Gantry A", startPos: { x: 270, y: 345 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-20", name: "Untung Slamet", role: "Fuel Tanker Driver #01", originZone: "LB-01 Gantry A", startPos: { x: 290, y: 355 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-21", name: "Vicky Prasetya", role: "Fuel Tanker Driver #02", originZone: "LB-01 Gantry A", startPos: { x: 310, y: 345 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-22", name: "Wahyu Hidayat", role: "Overfill Protection", originZone: "LB-01 Gantry A", startPos: { x: 240, y: 365 }, baseDelaySec: 1, speedMps: 1.48, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-23", name: "Yudi Arisandi", role: "Static Grounding Tech", originZone: "LB-01 Gantry A", startPos: { x: 260, y: 365 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-24", name: "Zainal Abidin", role: "Quality Sample Officer", originZone: "LB-01 Gantry A", startPos: { x: 280, y: 365 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-25", name: "Agus Triyono", role: "Safety Escort Officer", originZone: "LB-01 Gantry A", startPos: { x: 300, y: 365 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-26", name: "Bambang Irawan", role: "Metering Tech", originZone: "LB-01 Gantry A", startPos: { x: 320, y: 365 }, baseDelaySec: 4, speedMps: 1.34, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+
+  // Loading Gantry Bay B Cohort (8 personnel at LB-02)
+  { id: "AG-27", name: "Cecep Suparman", role: "Gantry Bay B Lead", originZone: "LB-02 Gantry B", startPos: { x: 440, y: 345 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-28", name: "Danang Setiawan", role: "Multi-Product Arm Tech", originZone: "LB-02 Gantry B", startPos: { x: 460, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-29", name: "Edi Purwanto", role: "Fuel Tanker Driver #03", originZone: "LB-02 Gantry B", startPos: { x: 480, y: 345 }, baseDelaySec: 3, speedMps: 1.35, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-30", name: "Firman Syah", role: "Fuel Tanker Driver #04", originZone: "LB-02 Gantry B", startPos: { x: 500, y: 355 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-31", name: "Gunawan S.", role: "Hose Inspection Tech", originZone: "LB-02 Gantry B", startPos: { x: 450, y: 365 }, baseDelaySec: 1, speedMps: 1.46, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-32", name: "Heri Purnomo", role: "Billing & Dispatch", originZone: "LB-02 Gantry B", startPos: { x: 470, y: 365 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-33", name: "Irfan Hakim", role: "Gantry Safety Guard", originZone: "LB-02 Gantry B", startPos: { x: 490, y: 365 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-34", name: "Junaedi", role: "Additive Injection Tech", originZone: "LB-02 Gantry B", startPos: { x: 510, y: 365 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+
+  // Vapor Recovery Unit (VRU-01) Cohort (4 personnel)
+  { id: "AG-35", name: "Kusnandar", role: "VRU Lead Engineer", originZone: "VRU-01 Skid", startPos: { x: 650, y: 345 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-36", name: "Luthfi Ansori", role: "Carbon Bed Technician", originZone: "VRU-01 Skid", startPos: { x: 670, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-37", name: "Mulyadi", role: "Vacuum Pump Tech", originZone: "VRU-01 Skid", startPos: { x: 690, y: 345 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-38", name: "Nugroho Adji", role: "Flame Arrestor Tech", originZone: "VRU-01 Skid", startPos: { x: 710, y: 355 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+
+  // Operations Control Building (OPS-01) Cohort (4 personnel)
+  { id: "AG-39", name: "Oman Suherman", role: "Terminal Operations Lead", originZone: "OPS-01 Building", startPos: { x: 190, y: 440 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-40", name: "Purnomo Sidi", role: "HSE Control Room Tech", originZone: "OPS-01 Building", startPos: { x: 210, y: 450 }, baseDelaySec: 2, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-41", name: "Rian Hidayat", role: "Emergency Coordinator", originZone: "OPS-01 Building", startPos: { x: 230, y: 440 }, baseDelaySec: 1, speedMps: 1.52, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-42", name: "Sigit Pramono", role: "SCADA & Telemetry Tech", originZone: "OPS-01 Building", startPos: { x: 250, y: 450 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
 ];
 
-function interpolateAlongWaypoints(waypoints: Point2D[], progress: number): Point2D {
-  if (waypoints.length === 0) return { x: 124, y: 304 };
-  if (waypoints.length === 1 || progress <= 0) return waypoints[0];
-  if (progress >= 1) return waypoints[waypoints.length - 1];
+function interpolatePath(points: Point2D[], progress: number): { pt: Point2D; angleDeg: number } {
+  if (points.length === 0) return { pt: { x: 124, y: 304 }, angleDeg: 0 };
+  if (points.length === 1 || progress <= 0) return { pt: points[0], angleDeg: 0 };
+  if (progress >= 1) {
+    const p1 = points[points.length - 2] ?? points[0];
+    const p2 = points[points.length - 1];
+    const angle = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
+    return { pt: p2, angleDeg: Math.round(angle) };
+  }
 
   const segments: { from: Point2D; to: Point2D; len: number }[] = [];
   let totalLen = 0;
-  for (let i = 0; i < waypoints.length - 1; i++) {
-    const len = Math.hypot(
-      waypoints[i + 1].x - waypoints[i].x,
-      waypoints[i + 1].y - waypoints[i].y
-    );
-    segments.push({ from: waypoints[i], to: waypoints[i + 1], len });
+  for (let i = 0; i < points.length - 1; i++) {
+    const len = Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y);
+    segments.push({ from: points[i], to: points[i + 1], len });
     totalLen += len;
   }
 
@@ -114,14 +147,19 @@ function interpolateAlongWaypoints(waypoints: Point2D[], progress: number): Poin
   for (const seg of segments) {
     if (targetDist <= seg.len || seg.len === 0) {
       const ratio = seg.len === 0 ? 0 : targetDist / seg.len;
+      const angle = (Math.atan2(seg.to.y - seg.from.y, seg.to.x - seg.from.x) * 180) / Math.PI;
       return {
-        x: Math.round(seg.from.x + (seg.to.x - seg.from.x) * ratio),
-        y: Math.round(seg.from.y + (seg.to.y - seg.from.y) * ratio),
+        pt: {
+          x: Math.round(seg.from.x + (seg.to.x - seg.from.x) * ratio),
+          y: Math.round(seg.from.y + (seg.to.y - seg.from.y) * ratio),
+        },
+        angleDeg: Math.round(angle),
       };
     }
     targetDist -= seg.len;
   }
-  return waypoints[waypoints.length - 1];
+
+  return { pt: points[points.length - 1], angleDeg: 0 };
 }
 
 export default function SimulationPage() {
@@ -142,132 +180,149 @@ export default function SimulationPage() {
   const [simSpeed, setSimSpeed] = useState<0.5 | 1 | 2 | 4>(1);
   const [simTickSeconds, setSimTickSeconds] = useState<number>(35);
   const [workerCount, setWorkerCount] = useState<number>(42);
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>("AG-07");
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>("AG-03");
+  const [hoveredAgentId, setHoveredAgentId] = useState<string | null>(null);
   const [agentFilter, setAgentFilter] = useState<"all" | "moving" | "evacuated" | "affected">("all");
   const [isRouteABlockedManually, setIsRouteABlockedManually] = useState<boolean>(false);
   const [sirenActive, setSirenActive] = useState<boolean>(false);
+  const [showDensityHeatmap, setShowDensityHeatmap] = useState<boolean>(true);
+  const [canvasTheme, setCanvasTheme] = useState<"dark" | "light">("dark");
+  const [viewAngle, setViewAngle] = useState<"2d" | "iso">("2d");
 
-  const activeScenario =
-    scenarios.find((s) => s.id === selectedScenarioId) ?? scenarios[0];
+  // Single Agent Manual Re-Route Override Map (id -> "AP-ALPHA" | "AP-BRAVO")
+  const [manualAgentOverrides, setManualAgentOverrides] = useState<Record<string, "AP-ALPHA" | "AP-BRAVO">>({});
 
-  // Route definitions for the aligned orthogonal grid
-  const routeAWaypoints = useMemo(
-    () => [
-      { x: 265, y: 372 },
-      { x: 124, y: 372 },
-      { x: 124, y: 132 },
-      { x: 82, y: 132 },
-    ],
-    []
-  );
+  const activeScenario = scenarios.find((s) => s.id === selectedScenarioId) ?? scenarios[0];
 
-  const routeBWaypoints = useMemo(
-    () => [
-      { x: 475, y: 372 },
-      { x: 370, y: 372 },
-      { x: 370, y: 472 },
-      { x: 530, y: 472 },
-    ],
-    []
-  );
-
-  // Playback timer
+  // Continuous Clock Playback with smooth increments
   useEffect(() => {
     if (!isPlaying) return;
-    const intervalMs = Math.round(500 / simSpeed);
+    const intervalMs = Math.round(400 / simSpeed);
     const timer = window.setInterval(() => {
       setSimTickSeconds((prev) => {
         if (prev >= 210) {
           setIsPlaying(false);
           return 210;
         }
-        return prev + 5;
+        return prev + 2;
       });
     }, intervalMs);
     return () => window.clearInterval(timer);
   }, [isPlaying, simSpeed]);
 
-  // Dynamic Multi-Agent Cohort simulation calculation
-  const simulatedAgents = useMemo<SimulatedAgent[]>(() => {
-    const count = Math.max(12, Math.min(64, workerCount));
-    const list: SimulatedAgent[] = [];
+  // Compute complete realistic paths from each agent's individual start station to assembly points
+  const simulatedAgents = useMemo<SimulatedAgentState[]>(() => {
+    const count = Math.max(12, Math.min(42, workerCount));
+    const activeCohort = DEPOT_WORKER_SPECS.slice(0, count);
 
-    for (let i = 0; i < count; i++) {
-      const rosterItem = DEPOT_PERSONNEL_ROSTER[i % DEPOT_PERSONNEL_ROSTER.length];
-      const baseDelay = sirenActive ? 0 : (i % 6) * 3;
-      const speedFactor = 0.9 + (i % 5) * 0.08 + (sirenActive ? 0.15 : 0);
-      const effectiveElapsed = Math.max(0, simTickSeconds - baseDelay);
-      const totalNeededSec = 165 / speedFactor;
-      const progress = Math.min(1, effectiveElapsed / totalNeededSec);
+    return activeCohort.map((spec) => {
+      const delay = sirenActive ? 0 : spec.baseDelaySec;
+      const effectiveSec = Math.max(0, simTickSeconds - delay);
+      const speedMultiplier = (sirenActive ? 1.2 : 1.0) * (spec.speedMps / 1.4);
+      const totalTimeNeededSec = 145 / speedMultiplier;
+      const progress = Math.min(1, effectiveSec / totalTimeNeededSec);
 
-      // Routing logic: if Route A is blocked or hazard expanded, divert to Route B
-      const shouldDivertToB =
+      // Routing logic:
+      // If Route A is blocked, or hazard expanded westward, or user manually rerouted this agent
+      const manualDest = manualAgentOverrides[spec.id];
+      const forceDivertToB =
+        manualDest === "AP-BRAVO" ||
         isRouteABlockedManually ||
         hazardExpansionStep > 0 ||
-        (i % 3 === 2);
+        spec.assignedRoute === "Route B";
 
-      const targetRoute = shouldDivertToB ? "Route B" : "Route A";
-      const targetMuster = shouldDivertToB ? "AP-BRAVO" : "AP-ALPHA";
-      const waypoints = shouldDivertToB ? routeBWaypoints : routeAWaypoints;
+      const targetMuster: "AP-ALPHA" | "AP-BRAVO" = forceDivertToB ? "AP-BRAVO" : "AP-ALPHA";
+      const routeCode: "Route A" | "Route B" = forceDivertToB ? "Route B" : "Route A";
 
-      const basePos = interpolateAlongWaypoints(waypoints, progress);
+      // Build waypoints dynamically starting from worker's specific origin:
+      const points: Point2D[] = [spec.startPos];
 
-      // Micro-spread so agents don't stack directly on top of each other
-      const offsetAngle = (i * 137.5 * Math.PI) / 180;
-      const offsetRadius = progress >= 1 ? (i % 4) * 4 : (i % 3) * 5;
-      const x = Math.round(basePos.x + Math.cos(offsetAngle) * offsetRadius);
-      const y = Math.round(basePos.y + Math.sin(offsetAngle) * offsetRadius);
+      if (targetMuster === "AP-ALPHA") {
+        // Path to Muster Alpha (West Gate):
+        // 1. Move to Main Avenue y=304 or corridor x=124
+        if (spec.startPos.y < 200) {
+          // North tank farm: step out through bund opening at (370, 208) then to y=304
+          points.push({ x: spec.startPos.x, y: 208 });
+          points.push({ x: 370, y: 208 });
+          points.push({ x: 370, y: 304 });
+          points.push({ x: 124, y: 304 });
+        } else if (spec.startPos.y >= 330) {
+          // South bays / operations: step up to y=304
+          points.push({ x: spec.startPos.x, y: 304 });
+          points.push({ x: 124, y: 304 });
+        } else {
+          // Manifold y=234: step to x=124
+          points.push({ x: 124, y: 234 });
+          points.push({ x: 124, y: 304 });
+        }
+        // Walk north along west corridor to Assembly Point Alpha (82, 132)
+        points.push({ x: 124, y: 132 });
+        points.push({ x: 82, y: 132 });
+      } else {
+        // Path to Muster Bravo (South Gantry Green Zone):
+        if (spec.startPos.y < 200) {
+          // North tank farm: step out at (370, 208) -> down to y=472 -> to AP-BRAVO (530, 472)
+          points.push({ x: spec.startPos.x, y: 208 });
+          points.push({ x: 370, y: 208 });
+          points.push({ x: 370, y: 472 });
+          points.push({ x: 530, y: 472 });
+        } else if (spec.startPos.y <= 300) {
+          // Manifold: step down to central avenue y=304 -> x=370 -> y=472 -> (530, 472)
+          points.push({ x: 370, y: 304 });
+          points.push({ x: 370, y: 472 });
+          points.push({ x: 530, y: 472 });
+        } else {
+          // Gantry Bay A / B / VRU: step directly down to South Road y=472 -> (530, 472)
+          points.push({ x: spec.startPos.x, y: 472 });
+          points.push({ x: 530, y: 472 });
+        }
+      }
 
-      // Check hazard proximity
+      const { pt, angleDeg } = interpolatePath(points, progress);
+
+      // Check proximity to active hazards
       const inHazard = hazards.some(
-        (h) =>
-          h.active &&
-          h.radius > 0 &&
-          Math.hypot(x - h.x, y - h.y) <= h.radius * 0.9
+        (h) => h.active && h.radius > 0 && Math.hypot(pt.x - h.x, pt.y - h.y) <= h.radius * 0.92
       );
 
-      const status: "evacuated" | "moving" | "waiting" | "affected" =
+      const status: "waiting" | "moving" | "diverted" | "evacuated" | "affected" =
         progress >= 1
           ? "evacuated"
           : inHazard
           ? "affected"
-          : effectiveElapsed === 0
+          : forceDivertToB && spec.assignedRoute === "Route A"
+          ? "diverted"
+          : effectiveSec === 0
           ? "waiting"
           : "moving";
 
-      // Distance remaining in meters
-      const distanceRemainingM = Math.max(0, Math.round((1 - progress) * 140));
+      const distanceRemainingM = Math.max(0, Math.round((1 - progress) * 125));
 
-      // Physiological stress estimation based on hazard proximity & running speed
-      const baseHeartRate = 72;
-      const speedHeartRate = Math.round(speedFactor * 32);
-      const hazardStressBonus = inHazard ? 45 : progress > 0 ? 18 : 0;
-      const heartRate = baseHeartRate + speedHeartRate + hazardStressBonus;
+      // Physiological heart rate model: base 70 + speed exertion + panic adrenaline if hazard nearby
+      const heartRate = Math.round(
+        70 + (spec.speedMps - 1.2) * 50 + (progress > 0 ? 15 : 0) + (inHazard ? 48 : forceDivertToB ? 22 : 0)
+      );
 
-      list.push({
-        id: `AG-${(i + 1).toString().padStart(2, "0")}`,
-        name: rosterItem.name,
-        role: rosterItem.role,
-        originZone: rosterItem.zone,
-        x,
-        y,
+      const stressLevel =
+        inHazard ? "Critical" : heartRate > 120 ? "High" : heartRate > 95 ? "Elevated" : "Normal";
+
+      return {
+        ...spec,
+        x: pt.x,
+        y: pt.y,
         progress,
-        speedMps: Number((speedFactor * 1.35).toFixed(2)),
         heartRate,
         status,
-        routeCode: targetRoute,
-        targetMuster,
         distanceRemainingM,
-      });
-    }
-
-    return list;
+        headingDeg: angleDeg,
+        stressLevel,
+      };
+    });
   }, [
     hazardExpansionStep,
     hazards,
     isRouteABlockedManually,
-    routeAWaypoints,
-    routeBWaypoints,
+    manualAgentOverrides,
     simTickSeconds,
     sirenActive,
     workerCount,
@@ -278,14 +333,19 @@ export default function SimulationPage() {
     [selectedAgentId, simulatedAgents]
   );
 
+  const hoveredAgent = useMemo(
+    () => simulatedAgents.find((a) => a.id === hoveredAgentId) ?? null,
+    [hoveredAgentId, simulatedAgents]
+  );
+
   const evacuatedCount = simulatedAgents.filter((a) => a.status === "evacuated").length;
-  const movingCount = simulatedAgents.filter((a) => a.status === "moving").length;
+  const movingCount = simulatedAgents.filter((a) => a.status === "moving" || a.status === "diverted").length;
   const affectedCount = simulatedAgents.filter((a) => a.status === "affected").length;
   const waitingCount = simulatedAgents.filter((a) => a.status === "waiting").length;
   const evacuationRatePct = Math.round((evacuatedCount / simulatedAgents.length) * 100);
 
   const filteredAgents = useMemo(() => {
-    if (agentFilter === "moving") return simulatedAgents.filter((a) => a.status === "moving");
+    if (agentFilter === "moving") return simulatedAgents.filter((a) => a.status === "moving" || a.status === "diverted");
     if (agentFilter === "evacuated") return simulatedAgents.filter((a) => a.status === "evacuated");
     if (agentFilter === "affected") return simulatedAgents.filter((a) => a.status === "affected");
     return simulatedAgents;
@@ -300,33 +360,41 @@ export default function SimulationPage() {
       setIsPlaying(false);
       setIsRouteABlockedManually(false);
       setSirenActive(false);
+      setManualAgentOverrides({});
       applyScenarioPreset(scenId);
     }
   };
 
+  const handleManualRerouteAgent = (agentId: string) => {
+    setManualAgentOverrides((prev) => ({
+      ...prev,
+      [agentId]: prev[agentId] === "AP-BRAVO" ? "AP-ALPHA" : "AP-BRAVO",
+    }));
+  };
+
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 font-sans">
       {/* Top Page Header in C:/ti Minimalist Style */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/90 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-700">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-              Hybrid Multi-Agent Simulation Engine
+              Real-Time Multi-Agent Physics & Behavior Engine
             </span>
             <span className="text-xs font-mono text-slate-500">
-              · 4-Component Coupled System
+              · 42 Autonomous Personnel Agents
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Multi-Agent Evacuation Simulation
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Real-time multi-agent coupling: Worker Agents interact with expanding Hazard Agents, Safety Threshold Gates, and Adaptive Routing Signage.
+            Coupled continuous simulation: Worker Agents dynamically avoid expanding Gas & Thermal Hazards, navigate road channels, and adapt to live digital signage.
           </p>
         </div>
 
-        {/* Action Header Interventions */}
+        {/* Live Simulation Emergency Interventions Toolbar */}
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -334,11 +402,11 @@ export default function SimulationPage() {
             size="sm"
             onClick={() => setSirenActive((s) => !s)}
             className={`cursor-pointer transition-all ${
-              sirenActive ? "bg-amber-500 text-slate-950 font-bold border-amber-500" : ""
+              sirenActive ? "bg-amber-500 text-slate-950 font-bold border-amber-500 shadow-sm" : ""
             }`}
           >
-            <Volume2 className="w-3.5 h-3.5 mr-1.5 text-amber-600" />
-            <span>{sirenActive ? "Siren Active (Max Pace)" : "Broadcast Smart Horn"}</span>
+            {sirenActive ? <Volume2 className="w-3.5 h-3.5 mr-1.5 text-slate-950 animate-bounce" /> : <VolumeX className="w-3.5 h-3.5 mr-1.5 text-amber-600" />}
+            <span>{sirenActive ? "Smart Siren Active (Panic Sprint)" : "Broadcast Smart Siren"}</span>
           </Button>
 
           <Button
@@ -347,12 +415,12 @@ export default function SimulationPage() {
             size="sm"
             onClick={() => {
               triggerHazardExpansion();
-              if (simTickSeconds < 45) setSimTickSeconds(50);
+              if (simTickSeconds < 40) setSimTickSeconds(45);
             }}
             className="cursor-pointer"
           >
             <Flame className="w-3.5 h-3.5 mr-1.5 text-rose-600" />
-            <span>Expand Vapor Plume</span>
+            <span>{hazardExpansionStep > 0 ? "Reset Vapor Plume" : "Simulate West Plume Flare"}</span>
           </Button>
 
           <Button
@@ -361,11 +429,11 @@ export default function SimulationPage() {
             size="sm"
             onClick={() => setIsRouteABlockedManually((b) => !b)}
             className={`cursor-pointer transition-all ${
-              isRouteABlockedManually ? "bg-rose-600 text-white font-bold border-rose-600" : ""
+              isRouteABlockedManually ? "bg-rose-600 text-white font-bold border-rose-600 shadow-sm" : ""
             }`}
           >
             <ShieldAlert className="w-3.5 h-3.5 mr-1.5 text-rose-500" />
-            <span>{isRouteABlockedManually ? "Route A Blocked (Diverting)" : "Block Route A"}</span>
+            <span>{isRouteABlockedManually ? "Route A Blocked (All Diverted)" : "Block Route A (Debris)"}</span>
           </Button>
         </div>
       </div>
@@ -404,7 +472,7 @@ export default function SimulationPage() {
               {movingCount}
             </div>
             <div className="text-[11px] font-mono text-slate-500 mt-2">
-              Pace: 1.35 m/s avg
+              Pace: {(sirenActive ? 1.62 : 1.38).toFixed(2)} m/s avg
             </div>
           </Card>
 
@@ -417,7 +485,7 @@ export default function SimulationPage() {
               {affectedCount}
             </div>
             <div className="text-[11px] font-mono text-slate-500 mt-2">
-              {affectedCount === 0 ? "0 in plume zone" : "Immediate reroute"}
+              {affectedCount === 0 ? "0 within 40% LEL" : "Immediate auto-reroute"}
             </div>
           </Card>
 
@@ -430,134 +498,193 @@ export default function SimulationPage() {
               T+{simTickSeconds}s
             </div>
             <div className="text-[11px] font-mono text-slate-500 mt-2">
-              Max benchmark: 210s
+              Benchmark limit: 210s
             </div>
           </Card>
 
           <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
             <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
-              <span>Corridor Flow</span>
+              <span>Active Directive</span>
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-slate-900 mt-1">
-              {shouldDivertStatus(isRouteABlockedManually, hazardExpansionStep)}
+            <div className="text-base font-bold font-mono text-slate-900 mt-2 truncate">
+              {isRouteABlockedManually || hazardExpansionStep > 0 ? "ROUTE B (DIVERT)" : "ROUTE A (PRIMARY)"}
             </div>
-            <div className="text-[11px] font-mono text-slate-500 mt-2">
-              Dynamic sign sync &lt;300ms
+            <div className="text-[11px] font-mono text-slate-500 mt-1">
+              Signage sync: &lt;300ms
             </div>
           </Card>
 
           <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
             <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
-              <span>Completion</span>
-              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              <span>Evacuation Cleared</span>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
             </div>
             <div className="text-2xl font-bold font-mono tabular-nums text-emerald-600 mt-1">
               {evacuationRatePct}%
             </div>
             <div className="text-[11px] font-mono text-slate-500 mt-2">
-              Target safe muster: 100%
+              Muster: Alpha & Bravo
             </div>
           </Card>
         </section>
 
-        {/* Main Simulation Workspace Grid: Canvas (8 cols) + Inspector & Agent Architecture (4 cols) */}
+        {/* Main Simulation Workspace Grid: Simulation Stage (8 cols) + Live Inspector & Controls (4 cols) */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
-          {/* Left 8 Cols: Interactive Simulation Map & Playback Toolbar */}
+          {/* Left 8 Cols: High-Tech Control Room / Blueprint Simulation Canvas */}
           <div className="xl:col-span-8 space-y-4">
             <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
-              {/* Simulation Stage Header */}
-              <div className="px-5 py-3.5 border-b border-slate-200/80 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+              {/* Simulation Stage Ribbon */}
+              <div className="px-5 py-3 border-b border-slate-200/80 bg-slate-50/80 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-900 shadow-2xs">
                     T+{simTickSeconds}s / 210s
                   </span>
-                  <span className="text-sm font-bold text-slate-900">
+                  <span className="text-xs font-bold text-slate-900">
                     {activeScenario.name}
                   </span>
+                  <RiskBadge level={activeScenario.severity} />
                 </div>
 
+                {/* Canvas Options Toggles */}
                 <div className="flex items-center gap-2">
-                  <RiskBadge level={activeScenario.severity} />
-                  <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600">
-                    Wind: {activeScenario.windSpeedMps} m/s SE
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowDensityHeatmap((h) => !h)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                      showDensityHeatmap
+                        ? "bg-blue-50 text-blue-700 border-blue-200 font-semibold"
+                        : "bg-white text-slate-600 border-slate-200"
+                    }`}
+                  >
+                    Density Heatmap: {showDensityHeatmap ? "ON" : "OFF"}
+                  </button>
+
+                  <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-mono">
+                    <button
+                      type="button"
+                      onClick={() => setCanvasTheme("dark")}
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                        canvasTheme === "dark" ? "bg-slate-900 text-white font-bold" : "text-slate-600"
+                      }`}
+                    >
+                      Dark Stage
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCanvasTheme("light")}
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                        canvasTheme === "light" ? "bg-white text-slate-900 font-bold shadow-2xs" : "text-slate-600"
+                      }`}
+                    >
+                      CAD Blueprint
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Dynamic Animated Simulation SVG Canvas */}
-              <div className="relative bg-[#FAFBFC] overflow-hidden select-none">
+              {/* Dynamic Interactive SVG Canvas */}
+              <div
+                className={`relative select-none transition-colors duration-300 ${
+                  canvasTheme === "dark" ? "bg-[#090D16]" : "bg-[#F8FAFC]"
+                }`}
+              >
                 <svg
                   viewBox="0 0 1000 520"
                   role="img"
-                  aria-label="Multi-agent evacuation simulation canvas"
+                  aria-label="Interactive multi-agent evacuation simulation stage"
                   className="w-full h-auto block"
                 >
                   <defs>
                     <pattern
-                      id="sim-cad-grid"
+                      id="grid-dots-dark"
                       width="24"
                       height="24"
                       patternUnits="userSpaceOnUse"
                     >
-                      <path
-                        d="M 24 0 L 0 0 0 24"
-                        fill="none"
-                        stroke="#EAEAEA"
-                        strokeWidth="0.7"
-                      />
+                      <circle cx="2" cy="2" r="0.85" fill="#1E293B" />
+                    </pattern>
+                    <pattern
+                      id="grid-dots-light"
+                      width="24"
+                      height="24"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <circle cx="2" cy="2" r="0.85" fill="#E2E8F0" />
                     </pattern>
 
-                    {/* Gradient Plumes */}
-                    <radialGradient id="sim-plume-gas" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#EF4444" stopOpacity="0.32" />
+                    {/* Gradient Plumes for Glowing Dark Stage */}
+                    <radialGradient id="plume-gas-dark" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#EF4444" stopOpacity="0.45" />
+                      <stop offset="50%" stopColor="#EF4444" stopOpacity="0.22" />
+                      <stop offset="85%" stopColor="#EF4444" stopOpacity="0.08" />
+                      <stop offset="100%" stopColor="#EF4444" stopOpacity="0" />
+                    </radialGradient>
+
+                    <radialGradient id="plume-gas-light" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#EF4444" stopOpacity="0.30" />
                       <stop offset="60%" stopColor="#EF4444" stopOpacity="0.12" />
                       <stop offset="100%" stopColor="#EF4444" stopOpacity="0.02" />
                     </radialGradient>
 
-                    <radialGradient id="sim-plume-fire" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.35" />
-                      <stop offset="65%" stopColor="#F59E0B" stopOpacity="0.14" />
-                      <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.02" />
+                    <radialGradient id="plume-fire-dark" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.45" />
+                      <stop offset="55%" stopColor="#F59E0B" stopOpacity="0.20" />
+                      <stop offset="90%" stopColor="#F59E0B" stopOpacity="0.05" />
+                      <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+                    </radialGradient>
+
+                    {/* Bottleneck Density Glow */}
+                    <radialGradient id="bottleneck-glow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.35" />
+                      <stop offset="80%" stopColor="#3B82F6" stopOpacity="0" />
                     </radialGradient>
                   </defs>
 
-                  {/* Canvas Background Card */}
+                  {/* Stage Background */}
                   <rect
-                    x="20"
-                    y="18"
-                    width="960"
-                    height="484"
+                    x="18"
+                    y="16"
+                    width="964"
+                    height="488"
                     rx="14"
-                    fill="#FFFFFF"
-                    stroke="#E2E8F0"
+                    fill={canvasTheme === "dark" ? "#0B1120" : "#FFFFFF"}
+                    stroke={canvasTheme === "dark" ? "#1E293B" : "#E2E8F0"}
                     strokeWidth="1.5"
                   />
                   <rect
-                    x="21"
-                    y="19"
-                    width="958"
-                    height="482"
+                    x="19"
+                    y="17"
+                    width="962"
+                    height="486"
                     rx="13"
-                    fill="url(#sim-cad-grid)"
+                    fill={canvasTheme === "dark" ? "url(#grid-dots-dark)" : "url(#grid-dots-light)"}
                   />
 
-                  {/* Orthogonal Road Network Channels */}
+                  {/* Orthogonal Internal Road Corridors */}
                   <path
                     d="M 82 132 L 124 132 L 124 304 L 825 304 M 370 304 L 370 472 L 825 472 L 825 215 L 885 215"
                     fill="none"
-                    stroke="#F1F5F9"
-                    strokeWidth="24"
+                    stroke={canvasTheme === "dark" ? "#131D31" : "#F1F5F9"}
+                    strokeWidth="26"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                   <path
                     d="M 82 132 L 124 132 L 124 304 L 825 304 M 370 304 L 370 472 L 825 472 L 825 215 L 885 215"
                     fill="none"
-                    stroke="#CBD5E1"
-                    strokeWidth="1.2"
-                    strokeDasharray="5 5"
+                    stroke={canvasTheme === "dark" ? "#1E293B" : "#CBD5E1"}
+                    strokeWidth="1"
+                    strokeDasharray="6 6"
                   />
+
+                  {/* Density Heatmap Glow on Main Intersections if ON */}
+                  {showDensityHeatmap && movingCount > 4 && (
+                    <>
+                      <circle cx="124" cy="304" r="38" fill="url(#bottleneck-glow)" />
+                      <circle cx="370" cy="472" r="32" fill="url(#bottleneck-glow)" />
+                    </>
+                  )}
 
                   {/* North Tank Farm Secondary Containment Bund */}
                   <rect
@@ -566,15 +693,15 @@ export default function SimulationPage() {
                     width="600"
                     height="152"
                     rx="10"
-                    fill="#F8FAFC"
-                    stroke="#CBD5E1"
+                    fill={canvasTheme === "dark" ? "#0F172A" : "#F8FAFC"}
+                    stroke={canvasTheme === "dark" ? "#334155" : "#CBD5E1"}
                     strokeWidth="1.5"
                   />
                   <text
                     x="756"
                     y="72"
                     textAnchor="end"
-                    fill="#94A3B8"
+                    fill={canvasTheme === "dark" ? "#64748B" : "#94A3B8"}
                     fontSize="8.5"
                     fontWeight="700"
                     fontFamily="monospace"
@@ -582,7 +709,7 @@ export default function SimulationPage() {
                     NORTH TANK BUND WALL
                   </text>
 
-                  {/* Facility Structural Footprints */}
+                  {/* Depot Structural Footprints */}
                   {assets.map((asset) => {
                     const isAssembly = asset.category === "assembly_point";
                     if (asset.shape === "circle") {
@@ -593,23 +720,43 @@ export default function SimulationPage() {
                             cx={asset.x}
                             cy={asset.y}
                             r={r}
-                            fill={isAssembly ? "#ECFDF5" : "#F8FAFC"}
-                            stroke={isAssembly ? "#10B981" : "#94A3B8"}
-                            strokeWidth={isAssembly ? 2 : 1.5}
+                            fill={
+                              isAssembly
+                                ? canvasTheme === "dark"
+                                  ? "#064E3B"
+                                  : "#ECFDF5"
+                                : canvasTheme === "dark"
+                                ? "#1E293B"
+                                : "#F8FAFC"
+                            }
+                            stroke={
+                              isAssembly
+                                ? "#10B981"
+                                : canvasTheme === "dark"
+                                ? "#475569"
+                                : "#94A3B8"
+                            }
+                            strokeWidth={isAssembly ? 2.2 : 1.5}
                           />
                           <circle
                             cx={asset.x}
                             cy={asset.y}
                             r={isAssembly ? r - 6 : r - 8}
-                            fill="#FFFFFF"
-                            stroke={isAssembly ? "#A7F3D0" : "#E2E8F0"}
+                            fill={canvasTheme === "dark" ? "#0B1120" : "#FFFFFF"}
+                            stroke={
+                              isAssembly
+                                ? "#059669"
+                                : canvasTheme === "dark"
+                                ? "#334155"
+                                : "#E2E8F0"
+                            }
                             strokeWidth="1"
                           />
                           <text
                             x={asset.x}
                             y={asset.y - 2}
                             textAnchor="middle"
-                            fill="#0F172A"
+                            fill={canvasTheme === "dark" ? "#F1F5F9" : "#0F172A"}
                             fontSize="10"
                             fontWeight="700"
                             fontFamily="monospace"
@@ -620,12 +767,18 @@ export default function SimulationPage() {
                             x={asset.x}
                             y={asset.y + 10}
                             textAnchor="middle"
-                            fill={isAssembly ? "#059669" : "#64748B"}
+                            fill={
+                              isAssembly
+                                ? "#34D399"
+                                : canvasTheme === "dark"
+                                ? "#94A3B8"
+                                : "#64748B"
+                            }
                             fontSize="8"
                             fontWeight="600"
                             fontFamily="monospace"
                           >
-                            {isAssembly ? "MUSTER SAFE" : `${asset.workersPresent} PERS`}
+                            {isAssembly ? "SAFE MUSTER" : `${asset.workersPresent} PERS`}
                           </text>
                         </g>
                       );
@@ -652,8 +805,8 @@ export default function SimulationPage() {
                           width={w}
                           height={h}
                           rx="8"
-                          fill="#FFFFFF"
-                          stroke="#CBD5E1"
+                          fill={canvasTheme === "dark" ? "#0F172A" : "#FFFFFF"}
+                          stroke={canvasTheme === "dark" ? "#334155" : "#CBD5E1"}
                           strokeWidth="1.4"
                         />
                         {isExit ? (
@@ -662,7 +815,7 @@ export default function SimulationPage() {
                               x={rx + w / 2}
                               y={ry + 18}
                               textAnchor="middle"
-                              fill="#0F172A"
+                              fill={canvasTheme === "dark" ? "#F1F5F9" : "#0F172A"}
                               fontSize="9.5"
                               fontWeight="700"
                               fontFamily="monospace"
@@ -673,12 +826,12 @@ export default function SimulationPage() {
                               x={rx + w / 2}
                               y={ry + 30}
                               textAnchor="middle"
-                              fill="#059669"
+                              fill="#10B981"
                               fontSize="7.5"
                               fontWeight="700"
                               fontFamily="monospace"
                             >
-                              SAFE EXIT
+                              EXIT GATE
                             </text>
                           </>
                         ) : isPipe ? (
@@ -689,14 +842,14 @@ export default function SimulationPage() {
                               width={w - 8}
                               height={h - 8}
                               rx="5"
-                              fill="#F8FAFC"
-                              stroke="#E2E8F0"
+                              fill={canvasTheme === "dark" ? "#1E293B" : "#F8FAFC"}
+                              stroke={canvasTheme === "dark" ? "#334155" : "#E2E8F0"}
                               strokeWidth="1"
                             />
                             <text
                               x={rx + 16}
                               y={ry + h / 2 + 3.5}
-                              fill="#0F172A"
+                              fill={canvasTheme === "dark" ? "#F1F5F9" : "#0F172A"}
                               fontSize="9"
                               fontWeight="700"
                               fontFamily="monospace"
@@ -712,12 +865,12 @@ export default function SimulationPage() {
                               width={w - 2}
                               height="22"
                               rx="7"
-                              fill="#F1F5F9"
+                              fill={canvasTheme === "dark" ? "#1E293B" : "#F1F5F9"}
                             />
                             <text
                               x={rx + 12}
                               y={ry + 15}
-                              fill="#0F172A"
+                              fill={canvasTheme === "dark" ? "#F1F5F9" : "#0F172A"}
                               fontSize="9"
                               fontWeight="700"
                               fontFamily="monospace"
@@ -727,7 +880,7 @@ export default function SimulationPage() {
                             <text
                               x={rx + 12}
                               y={ry + 42}
-                              fill="#64748B"
+                              fill={canvasTheme === "dark" ? "#94A3B8" : "#64748B"}
                               fontSize="9"
                             >
                               {asset.capacityOrSpec}
@@ -738,7 +891,7 @@ export default function SimulationPage() {
                     );
                   })}
 
-                  {/* Pulsing Hazard Zones with Expanding Radar Waves */}
+                  {/* Pulsing Hazard Zones with Animated Waves */}
                   {hazards
                     .filter((h) => h.active && h.radius > 0)
                     .map((hz) => {
@@ -756,15 +909,23 @@ export default function SimulationPage() {
                             r={dynamicRadius}
                             fill="none"
                             stroke={isGas ? "#EF4444" : "#F59E0B"}
-                            strokeWidth="1.5"
+                            strokeWidth="1.8"
                             className="animate-radar-wave"
                           />
-                          {/* Main Plume Circle */}
+                          {/* Main Plume Cloud */}
                           <circle
                             cx={hz.x}
                             cy={hz.y}
                             r={dynamicRadius}
-                            fill={isGas ? "url(#sim-plume-gas)" : "url(#sim-plume-fire)"}
+                            fill={
+                              canvasTheme === "dark"
+                                ? isGas
+                                  ? "url(#plume-gas-dark)"
+                                  : "url(#plume-fire-dark)"
+                                : isGas
+                                ? "url(#plume-gas-light)"
+                                : "url(#plume-gas-light)"
+                            }
                             stroke={isGas ? "#EF4444" : "#F59E0B"}
                             strokeWidth="1.6"
                             strokeDasharray="6 4"
@@ -775,15 +936,15 @@ export default function SimulationPage() {
                             r={Math.max(12, dynamicRadius * 0.35)}
                             fill="none"
                             stroke={isGas ? "#EF4444" : "#F59E0B"}
-                            strokeWidth="1"
+                            strokeWidth="1.2"
                             strokeDasharray="3 3"
-                            opacity="0.5"
+                            opacity="0.6"
                           />
                           <text
                             x={hz.x}
-                            y={hz.y - dynamicRadius - 6}
+                            y={hz.y - dynamicRadius - 7}
                             textAnchor="middle"
-                            fill={isGas ? "#DC2626" : "#D97706"}
+                            fill={isGas ? "#F87171" : "#FBBF24"}
                             fontSize="9"
                             fontWeight="700"
                             fontFamily="monospace"
@@ -794,119 +955,216 @@ export default function SimulationPage() {
                       );
                     })}
 
-                  {/* Evacuation Corridors with Dynamic Animated Flow Trails */}
+                  {/* Dynamic Digital Variable Message Signs (VMS) on Canvas */}
+                  {/* Sign SGN-01 at West Intersection (124, 304) */}
+                  <g transform="translate(94, 276)">
+                    <rect
+                      x="0"
+                      y="0"
+                      width="60"
+                      height="20"
+                      rx="4"
+                      fill="#0F172A"
+                      stroke={isRouteABlockedManually || hazardExpansionStep > 0 ? "#EF4444" : "#10B981"}
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="30"
+                      y="13"
+                      textAnchor="middle"
+                      fill={isRouteABlockedManually || hazardExpansionStep > 0 ? "#F87171" : "#34D399"}
+                      fontSize="7.5"
+                      fontWeight="bold"
+                      fontFamily="monospace"
+                    >
+                      {isRouteABlockedManually || hazardExpansionStep > 0 ? "↓ DIVERT B" : "↑ MUSTER A"}
+                    </text>
+                  </g>
+
+                  {/* Sign SGN-02 at South Intersection (370, 444) */}
+                  <g transform="translate(340, 444)">
+                    <rect
+                      x="0"
+                      y="0"
+                      width="60"
+                      height="20"
+                      rx="4"
+                      fill="#0F172A"
+                      stroke="#10B981"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="30"
+                      y="13"
+                      textAnchor="middle"
+                      fill="#34D399"
+                      fontSize="7.5"
+                      fontWeight="bold"
+                      fontFamily="monospace"
+                    >
+                      → MUSTER B
+                    </text>
+                  </g>
+
+                  {/* Evacuation Corridors with Continuous Moving Flow Light Trails */}
                   {/* Route A Path */}
                   <g>
                     <polyline
-                      points={routeAWaypoints.map((p) => `${p.x},${p.y}`).join(" ")}
+                      points="124,372 124,132 82,132"
                       fill="none"
-                      stroke={
-                        isRouteABlockedManually || hazardExpansionStep > 0
-                          ? "#EF4444"
-                          : "#10B981"
-                      }
-                      strokeWidth={isRouteABlockedManually ? 3 : 4}
-                      strokeDasharray={isRouteABlockedManually ? "5 5" : undefined}
+                      stroke={isRouteABlockedManually || hazardExpansionStep > 0 ? "#EF4444" : "#10B981"}
+                      strokeWidth={isRouteABlockedManually ? 2.5 : 4}
+                      strokeDasharray={isRouteABlockedManually ? "4 4" : undefined}
                       strokeLinecap="round"
-                      strokeLinejoin="round"
                     />
                     {!isRouteABlockedManually && hazardExpansionStep === 0 && (
                       <polyline
-                        points={routeAWaypoints.map((p) => `${p.x},${p.y}`).join(" ")}
+                        points="124,372 124,132 82,132"
                         fill="none"
                         stroke="#86EFAC"
                         strokeWidth="2.5"
                         strokeDasharray="6 12"
                         strokeLinecap="round"
-                        strokeLinejoin="round"
                         className="animate-route-flow pointer-events-none"
                       />
                     )}
                   </g>
 
-                  {/* Route B Path (Alternative / Diversion) */}
+                  {/* Route B Path */}
                   <g>
                     <polyline
-                      points={routeBWaypoints.map((p) => `${p.x},${p.y}`).join(" ")}
+                      points="370,304 370,472 530,472"
                       fill="none"
-                      stroke={
-                        isRouteABlockedManually || hazardExpansionStep > 0
-                          ? "#10B981"
-                          : "#F59E0B"
-                      }
-                      strokeWidth={
-                        isRouteABlockedManually || hazardExpansionStep > 0 ? 4 : 3
-                      }
-                      strokeDasharray={
-                        isRouteABlockedManually || hazardExpansionStep > 0
-                          ? undefined
-                          : "8 5"
-                      }
+                      stroke={isRouteABlockedManually || hazardExpansionStep > 0 ? "#10B981" : "#F59E0B"}
+                      strokeWidth={isRouteABlockedManually || hazardExpansionStep > 0 ? 4 : 3}
+                      strokeDasharray={isRouteABlockedManually || hazardExpansionStep > 0 ? undefined : "6 4"}
                       strokeLinecap="round"
-                      strokeLinejoin="round"
                     />
                     {(isRouteABlockedManually || hazardExpansionStep > 0) && (
                       <polyline
-                        points={routeBWaypoints.map((p) => `${p.x},${p.y}`).join(" ")}
+                        points="370,304 370,472 530,472"
                         fill="none"
                         stroke="#86EFAC"
                         strokeWidth="2.5"
                         strokeDasharray="6 12"
                         strokeLinecap="round"
-                        strokeLinejoin="round"
                         className="animate-route-flow pointer-events-none"
                       />
                     )}
                   </g>
 
-                  {/* Moving Worker Agent Dots with Selection Halo & Click Action */}
+                  {/* Simulated Moving Worker Agent Dots with Smooth Gliding Translation */}
                   {filteredAgents.map((agent) => {
                     const isSelected = selectedAgentId === agent.id;
+                    const isHovered = hoveredAgentId === agent.id;
+
                     const fill =
                       agent.status === "evacuated"
                         ? "#10B981"
                         : agent.status === "affected"
                         ? "#EF4444"
-                        : agent.status === "waiting"
+                        : agent.status === "diverted"
                         ? "#F59E0B"
-                        : "#2563EB";
+                        : "#3B82F6";
 
                     return (
                       <g
                         key={agent.id}
-                        transform={`translate(${agent.x}, ${agent.y})`}
+                        style={{
+                          transform: `translate(${agent.x}px, ${agent.y}px)`,
+                          transition: isPlaying ? "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
+                        }}
                         role="button"
                         tabIndex={0}
                         aria-label={`Worker Agent ${agent.id} (${agent.name}), status ${agent.status}`}
                         onClick={() => setSelectedAgentId(agent.id)}
-                        className="cursor-pointer transition-transform hover:scale-125"
+                        onMouseEnter={() => setHoveredAgentId(agent.id)}
+                        onMouseLeave={() => setHoveredAgentId(null)}
+                        className="cursor-pointer"
                       >
-                        {/* Selected Pulsing Halo */}
+                        {/* Selected Pulsing Radar Ring */}
                         {isSelected && (
+                          <>
+                            <circle
+                              r="13"
+                              fill="none"
+                              stroke="#60A5FA"
+                              strokeWidth="1.8"
+                              className="animate-ping"
+                              style={{ animationDuration: "2s" }}
+                            />
+                            <circle
+                              r="10"
+                              fill="none"
+                              stroke="#FFFFFF"
+                              strokeWidth="2"
+                              strokeDasharray="3 3"
+                            />
+                          </>
+                        )}
+
+                        {/* Affected Panic Indicator */}
+                        {agent.status === "affected" && (
                           <circle
                             r="11"
                             fill="none"
-                            stroke="#0F172A"
-                            strokeWidth="2"
-                            strokeDasharray="3 3"
-                            className="animate-spin"
-                            style={{ animationDuration: "6s" }}
+                            stroke="#EF4444"
+                            strokeWidth="1.8"
+                            className="animate-ping"
+                            style={{ animationDuration: "1.2s" }}
                           />
                         )}
+
+                        {/* Main Agent Core Body */}
                         <circle
-                          r={isSelected ? 6.5 : 5}
+                          r={isSelected ? 6.5 : isHovered ? 6 : 5}
                           fill={fill}
                           stroke="#FFFFFF"
                           strokeWidth="1.6"
-                          className="drop-shadow-xs"
+                          className="drop-shadow-sm"
                         />
+
+                        {/* Agent Walking Heading Direction Arrow */}
+                        {agent.status === "moving" && (
+                          <g transform={`rotate(${agent.headingDeg})`}>
+                            <polygon points="6,0 3,-2.5 3,2.5" fill="#FFFFFF" />
+                          </g>
+                        )}
                       </g>
                     );
                   })}
+
+                  {/* Canvas Floating Tooltip for Hovered Worker */}
+                  {hoveredAgent && (
+                    <g transform={`translate(${hoveredAgent.x}, ${hoveredAgent.y - 28})`} className="pointer-events-none">
+                      <rect
+                        x="-54"
+                        y="-16"
+                        width="108"
+                        height="20"
+                        rx="6"
+                        fill="#0F172A"
+                        stroke="#334155"
+                        strokeWidth="1"
+                        className="drop-shadow-lg"
+                      />
+                      <text
+                        x="0"
+                        y="-3"
+                        textAnchor="middle"
+                        fill="#F8FAFC"
+                        fontSize="8.5"
+                        fontWeight="bold"
+                        fontFamily="monospace"
+                      >
+                        {hoveredAgent.id} · {hoveredAgent.name.split(" ")[0]} ({hoveredAgent.speedMps}m/s)
+                      </text>
+                    </g>
+                  )}
                 </svg>
               </div>
 
-              {/* Bottom Interactive Playback Controls Bar in C:/ti Style */}
+              {/* Bottom Interactive Playback Controls Toolbar */}
               <div className="p-4 border-t border-slate-200/90 bg-white space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2">
@@ -959,6 +1217,7 @@ export default function SimulationPage() {
                         setSimTickSeconds(0);
                         setIsRouteABlockedManually(false);
                         setSirenActive(false);
+                        setManualAgentOverrides({});
                         resetDemoState();
                       }}
                       className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[40px] rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all cursor-pointer"
@@ -995,18 +1254,19 @@ export default function SimulationPage() {
                 {/* Timeline Scrubber */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-xs font-mono text-slate-600">
-                    <span className="font-semibold text-slate-800">
-                      Progress Scrubber: T+{simTickSeconds}s / 210s
+                    <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                      <ClockIndicator isPlaying={isPlaying} />
+                      <span>Clock: T+{simTickSeconds}s / 210s</span>
                     </span>
                     <span>
-                      {evacuatedCount} Evacuated ({evacuationRatePct}%)
+                      {evacuatedCount} Evacuated ({evacuationRatePct}%) · {affectedCount} In Danger
                     </span>
                   </div>
                   <input
                     type="range"
                     min={0}
                     max={210}
-                    step={5}
+                    step={2}
                     value={simTickSeconds}
                     onChange={(e) => {
                       setIsPlaying(false);
@@ -1016,10 +1276,10 @@ export default function SimulationPage() {
                   />
                   <div className="flex justify-between text-[10px] font-mono text-slate-400">
                     <span>T+0s (Alarm)</span>
-                    <span>T+60s (Midway)</span>
-                    <span>T+120s (Diversion)</span>
-                    <span>T+180s</span>
-                    <span>T+210s (Target Safe)</span>
+                    <span>T+45s (Corridor Influx)</span>
+                    <span>T+90s (Peak Density)</span>
+                    <span>T+150s (Muster Arrival)</span>
+                    <span>T+210s (Target Clearance)</span>
                   </div>
                 </div>
               </div>
@@ -1060,7 +1320,7 @@ export default function SimulationPage() {
                       : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
                   }`}
                 >
-                  Evacuated ({evacuatedCount})
+                  Safe at Muster ({evacuatedCount})
                 </button>
                 <button
                   type="button"
@@ -1076,12 +1336,12 @@ export default function SimulationPage() {
               </div>
 
               <span className="text-xs font-mono text-slate-500">
-                Click any agent dot to open telemetry inspector
+                Click any agent dot to inspect real-time biometrics
               </span>
             </div>
           </div>
 
-          {/* Right 4 Cols: Live Selected Agent Inspector & 4-Agent Architecture Card */}
+          {/* Right 4 Cols: Live Selected Agent Inspector & Scenario Controls */}
           <div className="xl:col-span-4 space-y-4">
             {/* Live Worker Agent Inspector Card */}
             {selectedAgent && (
@@ -1101,6 +1361,8 @@ export default function SimulationPage() {
                             ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                             : selectedAgent.status === "affected"
                             ? "bg-rose-50 text-rose-800 border border-rose-200"
+                            : selectedAgent.status === "diverted"
+                            ? "bg-amber-50 text-amber-800 border border-amber-200"
                             : "bg-blue-50 text-blue-800 border border-blue-200"
                         }`}
                       >
@@ -1110,6 +1372,8 @@ export default function SimulationPage() {
                               ? "bg-emerald-500"
                               : selectedAgent.status === "affected"
                               ? "bg-rose-500"
+                              : selectedAgent.status === "diverted"
+                              ? "bg-amber-500"
                               : "bg-blue-500"
                           }`}
                         />
@@ -1125,7 +1389,7 @@ export default function SimulationPage() {
                   <div className="text-right">
                     <span className="text-xs text-slate-400 font-mono">Heart Rate</span>
                     <div className="flex items-center justify-end gap-1 text-sm font-mono font-bold text-rose-600 mt-0.5">
-                      <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
+                      <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500 animate-pulse" />
                       <span>{selectedAgent.heartRate} bpm</span>
                     </div>
                   </div>
@@ -1134,38 +1398,38 @@ export default function SimulationPage() {
                 {/* Agent Real-Time Telemetry Grid */}
                 <div className="grid grid-cols-2 gap-2.5 text-xs font-mono">
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 block text-[10px]">CURRENT ASSIGNED ROUTE</span>
+                    <span className="text-slate-400 block text-[10px]">CURRENT ROUTE</span>
                     <span className="font-bold text-slate-900 mt-0.5 block">
-                      {selectedAgent.routeCode}
+                      {selectedAgent.assignedRoute}
                     </span>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 block text-[10px]">TARGET MUSTER POINT</span>
+                    <span className="text-slate-400 block text-[10px]">TARGET MUSTER</span>
                     <span className="font-bold text-emerald-700 mt-0.5 block">
                       {selectedAgent.targetMuster}
                     </span>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 block text-[10px]">WALKING VELOCITY</span>
+                    <span className="text-slate-400 block text-[10px]">CURRENT SPEED</span>
                     <span className="font-bold text-slate-900 mt-0.5 block">
                       {selectedAgent.speedMps} m/s
                     </span>
                   </div>
 
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="text-slate-400 block text-[10px]">DISTANCE TO SAFETY</span>
+                    <span className="text-slate-400 block text-[10px]">DISTANCE REMAINING</span>
                     <span className="font-bold text-slate-900 mt-0.5 block">
                       {selectedAgent.distanceRemainingM} meters
                     </span>
                   </div>
                 </div>
 
-                {/* Progress bar to safety */}
+                {/* Progress Bar to Safety */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-slate-600">
-                    <span>Evacuation Progress</span>
+                    <span>Progress to Safe Muster</span>
                     <span className="font-mono font-bold">
                       {Math.round(selectedAgent.progress * 100)}%
                     </span>
@@ -1178,8 +1442,26 @@ export default function SimulationPage() {
                   </div>
                 </div>
 
+                {/* Interactive Direct Re-route Button for Selected Worker */}
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleManualRerouteAgent(selectedAgent.id)}
+                    className="w-full cursor-pointer text-xs"
+                  >
+                    <Navigation className="w-3.5 h-3.5 mr-1.5 text-blue-600" />
+                    <span>
+                      {selectedAgent.targetMuster === "AP-ALPHA"
+                        ? "Manually Re-Route to Muster Bravo"
+                        : "Manually Re-Route to Muster Alpha"}
+                    </span>
+                  </Button>
+                </div>
+
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <span>Origin: {selectedAgent.originZone}</span>
+                  <span>Start: {selectedAgent.originZone}</span>
                   <span className="font-mono">
                     Coord: ({selectedAgent.x}, {selectedAgent.y})
                   </span>
@@ -1187,7 +1469,7 @@ export default function SimulationPage() {
               </section>
             )}
 
-            {/* Scenario & Worker Cohort Parameters */}
+            {/* Scenario Configuration Card */}
             <section
               aria-labelledby="sim-parameters-heading"
               className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4"
@@ -1196,7 +1478,7 @@ export default function SimulationPage() {
                 id="sim-parameters-heading"
                 className="text-sm font-bold text-slate-900 flex items-center gap-2"
               >
-                <Layers className="w-4 h-4 text-slate-700" />
+                <Sliders className="w-4 h-4 text-slate-700" />
                 <span>Scenario & Cohort Controls</span>
               </h2>
 
@@ -1205,7 +1487,7 @@ export default function SimulationPage() {
                   htmlFor="scenario-select-input"
                   className="block text-xs font-semibold text-slate-600 mb-1.5"
                 >
-                  Active Incident Scenario:
+                  Select Incident Scenario:
                 </label>
                 <select
                   id="scenario-select-input"
@@ -1227,29 +1509,29 @@ export default function SimulationPage() {
               <div className="pt-3 border-t border-slate-100">
                 <div className="flex justify-between text-xs font-semibold text-slate-800 mb-1">
                   <label htmlFor="worker-count-slider">
-                    Virtual Worker Agent Count:
+                    Depot Workforce Size:
                   </label>
-                  <span className="font-mono text-blue-600">{workerCount} Agents</span>
+                  <span className="font-mono text-blue-600">{workerCount} Personnel</span>
                 </div>
                 <input
                   id="worker-count-slider"
                   type="range"
-                  min={16}
-                  max={64}
+                  min={12}
+                  max={42}
                   step={2}
                   value={workerCount}
                   onChange={(e) => setWorkerCount(Number(e.target.value))}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400 mt-1">
-                  <span>16 (Night Shift)</span>
-                  <span>42 (Standard Day)</span>
-                  <span>64 (Turnaround)</span>
+                  <span>12 (Skeleton Crew)</span>
+                  <span>28 (Shift A)</span>
+                  <span>42 (Full Operating Shift)</span>
                 </div>
               </div>
             </section>
 
-            {/* 4-Component Agent Architecture from EVORA Abstract */}
+            {/* 4-Component Multi-Agent Methodology Architecture */}
             <section
               aria-labelledby="agent-architecture-heading"
               className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-3"
@@ -1266,20 +1548,20 @@ export default function SimulationPage() {
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
                   <div className="font-semibold text-slate-900 flex items-center gap-2">
                     <Users className="w-3.5 h-3.5 text-blue-600" />
-                    <span>1. Worker Agents ({simulatedAgents.length} Active)</span>
+                    <span>1. Worker Agents ({simulatedAgents.length} Active Personnel)</span>
                   </div>
                   <p className="text-slate-500 mt-1">
-                    Autonomous personnel with individual reaction times (0-15s), velocities (1.2-1.6 m/s), and physical stress models.
+                    Continuous physical agent movement along orthogonal road networks with individualized walking speeds and heart-rate stress response.
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
                   <div className="font-semibold text-slate-900 flex items-center gap-2">
                     <Flame className="w-3.5 h-3.5 text-rose-600" />
-                    <span>2. Hazard Agents ({hazards.filter((h) => h.active).length} Active Plumes)</span>
+                    <span>2. Hazard Agents ({hazards.filter((h) => h.active).length} Plumes)</span>
                   </div>
                   <p className="text-slate-500 mt-1">
-                    Continuous physical dispersion of flammable vapor (% LEL), thermal radiation (°C), and smoke opacity.
+                    Expanding multi-hazard dispersion model of gasoline vapor (% LEL), thermal radiation (°C), and smoke opacity drifting SE with wind.
                   </p>
                 </div>
 
@@ -1289,7 +1571,7 @@ export default function SimulationPage() {
                     <span>3. Safety Agents (Threshold Gate)</span>
                   </div>
                   <p className="text-slate-500 mt-1">
-                    Continuous corridor risk evaluation, enforcing hard boundary exclusion when gas exceeds 40% LEL.
+                    Continuously checks corridor risk scores against threshold 65/100, blocking hazardous corridors instantly upon vapor breach.
                   </p>
                 </div>
 
@@ -1299,7 +1581,7 @@ export default function SimulationPage() {
                     <span>4. Routing Agents (Dynamic Guidance)</span>
                   </div>
                   <p className="text-slate-500 mt-1">
-                    Adaptive path re-optimization propagating instant re-route instructions to field digital signage in &lt;300ms.
+                    Optimizes corridor choice across distance, exposure, and congestion, updating electronic field signage in under 300 ms.
                   </p>
                 </div>
               </div>
@@ -1311,8 +1593,17 @@ export default function SimulationPage() {
   );
 }
 
-function shouldDivertStatus(isBlocked: boolean, expansionStep: number): string {
-  if (isBlocked) return "Diverted (Route B)";
-  if (expansionStep > 0) return "Diverted (Route B)";
-  return "Clear (Route A)";
+function ClockIndicator({ isPlaying }: { isPlaying: boolean }) {
+  return (
+    <span className="relative flex h-2 w-2">
+      {isPlaying && (
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+      )}
+      <span
+        className={`relative inline-flex rounded-full h-2 w-2 ${
+          isPlaying ? "bg-emerald-500" : "bg-slate-400"
+        }`}
+      />
+    </span>
+  );
 }
