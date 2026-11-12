@@ -4,12 +4,19 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
+  ArrowRight,
   ArrowRightLeft,
   Boxes,
+  Building,
   Calculator,
+  CheckCircle2,
+  Droplets,
   Flame,
   RotateCcw,
+  ShieldAlert,
+  ShieldCheck,
   Sliders,
+  Sparkles,
 } from "lucide-react";
 import { useEvora } from "@/lib/evora-context";
 import { RouteStatusBadge } from "@/components/shared/status-badge";
@@ -46,6 +53,12 @@ export default function AdaptiveEvacuationPage() {
     toggleRouteAccessibility,
     hazardExpansionStep,
     lastUpdatedTimestamp,
+    stationaryPosts,
+    aiExplosionPrediction,
+    isDelugeActive,
+    currentRoleLevel,
+    isSideBScenarioActive,
+    triggerSideBInspectionScenario,
   } = useEvora();
 
   const [selectedRouteId, setSelectedRouteId] = useState<string>(
@@ -683,6 +696,189 @@ export default function AdaptiveEvacuationPage() {
             )}
           </div>
         </div>
+
+        {/* ================================================================
+            FACILITY-WIDE STATIONARY POSTS EVACUATION MATRIX (8 POSTS)
+            ================================================================ */}
+        <Card className="p-5 sm:p-6 space-y-4 border-[#E2E8F0]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#F1F5F9] pb-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Building className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                <h2 className="text-base sm:text-lg font-bold text-[#0F172A]">
+                  Alokasi Koridor Evakuasi Pos Stasioner Seluruh Level (8 Pos Fasilitas)
+                </h2>
+              </div>
+              <p className="text-xs text-[#475569]">
+                Distribusi rute aman dan status gerbang pelarian untuk seluruh pos depo — memastikan keselamatan operator, inspektur sidak, hingga penjaga pos jaga gerbang.
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={triggerSideBInspectionScenario}
+              className={`rounded-xl text-xs font-semibold ${
+                isSideBScenarioActive ? "border-amber-400 bg-amber-50 text-amber-900" : ""
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 mr-1.5" />
+              <span>Simulasi Sidak Side B</span>
+            </Button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-[#F8FAFC]">
+                  <TableHead className="font-bold text-[#0F172A] text-xs">Pos Stasioner</TableHead>
+                  <TableHead className="text-xs">Zona Operasi</TableHead>
+                  <TableHead className="text-xs">Personel & Level</TableHead>
+                  <TableHead className="text-xs">Status Risiko</TableHead>
+                  <TableHead className="text-xs">Koridor Tertugaskan</TableHead>
+                  <TableHead className="text-xs">Titik Kumpul</TableHead>
+                  <TableHead className="text-xs">Instruksi Khusus Peran</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="text-xs">
+                {stationaryPosts.map((post) => {
+                  const isSideB = post.id === "POST-GANTRY-B";
+                  const isHighlighted = isSideB && (currentRoleLevel === "level-2-inspector" || isSideBScenarioActive);
+
+                  return (
+                    <TableRow
+                      key={post.id}
+                      className={isHighlighted ? "bg-amber-50/60 font-medium" : undefined}
+                    >
+                      <TableCell className="font-semibold text-[#0F172A]">
+                        <div className="flex items-center gap-2">
+                          <span>{post.name}</span>
+                          {isSideB && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-200 text-amber-900 font-mono font-bold">
+                              SIDE B
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-[#64748B] font-mono block">
+                          {post.shortCode} · Est {post.estimatedEscapeTimeSec}s
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="text-[#475569]">{post.zone}</TableCell>
+
+                      <TableCell>
+                        <span className="font-mono font-bold text-[#0F172A]">
+                          {post.totalPersonnel} Orang
+                        </span>
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                          {post.personnelLevelsPresent.map((lvl) => (
+                            <span
+                              key={lvl}
+                              className={`text-[9px] font-mono px-1 py-0.2 rounded font-semibold ${
+                                lvl === "level-2-inspector"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : lvl === "level-3-manager"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-slate-100 text-slate-700"
+                              }`}
+                            >
+                              {lvl === "level-1-operator" ? "L1" : lvl === "level-2-inspector" ? "L2 Sidak" : lvl === "level-3-manager" ? "L3 Mgr" : "L4"}
+                            </span>
+                          ))}
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          post.currentRisk === "critical"
+                            ? "bg-rose-100 text-rose-700"
+                            : post.currentRisk === "high"
+                            ? "bg-amber-100 text-amber-800"
+                            : post.currentRisk === "moderate"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}>
+                          {post.currentRisk.toUpperCase()}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="font-medium text-[#0F172A]">
+                        {post.evacuationCorridor}
+                        <span className="text-[10px] text-[#64748B] font-mono block">
+                          {post.distanceMeters}m
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="font-bold font-mono text-[#0F172A]">
+                        {post.destinationAssembly}
+                      </TableCell>
+
+                      <TableCell className="text-[#334155] max-w-xs leading-relaxed text-[11px]">
+                        {currentRoleLevel === "level-2-inspector" && post.specialLevelGuidance["level-2-inspector"] ? (
+                          <span className="text-amber-900 font-semibold block mb-0.5">
+                            [Panduan Sidak]: {post.specialLevelGuidance["level-2-inspector"]}
+                          </span>
+                        ) : null}
+                        <span>{post.specialLevelGuidance[currentRoleLevel] ?? post.specialLevelGuidance["level-1-operator"]}</span>
+                        <div className="mt-1 flex items-center gap-1.5 text-[10px] font-mono">
+                          <span className="text-[#64748B]">Akses Gerbang:</span>
+                          <span className="font-bold text-emerald-600">{post.gateAccessStatus}</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+
+        {/* ================================================================
+            AI EXPLOSION RADIUS & CORRIDOR SAFETY BOUNDARY VERIFICATION
+            ================================================================ */}
+        <Card className="p-5 sm:p-6 space-y-4 border-[#E2E8F0] bg-slate-900 text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-rose-400" aria-hidden="true" />
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white">
+                  Verifikasi Batas Aman Koridor Terhadap Radius Ledakan BLEVE Tangki T-102
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Model Prediksi AI Ledakan Kilang: Probabilitas {aiExplosionPrediction.probabilityPct}% · Waktu Kritis Menuju Kegagalan
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-slate-800 text-amber-300 border border-slate-700">
+                Lethal: {aiExplosionPrediction.blastWaveRadii.lethalOverpressureMeters}m · Safe: {aiExplosionPrediction.blastWaveRadii.glassBreakageMeters}m
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-emerald-400">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Koridor Rute B (Jalur Selatan Bypass) Terverifikasi Aman</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed text-[11px]">
+                Koridor Selatan membentang pada koordinat y=472, berjarak <strong>&gt;165 meter</strong> dari pusat Tangki T-102 (370, 125). Posisi ini berada di luar batas gelombang kejut kaca (&gt;1 psi / 145m) dan radiasi panas mematikan.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                <AlertTriangle className="w-4 h-4 text-amber-400" />
+                <span>Koridor Manifold Pusat (PIPE-01) Berada di Zona Bahaya Tinggi</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed text-[11px]">
+                Rak pipa manifold PIPE-01 (y=234) berjarak hanya <strong>70-85 meter</strong> dari T-102, berada tepat di dalam radius Kerusakan Struktural Berat (88m). Semua rute yang melintasi koridor ini otomatis diblokir sistem.
+              </p>
+            </div>
+          </div>
+        </Card>
       </UIStateWrapper>
     </div>
   );

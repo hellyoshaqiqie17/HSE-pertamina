@@ -238,3 +238,57 @@ export interface RouteScoringConfig {
   accessibilityWeight: number;
   riskThreshold: number;
 }
+
+export type UserRoleLevel =
+  | "level-1-operator"
+  | "level-2-inspector"
+  | "level-3-manager"
+  | "level-4-ert";
+
+export interface StationaryPostEvacuation {
+  id: string;
+  name: string;
+  zone: string;
+  shortCode: string;
+  totalPersonnel: number;
+  personnelLevelsPresent: UserRoleLevel[];
+  currentRisk: RiskLevel;
+  evacuationCorridor: string;
+  destinationAssembly: string;
+  distanceMeters: number;
+  estimatedEscapeTimeSec: number;
+  specialLevelGuidance: Record<UserRoleLevel, string>;
+  status: "safe" | "evacuating" | "cleared" | "at_risk";
+  gateAccessStatus: "OPEN" | "RESTRICTED" | "DIVERTED";
+}
+
+export interface AIExplosionPrediction {
+  facilityId: string;
+  targetAssetId: string;
+  targetAssetName: string;
+  tankProduct: string;
+  explosionType: "BLEVE (Boiling Liquid Expanding Vapor Explosion)" | "VCE (Vapor Cloud Explosion)" | "Flash Fire";
+  probabilityPct: number;
+  threatLevel: "CRITICAL" | "HIGH" | "ELEVATED" | "NOMINAL";
+  estimatedTimeToFailureSeconds: number;
+  blastWaveRadii: {
+    lethalOverpressureMeters: number;
+    structuralDamageMeters: number;
+    glassBreakageMeters: number;
+  };
+  telemetryFactors: {
+    shellTemperatureC: number;
+    internalPressureBar: number;
+    vaporHeadLelPct: number;
+    reliefValveVentingKgS: number;
+    acousticMicroStressDb: number;
+  };
+  mitigationActions: {
+    id: string;
+    title: string;
+    description: string;
+    status: "recommended" | "executing" | "completed";
+    autoDeployable: boolean;
+  }[];
+}
+

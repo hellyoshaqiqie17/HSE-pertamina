@@ -5,17 +5,28 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Activity,
+  AlertCircle,
   AlertTriangle,
   ArrowRight,
+  Bomb,
+  Building,
   CheckCircle2,
   Clock,
   Compass,
+  DoorOpen,
+  Droplets,
+  Eye,
   Flame,
+  Layers,
   MapPin,
   Radio,
   RotateCcw,
+  Shield,
+  ShieldAlert,
   ShieldCheck,
+  Sparkles,
   Users,
+  Wind,
 } from "lucide-react";
 import {
   Area,
@@ -68,6 +79,15 @@ export default function OverviewPage() {
     hazardExpansionStep,
     lastUpdatedTimestamp,
     scoringConfig,
+    stationaryPosts,
+    aiExplosionPrediction,
+    isDelugeActive,
+    toggleDelugeSystem,
+    triggerSideBInspectionScenario,
+    isSideBScenarioActive,
+    timeToFailureCountdown,
+    currentRoleLevel,
+    setCurrentRoleLevel,
   } = useEvora();
 
   const [mapLayers, setMapLayers] =
@@ -506,6 +526,352 @@ export default function OverviewPage() {
             )}
           </div>
         </div>
+
+        {/* ================================================================
+            AI EXPLOSION RISK PREDICTOR (BLEVE & VCE BLAST OVERPRESSURE)
+            ================================================================ */}
+        <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden">
+          <CardHeader className="bg-slate-900 text-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold font-mono tracking-wide uppercase bg-rose-500/20 text-rose-300 border border-rose-500/40 inline-flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-rose-400 animate-pulse" aria-hidden="true" />
+                  <span>AI Explosion Risk Engine</span>
+                </span>
+                <span className="text-xs text-slate-400 font-mono">
+                  Target: {aiExplosionPrediction.targetAssetName} ({aiExplosionPrediction.tankProduct})
+                </span>
+              </div>
+              <CardTitle className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                Prediksi Potensi Ledakan Kilang & BLEVE (Vapor Cloud Explosion)
+              </CardTitle>
+              <CardDescription className="text-slate-300 text-xs sm:text-sm">
+                Analisis termodinamika bejana bertekanan, pemodelan gelombang kejut overpressure, dan waktu kritis menuju kegagalan cangkang (*Time-to-Failure*).
+              </CardDescription>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
+              <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3 text-right font-mono min-w-[170px]">
+                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-sans font-semibold">
+                  Hitung Mundur Kegagalan
+                </div>
+                <div className={`text-2xl font-black mt-0.5 ${
+                  isDelugeActive ? "text-emerald-400" : timeToFailureCountdown < 300 ? "text-rose-400 animate-pulse" : "text-amber-400"
+                }`}>
+                  {isDelugeActive ? (
+                    "STABIL (DELUGE)"
+                  ) : (
+                    `${Math.floor(timeToFailureCountdown / 60)}m ${String(timeToFailureCountdown % 60).padStart(2, "0")}s`
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  {isDelugeActive ? "Laju kenaikan tekanan terhenti" : "BLEVE Rupture Threat"}
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                onClick={toggleDelugeSystem}
+                className={`h-12 px-4 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer ${
+                  isDelugeActive
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                <Droplets className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                <span>
+                  {isDelugeActive ? "Matikan Deluge Spray" : "Aktifkan Deluge Spray T-102"}
+                </span>
+              </Button>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-5 sm:p-6 space-y-6">
+            {/* Top Telemetry & Probability Bar */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="text-xs text-slate-500 font-medium">Probabilitas Ledakan BLEVE</div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className={`text-2xl font-bold font-mono ${
+                    aiExplosionPrediction.probabilityPct > 50 ? "text-rose-600" : "text-emerald-600"
+                  }`}>
+                    {aiExplosionPrediction.probabilityPct}%
+                  </span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    aiExplosionPrediction.probabilityPct > 50
+                      ? "bg-rose-100 text-rose-700"
+                      : "bg-emerald-100 text-emerald-700"
+                  }`}>
+                    {aiExplosionPrediction.threatLevel}
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-500 mt-1">
+                  {isDelugeActive ? "Ditekan oleh semprotan pendingin air" : "Radiasi panas dari Manifold PIPE-01"}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="text-xs text-slate-500 font-medium">Suhu Cangkang Tangki</div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-bold font-mono text-slate-900">
+                    {aiExplosionPrediction.telemetryFactors.shellTemperatureC}°C
+                  </span>
+                  <span className="text-xs text-rose-600 font-semibold">
+                    Ambang &gt;65.0°C
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-500 mt-1">
+                  Sensor IR Bund: FIR-01 (68 IR index)
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="text-xs text-slate-500 font-medium">Tekanan Uap Dalam Tangki</div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-bold font-mono text-slate-900">
+                    {aiExplosionPrediction.telemetryFactors.internalPressureBar} bar
+                  </span>
+                  <span className="text-xs text-amber-600 font-semibold">
+                    Kritis &gt;3.0 bar
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-500 mt-1">
+                  Relief valve venting: {aiExplosionPrediction.telemetryFactors.reliefValveVentingKgS} kg/s
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="text-xs text-slate-500 font-medium">Stress Akustik Material</div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-bold font-mono text-slate-900">
+                    {aiExplosionPrediction.telemetryFactors.acousticMicroStressDb} dB
+                  </span>
+                  <span className="text-xs text-slate-500 font-semibold">
+                    Micro-crack sensor
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-500 mt-1">
+                  Emisi akustik cangkang baja T-102
+                </div>
+              </div>
+            </div>
+
+            {/* Blast Wave Radii & Safety Perimeter Diagram */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 text-white space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-rose-400" aria-hidden="true" />
+                  <span className="font-bold text-sm text-white">
+                    Radius Gelombang Kejut Ledakan (Blast Wave Overpressure Radii)
+                  </span>
+                </div>
+                <span className="text-xs text-slate-400 font-mono">
+                  Standar API 581 & NFPA 30 Damage Estimation
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-xl bg-rose-950/60 border border-rose-800/80 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-rose-300">ZONA LETHAL (&gt;10 psi)</span>
+                    <span className="text-xs font-mono font-bold text-rose-400">
+                      {aiExplosionPrediction.blastWaveRadii.lethalOverpressureMeters}m
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-rose-200/90 leading-relaxed">
+                    100% fatalitas bagi personel di luar ruangan; kehancuran total fasilitas dan pipa. Evakuasi seketika tanpa jeda.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-amber-950/60 border border-amber-800/80 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-amber-300">KERUSAKAN STRUKTURAL (&gt;3 psi)</span>
+                    <span className="text-xs font-mono font-bold text-amber-400">
+                      {aiExplosionPrediction.blastWaveRadii.structuralDamageMeters}m
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                    Kerusakan tangki tetangga (T-101 & T-103), robohnya rak pipa manifold, dan pecahan proyektil logam.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-800/80 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-300">BATAS AMAN EVAKUASI (&gt;1 psi)</span>
+                    <span className="text-xs font-mono font-bold text-emerald-400">
+                      {aiExplosionPrediction.blastWaveRadii.glassBreakageMeters}m
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                    Titik Kumpul AP-ALPHA (82, 132) dan AP-BRAVO (530, 472) berada di luar batas ini (&gt;150m) sehingga aman bagi personel.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ================================================================
+            POS STASIONER EVAKUASI MATRIX (8 POS SELURUH LEVEL TBBM)
+            ================================================================ */}
+        <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <CardHeader className="p-5 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Building className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                <CardTitle className="text-lg sm:text-xl font-bold text-slate-900">
+                  Matriks Evakuasi Pos Stasioner Seluruh Level Depo (8 Pos Stasioner)
+                </CardTitle>
+              </div>
+              <CardDescription className="text-xs sm:text-sm text-slate-600">
+                Instruksi evakuasi terdistribusi per pos operasional — tidak hanya pekerja dekat kilang, melainkan seluruh level dari operator gantry hingga pos jaga gerbang.
+              </CardDescription>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={triggerSideBInspectionScenario}
+                className={`rounded-xl text-xs font-semibold ${
+                  isSideBScenarioActive ? "border-amber-500 bg-amber-50 text-amber-900" : ""
+                }`}
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 mr-1" aria-hidden="true" />
+                <span>Simulasi Insiden Side B (Sidak Terancam)</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => router.push("/simulation")}
+                className="rounded-xl text-xs font-semibold"
+              >
+                <span>Buka Simulasi Visual</span>
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+              </Button>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200/90 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                    <th className="p-3.5 pl-6">Pos Stasioner</th>
+                    <th className="p-3.5">Zona</th>
+                    <th className="p-3.5">Personel & Level</th>
+                    <th className="p-3.5">Status Risiko</th>
+                    <th className="p-3.5">Koridor Evakuasi</th>
+                    <th className="p-3.5">Titik Kumpul</th>
+                    <th className="p-3.5 pr-6">Instruksi Level & Akses Gerbang</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {stationaryPosts.map((post) => {
+                    const isSideB = post.id === "POST-GANTRY-B";
+                    const isHighlighted = isSideB && (currentRoleLevel === "level-2-inspector" || isSideBScenarioActive);
+
+                    return (
+                      <tr
+                        key={post.id}
+                        className={`transition-colors ${
+                          isHighlighted
+                            ? "bg-amber-50/70 hover:bg-amber-50"
+                            : "hover:bg-slate-50/80"
+                        }`}
+                      >
+                        <td className="p-3.5 pl-6 font-bold text-slate-900">
+                          <div className="flex items-center gap-2">
+                            <span>{post.name}</span>
+                            {isSideB && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-100 text-amber-800 font-mono font-bold">
+                                SIDE B
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-500 font-normal">
+                            {post.shortCode} · Estimasi {post.estimatedEscapeTimeSec}s
+                          </div>
+                        </td>
+
+                        <td className="p-3.5 text-slate-600 font-medium">
+                          {post.zone}
+                        </td>
+
+                        <td className="p-3.5">
+                          <span className="font-bold text-slate-900 font-mono">
+                            {post.totalPersonnel} Orang
+                          </span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {post.personnelLevelsPresent.map((lvl) => (
+                              <span
+                                key={lvl}
+                                className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                                  lvl === "level-2-inspector"
+                                    ? "bg-amber-200 text-amber-900"
+                                    : lvl === "level-3-manager"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-slate-100 text-slate-700"
+                                }`}
+                              >
+                                {lvl === "level-1-operator"
+                                  ? "L1"
+                                  : lvl === "level-2-inspector"
+                                  ? "L2 (Sidak)"
+                                  : lvl === "level-3-manager"
+                                  ? "L3 (Mgr)"
+                                  : "L4"}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+
+                        <td className="p-3.5">
+                          <RiskBadge level={post.currentRisk} />
+                        </td>
+
+                        <td className="p-3.5 font-medium text-slate-800">
+                          {post.evacuationCorridor}
+                          <div className="text-[10px] text-slate-500 font-mono">
+                            Jarak: {post.distanceMeters}m
+                          </div>
+                        </td>
+
+                        <td className="p-3.5 font-bold font-mono text-slate-900">
+                          {post.destinationAssembly}
+                        </td>
+
+                        <td className="p-3.5 pr-6 text-slate-700 leading-relaxed max-w-sm">
+                          <div className="text-[11px]">
+                            {currentRoleLevel === "level-2-inspector" && post.specialLevelGuidance["level-2-inspector"] ? (
+                              <strong className="text-amber-900 block font-semibold mb-0.5">
+                                [Panduan Sidak]: {post.specialLevelGuidance["level-2-inspector"]}
+                              </strong>
+                            ) : null}
+                            <span>{post.specialLevelGuidance[currentRoleLevel] ?? post.specialLevelGuidance["level-1-operator"]}</span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-2 text-[10px] font-mono">
+                            <span className="text-slate-500">Akses Gerbang:</span>
+                            <span className={`font-bold ${
+                              post.gateAccessStatus === "OPEN"
+                                ? "text-emerald-600"
+                                : post.gateAccessStatus === "RESTRICTED"
+                                ? "text-amber-600"
+                                : "text-blue-600"
+                            }`}>
+                              {post.gateAccessStatus}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* ================================================================
             BOTTOM ROW: COMPACT MULTI-HAZARD SENSOR TRENDS (7 COLS) +

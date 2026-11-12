@@ -43,12 +43,13 @@ import { UIStateWrapper } from "@/components/shared/ui-state-wrapper";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Point2D } from "@/types/evora";
+import { Point2D, UserRoleLevel } from "@/types/evora";
 
 interface WorkerAgentSpec {
   id: string;
   name: string;
   role: string;
+  roleLevel: UserRoleLevel;
   originZone: string;
   startPos: Point2D;
   baseDelaySec: number;
@@ -68,61 +69,75 @@ interface SimulatedAgentState extends WorkerAgentSpec {
   stressLevel: "Normal" | "Elevated" | "High" | "Critical";
 }
 
-// 42 Authentic Pertamina Depot Personnel Roster with Realistic Starting Positions Across All 6 Depot Zones
+// 43 Authentic Pertamina Depot Personnel Roster with Realistic Starting Positions Across All Depot Zones
 const DEPOT_WORKER_SPECS: WorkerAgentSpec[] = [
+  // Level 2 Safety Inspector on Sidak at Gantry Bay B (Side B)
+  {
+    id: "INSP-01",
+    name: "Bambang Sujatmiko",
+    role: "Inspektur K3 (Sidak Lapangan B)",
+    roleLevel: "level-2-inspector",
+    originZone: "LB-02 Gantry Bay B (Side B)",
+    startPos: { x: 485, y: 360 },
+    baseDelaySec: 0,
+    speedMps: 1.55,
+    assignedRoute: "Route B",
+    targetMuster: "AP-BRAVO",
+  },
+
   // Tank Farm Cohort (8 personnel across T-101..104)
-  { id: "AG-01", name: "Ahmad Fauzi", role: "Tank Farm Gauger", originZone: "Tank T-101", startPos: { x: 235, y: 130 }, baseDelaySec: 2, speedMps: 1.38, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-02", name: "Budi Santoso", role: "Senior Tank Gauger", originZone: "Tank T-101", startPos: { x: 255, y: 140 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-03", name: "Cahyo Wibowo", role: "Rim-Seal Inspector", originZone: "Tank T-102", startPos: { x: 385, y: 125 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-04", name: "Dedi Prasetyo", role: "Bund Wall Watcher", originZone: "Tank T-102", startPos: { x: 405, y: 140 }, baseDelaySec: 3, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-05", name: "Eko Wahyudi", role: "Drain Valve Tech", originZone: "Tank T-103", startPos: { x: 535, y: 130 }, baseDelaySec: 5, speedMps: 1.30, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-06", name: "Fajar Nugroho", role: "Level Sensor Tech", originZone: "Tank T-103", startPos: { x: 555, y: 140 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-07", name: "Gilang Pratama", role: "Tank Farm Operator", originZone: "Tank T-104", startPos: { x: 685, y: 130 }, baseDelaySec: 4, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-08", name: "Hadi Susanto", role: "Cathodic Prot Tech", originZone: "Tank T-104", startPos: { x: 705, y: 140 }, baseDelaySec: 6, speedMps: 1.28, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-01", name: "Ahmad Fauzi", role: "Tank Farm Gauger", roleLevel: "level-1-operator", originZone: "Tank T-101", startPos: { x: 235, y: 130 }, baseDelaySec: 2, speedMps: 1.38, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-02", name: "Budi Santoso", role: "Senior Tank Gauger", roleLevel: "level-1-operator", originZone: "Tank T-101", startPos: { x: 255, y: 140 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-03", name: "Cahyo Wibowo", role: "Rim-Seal Inspector", roleLevel: "level-1-operator", originZone: "Tank T-102", startPos: { x: 385, y: 125 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-04", name: "Dedi Prasetyo", role: "Bund Wall Watcher", roleLevel: "level-1-operator", originZone: "Tank T-102", startPos: { x: 405, y: 140 }, baseDelaySec: 3, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-05", name: "Eko Wahyudi", role: "Drain Valve Tech", roleLevel: "level-1-operator", originZone: "Tank T-103", startPos: { x: 535, y: 130 }, baseDelaySec: 5, speedMps: 1.30, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-06", name: "Fajar Nugroho", role: "Level Sensor Tech", roleLevel: "level-1-operator", originZone: "Tank T-103", startPos: { x: 555, y: 140 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-07", name: "Gilang Pratama", role: "Tank Farm Operator", roleLevel: "level-1-operator", originZone: "Tank T-104", startPos: { x: 685, y: 130 }, baseDelaySec: 4, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-08", name: "Hadi Susanto", role: "Cathodic Prot Tech", roleLevel: "level-1-operator", originZone: "Tank T-104", startPos: { x: 705, y: 140 }, baseDelaySec: 6, speedMps: 1.28, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
 
   // Central Pipe Manifold Cohort (8 personnel along PIPE-01)
-  { id: "AG-09", name: "Indra Kusuma", role: "Manifold Flange Welder", originZone: "PIPE-01 West", startPos: { x: 260, y: 234 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-10", name: "Joko Widodo", role: "Valve Pit Operator", originZone: "PIPE-01 Center", startPos: { x: 380, y: 234 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-11", name: "Kurniawan D.", role: "Piping Maintenance", originZone: "PIPE-01 Center", startPos: { x: 420, y: 234 }, baseDelaySec: 2, speedMps: 1.48, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-12", name: "Lukman Hakim", role: "Pressure Relief Tech", originZone: "PIPE-01 Center", startPos: { x: 460, y: 234 }, baseDelaySec: 1, speedMps: 1.52, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-13", name: "Muhamad Rizki", role: "Flow Meter Inspector", originZone: "PIPE-01 East", startPos: { x: 540, y: 234 }, baseDelaySec: 3, speedMps: 1.35, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-14", name: "Nanang Supriatna", role: "Corrosion Specialist", originZone: "PIPE-01 East", startPos: { x: 590, y: 234 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-15", name: "Oki Setiawan", role: "Flange F-12 Inspector", originZone: "PIPE-01 Center", startPos: { x: 435, y: 234 }, baseDelaySec: 0, speedMps: 1.55, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-16", name: "Panji Gumilang", role: "Transfer Pump Tech", originZone: "PIPE-01 West", startPos: { x: 310, y: 234 }, baseDelaySec: 3, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-09", name: "Indra Kusuma", role: "Manifold Flange Welder", roleLevel: "level-1-operator", originZone: "PIPE-01 West", startPos: { x: 260, y: 234 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-10", name: "Joko Widodo", role: "Valve Pit Operator", roleLevel: "level-1-operator", originZone: "PIPE-01 Center", startPos: { x: 380, y: 234 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-11", name: "Kurniawan D.", role: "Piping Maintenance", roleLevel: "level-1-operator", originZone: "PIPE-01 Center", startPos: { x: 420, y: 234 }, baseDelaySec: 2, speedMps: 1.48, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-12", name: "Lukman Hakim", role: "Pressure Relief Tech", roleLevel: "level-1-operator", originZone: "PIPE-01 Center", startPos: { x: 460, y: 234 }, baseDelaySec: 1, speedMps: 1.52, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-13", name: "Muhamad Rizki", role: "Flow Meter Inspector", roleLevel: "level-1-operator", originZone: "PIPE-01 East", startPos: { x: 540, y: 234 }, baseDelaySec: 3, speedMps: 1.35, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-14", name: "Nanang Supriatna", role: "Corrosion Specialist", roleLevel: "level-1-operator", originZone: "PIPE-01 East", startPos: { x: 590, y: 234 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-15", name: "Oki Setiawan", role: "Flange F-12 Inspector", roleLevel: "level-1-operator", originZone: "PIPE-01 Center", startPos: { x: 435, y: 234 }, baseDelaySec: 0, speedMps: 1.55, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-16", name: "Panji Gumilang", role: "Transfer Pump Tech", roleLevel: "level-1-operator", originZone: "PIPE-01 West", startPos: { x: 310, y: 234 }, baseDelaySec: 3, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
 
   // Loading Gantry Bay A Cohort (10 personnel at LB-01)
-  { id: "AG-17", name: "Rendra Kurnia", role: "Gantry Bay A Lead", originZone: "LB-01 Gantry A", startPos: { x: 230, y: 345 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-18", name: "Surya Saputra", role: "Bottom Loading Tech", originZone: "LB-01 Gantry A", startPos: { x: 250, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-19", name: "Teguh Wibowo", role: "Vapor Hose Specialist", originZone: "LB-01 Gantry A", startPos: { x: 270, y: 345 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-20", name: "Untung Slamet", role: "Fuel Tanker Driver #01", originZone: "LB-01 Gantry A", startPos: { x: 290, y: 355 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-21", name: "Vicky Prasetya", role: "Fuel Tanker Driver #02", originZone: "LB-01 Gantry A", startPos: { x: 310, y: 345 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-22", name: "Wahyu Hidayat", role: "Overfill Protection", originZone: "LB-01 Gantry A", startPos: { x: 240, y: 365 }, baseDelaySec: 1, speedMps: 1.48, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-23", name: "Yudi Arisandi", role: "Static Grounding Tech", originZone: "LB-01 Gantry A", startPos: { x: 260, y: 365 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-24", name: "Zainal Abidin", role: "Quality Sample Officer", originZone: "LB-01 Gantry A", startPos: { x: 280, y: 365 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-25", name: "Agus Triyono", role: "Safety Escort Officer", originZone: "LB-01 Gantry A", startPos: { x: 300, y: 365 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-26", name: "Bambang Irawan", role: "Metering Tech", originZone: "LB-01 Gantry A", startPos: { x: 320, y: 365 }, baseDelaySec: 4, speedMps: 1.34, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-17", name: "Rendra Kurnia", role: "Gantry Bay A Lead", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 230, y: 345 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-18", name: "Surya Saputra", role: "Bottom Loading Tech", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 250, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-19", name: "Teguh Wibowo", role: "Vapor Hose Specialist", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 270, y: 345 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-20", name: "Untung Slamet", role: "Fuel Tanker Driver #01", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 290, y: 355 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-21", name: "Vicky Prasetya", role: "Fuel Tanker Driver #02", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 310, y: 345 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-22", name: "Wahyu Hidayat", role: "Overfill Protection", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 240, y: 365 }, baseDelaySec: 1, speedMps: 1.48, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-23", name: "Yudi Arisandi", role: "Static Grounding Tech", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 260, y: 365 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-24", name: "Zainal Abidin", role: "Quality Sample Officer", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 280, y: 365 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-25", name: "Agus Triyono", role: "Safety Escort Officer", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 300, y: 365 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-26", name: "Bambang Irawan", role: "Metering Tech", roleLevel: "level-1-operator", originZone: "LB-01 Gantry A", startPos: { x: 320, y: 365 }, baseDelaySec: 4, speedMps: 1.34, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
 
   // Loading Gantry Bay B Cohort (8 personnel at LB-02)
-  { id: "AG-27", name: "Cecep Suparman", role: "Gantry Bay B Lead", originZone: "LB-02 Gantry B", startPos: { x: 440, y: 345 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-28", name: "Danang Setiawan", role: "Multi-Product Arm Tech", originZone: "LB-02 Gantry B", startPos: { x: 460, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-29", name: "Edi Purwanto", role: "Fuel Tanker Driver #03", originZone: "LB-02 Gantry B", startPos: { x: 480, y: 345 }, baseDelaySec: 3, speedMps: 1.35, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-30", name: "Firman Syah", role: "Fuel Tanker Driver #04", originZone: "LB-02 Gantry B", startPos: { x: 500, y: 355 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-31", name: "Gunawan S.", role: "Hose Inspection Tech", originZone: "LB-02 Gantry B", startPos: { x: 450, y: 365 }, baseDelaySec: 1, speedMps: 1.46, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-32", name: "Heri Purnomo", role: "Billing & Dispatch", originZone: "LB-02 Gantry B", startPos: { x: 470, y: 365 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-33", name: "Irfan Hakim", role: "Gantry Safety Guard", originZone: "LB-02 Gantry B", startPos: { x: 490, y: 365 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-34", name: "Junaedi", role: "Additive Injection Tech", originZone: "LB-02 Gantry B", startPos: { x: 510, y: 365 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-27", name: "Cecep Suparman", role: "Gantry Bay B Lead", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 440, y: 345 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-28", name: "Danang Setiawan", role: "Multi-Product Arm Tech", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 460, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-29", name: "Edi Purwanto", role: "Fuel Tanker Driver #03", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 480, y: 345 }, baseDelaySec: 3, speedMps: 1.35, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-30", name: "Firman Syah", role: "Fuel Tanker Driver #04", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 500, y: 355 }, baseDelaySec: 4, speedMps: 1.32, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-31", name: "Gunawan S.", role: "Hose Inspection Tech", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 450, y: 365 }, baseDelaySec: 1, speedMps: 1.46, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-32", name: "Heri Purnomo", role: "Billing & Dispatch", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 470, y: 365 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-33", name: "Irfan Hakim", role: "Gantry Safety Guard", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 490, y: 365 }, baseDelaySec: 2, speedMps: 1.44, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-34", name: "Junaedi", role: "Additive Injection Tech", roleLevel: "level-1-operator", originZone: "LB-02 Gantry B", startPos: { x: 510, y: 365 }, baseDelaySec: 3, speedMps: 1.36, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
 
   // Vapor Recovery Unit (VRU-01) Cohort (4 personnel)
-  { id: "AG-35", name: "Kusnandar", role: "VRU Lead Engineer", originZone: "VRU-01 Skid", startPos: { x: 650, y: 345 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-36", name: "Luthfi Ansori", role: "Carbon Bed Technician", originZone: "VRU-01 Skid", startPos: { x: 670, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-37", name: "Mulyadi", role: "Vacuum Pump Tech", originZone: "VRU-01 Skid", startPos: { x: 690, y: 345 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
-  { id: "AG-38", name: "Nugroho Adji", role: "Flame Arrestor Tech", originZone: "VRU-01 Skid", startPos: { x: 710, y: 355 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-35", name: "Kusnandar", role: "VRU Lead Engineer", roleLevel: "level-1-operator", originZone: "VRU-01 Skid", startPos: { x: 650, y: 345 }, baseDelaySec: 1, speedMps: 1.45, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-36", name: "Luthfi Ansori", role: "Carbon Bed Technician", roleLevel: "level-1-operator", originZone: "VRU-01 Skid", startPos: { x: 670, y: 355 }, baseDelaySec: 2, speedMps: 1.40, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-37", name: "Mulyadi", role: "Vacuum Pump Tech", roleLevel: "level-1-operator", originZone: "VRU-01 Skid", startPos: { x: 690, y: 345 }, baseDelaySec: 3, speedMps: 1.38, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
+  { id: "AG-38", name: "Nugroho Adji", role: "Flame Arrestor Tech", roleLevel: "level-1-operator", originZone: "VRU-01 Skid", startPos: { x: 710, y: 355 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route B", targetMuster: "AP-BRAVO" },
 
   // Operations Control Building (OPS-01) Cohort (4 personnel)
-  { id: "AG-39", name: "Oman Suherman", role: "Terminal Operations Lead", originZone: "OPS-01 Building", startPos: { x: 190, y: 440 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-40", name: "Purnomo Sidi", role: "HSE Control Room Tech", originZone: "OPS-01 Building", startPos: { x: 210, y: 450 }, baseDelaySec: 2, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-41", name: "Rian Hidayat", role: "Emergency Coordinator", originZone: "OPS-01 Building", startPos: { x: 230, y: 440 }, baseDelaySec: 1, speedMps: 1.52, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
-  { id: "AG-42", name: "Sigit Pramono", role: "SCADA & Telemetry Tech", originZone: "OPS-01 Building", startPos: { x: 250, y: 450 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-39", name: "Oman Suherman", role: "Terminal Operations Lead", roleLevel: "level-3-manager", originZone: "OPS-01 Building", startPos: { x: 190, y: 440 }, baseDelaySec: 1, speedMps: 1.50, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-40", name: "Purnomo Sidi", role: "HSE Control Room Tech", roleLevel: "level-3-manager", originZone: "OPS-01 Building", startPos: { x: 210, y: 450 }, baseDelaySec: 2, speedMps: 1.45, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-41", name: "Rian Hidayat", role: "Emergency Coordinator", roleLevel: "level-4-ert", originZone: "OPS-01 Building", startPos: { x: 230, y: 440 }, baseDelaySec: 1, speedMps: 1.52, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
+  { id: "AG-42", name: "Sigit Pramono", role: "SCADA & Telemetry Tech", roleLevel: "level-3-manager", originZone: "OPS-01 Building", startPos: { x: 250, y: 450 }, baseDelaySec: 2, speedMps: 1.42, assignedRoute: "Route A", targetMuster: "AP-ALPHA" },
 ];
 
 function interpolatePath(points: Point2D[], progress: number): { pt: Point2D; angleDeg: number } {
@@ -173,16 +188,26 @@ export default function SimulationPage() {
     triggerHazardExpansion,
     resetDemoState,
     hazardExpansionStep,
+    currentRoleLevel,
+    setCurrentRoleLevel,
+    stationaryPosts,
+    aiExplosionPrediction,
+    isDelugeActive,
+    toggleDelugeSystem,
+    triggerSideBInspectionScenario,
+    isSideBScenarioActive,
   } = useEvora();
 
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>("SCN-GAS-01");
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [simSpeed, setSimSpeed] = useState<0.5 | 1 | 2 | 4>(1);
   const [simTickSeconds, setSimTickSeconds] = useState<number>(35);
-  const [workerCount, setWorkerCount] = useState<number>(42);
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>("AG-03");
+  const [workerCount, setWorkerCount] = useState<number>(43);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>("INSP-01");
   const [hoveredAgentId, setHoveredAgentId] = useState<string | null>(null);
   const [agentFilter, setAgentFilter] = useState<"all" | "moving" | "evacuated" | "affected">("all");
+  const [roleLevelFilter, setRoleLevelFilter] = useState<UserRoleLevel | "all">("all");
+  const [showBlastRadiusOverlay, setShowBlastRadiusOverlay] = useState<boolean>(true);
   const [isRouteABlockedManually, setIsRouteABlockedManually] = useState<boolean>(false);
   const [sirenActive, setSirenActive] = useState<boolean>(false);
   const [showDensityHeatmap, setShowDensityHeatmap] = useState<boolean>(true);
@@ -212,7 +237,7 @@ export default function SimulationPage() {
 
   // Compute complete realistic paths from each agent's individual start station to assembly points
   const simulatedAgents = useMemo<SimulatedAgentState[]>(() => {
-    const count = Math.max(12, Math.min(42, workerCount));
+    const count = Math.max(12, Math.min(43, workerCount));
     const activeCohort = DEPOT_WORKER_SPECS.slice(0, count);
 
     return activeCohort.map((spec) => {
@@ -223,12 +248,15 @@ export default function SimulationPage() {
       const progress = Math.min(1, effectiveSec / totalTimeNeededSec);
 
       // Routing logic:
-      // If Route A is blocked, or hazard expanded westward, or user manually rerouted this agent
+      // If Route A is blocked, or hazard expanded westward, or user manually rerouted this agent,
+      // or if Side B scenario is active and worker is in Bay B / Level 2 Inspector:
+      const isSideBWorker = spec.originZone.includes("Gantry Bay B") || spec.id === "INSP-01";
       const manualDest = manualAgentOverrides[spec.id];
       const forceDivertToB =
         manualDest === "AP-BRAVO" ||
         isRouteABlockedManually ||
         hazardExpansionStep > 0 ||
+        (isSideBScenarioActive && isSideBWorker) ||
         spec.assignedRoute === "Route B";
 
       const targetMuster: "AP-ALPHA" | "AP-BRAVO" = forceDivertToB ? "AP-BRAVO" : "AP-ALPHA";
@@ -322,6 +350,7 @@ export default function SimulationPage() {
     hazardExpansionStep,
     hazards,
     isRouteABlockedManually,
+    isSideBScenarioActive,
     manualAgentOverrides,
     simTickSeconds,
     sirenActive,
@@ -345,11 +374,16 @@ export default function SimulationPage() {
   const evacuationRatePct = Math.round((evacuatedCount / simulatedAgents.length) * 100);
 
   const filteredAgents = useMemo(() => {
-    if (agentFilter === "moving") return simulatedAgents.filter((a) => a.status === "moving" || a.status === "diverted");
-    if (agentFilter === "evacuated") return simulatedAgents.filter((a) => a.status === "evacuated");
-    if (agentFilter === "affected") return simulatedAgents.filter((a) => a.status === "affected");
-    return simulatedAgents;
-  }, [agentFilter, simulatedAgents]);
+    let list = simulatedAgents;
+    if (agentFilter === "moving") list = list.filter((a) => a.status === "moving" || a.status === "diverted");
+    else if (agentFilter === "evacuated") list = list.filter((a) => a.status === "evacuated");
+    else if (agentFilter === "affected") list = list.filter((a) => a.status === "affected");
+
+    if (roleLevelFilter !== "all") {
+      list = list.filter((a) => a.roleLevel === roleLevelFilter);
+    }
+    return list;
+  }, [agentFilter, roleLevelFilter, simulatedAgents]);
 
   const handleScenarioChange = (scenId: string) => {
     setSelectedScenarioId(scenId);
@@ -546,8 +580,47 @@ export default function SimulationPage() {
                   <RiskBadge level={activeScenario.severity} />
                 </div>
 
-                {/* Canvas Options Toggles */}
-                <div className="flex items-center gap-2">
+                {/* Canvas Options Toggles & Scenario Actions */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowBlastRadiusOverlay((b) => !b)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                      showBlastRadiusOverlay
+                        ? "bg-rose-50 text-rose-700 border-rose-200 font-semibold"
+                        : "bg-white text-slate-600 border-slate-200"
+                    }`}
+                  >
+                    Radius BLEVE T-102: {showBlastRadiusOverlay ? "ON" : "OFF"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={triggerSideBInspectionScenario}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                      isSideBScenarioActive
+                        ? "bg-amber-100 text-amber-900 border-amber-300 animate-pulse"
+                        : "bg-amber-50 hover:bg-amber-100/70 text-amber-800 border-amber-200"
+                    }`}
+                    title="Simulasi insiden gas naik saat inspektur K3 menyidak Side B"
+                  >
+                    <AlertTriangle className="w-3 h-3 inline mr-1 text-amber-600" />
+                    <span>Skenario Sidak Side B</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={toggleDelugeSystem}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                      isDelugeActive
+                        ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                        : "bg-blue-50 hover:bg-blue-100/70 text-blue-800 border-blue-200"
+                    }`}
+                    title="Semprotan pendingin air cangkang tangki T-102"
+                  >
+                    <span>{isDelugeActive ? "Deluge Aktif" : "Deluge T-102"}</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setShowDensityHeatmap((h) => !h)}
@@ -557,7 +630,7 @@ export default function SimulationPage() {
                         : "bg-white text-slate-600 border-slate-200"
                     }`}
                   >
-                    Density Heatmap: {showDensityHeatmap ? "ON" : "OFF"}
+                    Heatmap: {showDensityHeatmap ? "ON" : "OFF"}
                   </button>
 
                   <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-mono">
@@ -955,6 +1028,78 @@ export default function SimulationPage() {
                       );
                     })}
 
+                  {/* AI Explosion Risk Predictor (BLEVE Blast Overpressure Overlays around Tank T-102) */}
+                  {showBlastRadiusOverlay && (
+                    <g className="pointer-events-none">
+                      {/* Lethal Overpressure 48m */}
+                      <circle
+                        cx={370}
+                        cy={125}
+                        r={48 * 1.35}
+                        fill="rgba(239, 68, 68, 0.08)"
+                        stroke="#EF4444"
+                        strokeWidth="1.8"
+                        strokeDasharray="4 3"
+                        className="animate-pulse"
+                      />
+                      <text
+                        x={370}
+                        y={125 - 48 * 1.35 - 4}
+                        textAnchor="middle"
+                        fill="#EF4444"
+                        fontSize="7.5"
+                        fontWeight="700"
+                        fontFamily="monospace"
+                      >
+                        BLEVE LETHAL ZONE (&gt;10 psi · 48m)
+                      </text>
+
+                      {/* Structural Damage 88m */}
+                      <circle
+                        cx={370}
+                        cy={125}
+                        r={88 * 1.35}
+                        fill="rgba(245, 158, 11, 0.04)"
+                        stroke="#F59E0B"
+                        strokeWidth="1.4"
+                        strokeDasharray="6 4"
+                      />
+                      <text
+                        x={370}
+                        y={125 - 88 * 1.35 - 4}
+                        textAnchor="middle"
+                        fill="#F59E0B"
+                        fontSize="7.5"
+                        fontWeight="700"
+                        fontFamily="monospace"
+                      >
+                        STRUCTURAL DAMAGE (&gt;3 psi · 88m)
+                      </text>
+
+                      {/* Safe Perimeter 145m */}
+                      <circle
+                        cx={370}
+                        cy={125}
+                        r={145 * 1.35}
+                        fill="none"
+                        stroke="#10B981"
+                        strokeWidth="1.2"
+                        strokeDasharray="8 6"
+                      />
+                      <text
+                        x={370}
+                        y={125 - 145 * 1.35 - 4}
+                        textAnchor="middle"
+                        fill="#10B981"
+                        fontSize="7.5"
+                        fontWeight="700"
+                        fontFamily="monospace"
+                      >
+                        SAFE PERIMETER (&gt;1 psi · 145m)
+                      </text>
+                    </g>
+                  )}
+
                   {/* Dynamic Digital Variable Message Signs (VMS) on Canvas */}
                   {/* Sign SGN-01 at West Intersection (124, 304) */}
                   <g transform="translate(94, 276)">
@@ -1058,11 +1203,15 @@ export default function SimulationPage() {
                     const isSelected = selectedAgentId === agent.id;
                     const isHovered = hoveredAgentId === agent.id;
 
+                    const isInspector = agent.roleLevel === "level-2-inspector" || agent.id === "INSP-01";
+
                     const fill =
                       agent.status === "evacuated"
                         ? "#10B981"
                         : agent.status === "affected"
                         ? "#EF4444"
+                        : isInspector
+                        ? "#F59E0B"
                         : agent.status === "diverted"
                         ? "#F59E0B"
                         : "#3B82F6";
@@ -1082,8 +1231,46 @@ export default function SimulationPage() {
                         onMouseLeave={() => setHoveredAgentId(null)}
                         className="cursor-pointer"
                       >
+                        {/* Trailing motion particles for moving agents */}
+                        {(agent.status === "moving" || agent.status === "diverted") && (
+                          <g transform={`rotate(${agent.headingDeg})`} className="pointer-events-none opacity-40">
+                            <circle cx="-7" cy="0" r="2.2" fill={fill} />
+                            <circle cx="-13" cy="0" r="1.4" fill={fill} opacity="0.6" />
+                          </g>
+                        )}
+
+                        {/* Level 2 Inspector Dedicated High-Vis Halo */}
+                        {isInspector && (
+                          <>
+                            <circle
+                              r="15"
+                              fill="none"
+                              stroke="#F59E0B"
+                              strokeWidth="2"
+                              className="animate-ping"
+                              style={{ animationDuration: "1.8s" }}
+                            />
+                            <circle
+                              r="11"
+                              fill="#FEF3C7"
+                              stroke="#D97706"
+                              strokeWidth="1.8"
+                            />
+                            <text
+                              y="-13"
+                              textAnchor="middle"
+                              fill={canvasTheme === "dark" ? "#FBBF24" : "#B45309"}
+                              fontSize="8"
+                              fontWeight="900"
+                              fontFamily="monospace"
+                            >
+                              INSP-01 · SIDAK B
+                            </text>
+                          </>
+                        )}
+
                         {/* Selected Pulsing Radar Ring */}
-                        {isSelected && (
+                        {isSelected && !isInspector && (
                           <>
                             <circle
                               r="13"
@@ -1106,7 +1293,7 @@ export default function SimulationPage() {
                         {/* Affected Panic Indicator */}
                         {agent.status === "affected" && (
                           <circle
-                            r="11"
+                            r="12"
                             fill="none"
                             stroke="#EF4444"
                             strokeWidth="1.8"
@@ -1117,7 +1304,7 @@ export default function SimulationPage() {
 
                         {/* Main Agent Core Body */}
                         <circle
-                          r={isSelected ? 6.5 : isHovered ? 6 : 5}
+                          r={isSelected ? 7 : isInspector ? 6.5 : isHovered ? 6 : 5}
                           fill={fill}
                           stroke="#FFFFFF"
                           strokeWidth="1.6"
@@ -1125,9 +1312,9 @@ export default function SimulationPage() {
                         />
 
                         {/* Agent Walking Heading Direction Arrow */}
-                        {agent.status === "moving" && (
+                        {(agent.status === "moving" || agent.status === "diverted") && (
                           <g transform={`rotate(${agent.headingDeg})`}>
-                            <polygon points="6,0 3,-2.5 3,2.5" fill="#FFFFFF" />
+                            <polygon points="7,0 3,-2.5 3,2.5" fill="#FFFFFF" />
                           </g>
                         )}
                       </g>
@@ -1285,59 +1472,125 @@ export default function SimulationPage() {
               </div>
             </div>
 
-            {/* Agent Distribution Filter Tabs */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 border border-slate-200/90 rounded-2xl shadow-xs">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-xs font-semibold text-slate-500 mr-1">Filter Agents:</span>
+            {/* Agent Distribution & Role Level Filter Tabs */}
+            <div className="bg-white p-3.5 border border-slate-200/90 rounded-2xl shadow-xs space-y-2.5">
+              {/* Row 1: Status Filter */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs font-semibold text-slate-500 mr-1">Status:</span>
+                  <button
+                    type="button"
+                    onClick={() => setAgentFilter("all")}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                      agentFilter === "all"
+                        ? "bg-slate-900 text-white border-slate-900 font-semibold"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    All ({simulatedAgents.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAgentFilter("moving")}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                      agentFilter === "moving"
+                        ? "bg-blue-600 text-white border-blue-600 font-semibold"
+                        : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                    }`}
+                  >
+                    In Transit ({movingCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAgentFilter("evacuated")}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                      agentFilter === "evacuated"
+                        ? "bg-emerald-600 text-white border-emerald-600 font-semibold"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                    }`}
+                  >
+                    Safe at Muster ({evacuatedCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAgentFilter("affected")}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                      agentFilter === "affected"
+                        ? "bg-rose-600 text-white border-rose-600 font-semibold"
+                        : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                    }`}
+                  >
+                    In Danger ({affectedCount})
+                  </button>
+                </div>
+
+                <span className="text-xs font-mono text-slate-500">
+                  {filteredAgents.length} agen ditampilkan
+                </span>
+              </div>
+
+              {/* Row 2: Role Level Filter */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+                <span className="text-xs font-semibold text-slate-500 mr-1">Level Otoritas:</span>
                 <button
                   type="button"
-                  onClick={() => setAgentFilter("all")}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                    agentFilter === "all"
-                      ? "bg-slate-900 text-white border-slate-900 font-semibold"
-                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  onClick={() => setRoleLevelFilter("all")}
+                  className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                    roleLevelFilter === "all"
+                      ? "bg-slate-800 text-white border-slate-800 font-semibold"
+                      : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                   }`}
                 >
-                  All ({simulatedAgents.length})
+                  Semua Level
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAgentFilter("moving")}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                    agentFilter === "moving"
+                  onClick={() => setRoleLevelFilter("level-1-operator")}
+                  className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                    roleLevelFilter === "level-1-operator"
                       ? "bg-blue-600 text-white border-blue-600 font-semibold"
                       : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
                   }`}
                 >
-                  In Transit ({movingCount})
+                  Level 1: Operator
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAgentFilter("evacuated")}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                    agentFilter === "evacuated"
-                      ? "bg-emerald-600 text-white border-emerald-600 font-semibold"
-                      : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                  onClick={() => {
+                    setRoleLevelFilter("level-2-inspector");
+                    setSelectedAgentId("INSP-01");
+                  }}
+                  className={`px-2.5 py-0.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                    roleLevelFilter === "level-2-inspector"
+                      ? "bg-amber-500 text-white border-amber-600 font-bold shadow-xs"
+                      : "bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100"
                   }`}
                 >
-                  Safe at Muster ({evacuatedCount})
+                  Level 2: Inspektur K3 (Sidak Lapangan B)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAgentFilter("affected")}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                    agentFilter === "affected"
+                  onClick={() => setRoleLevelFilter("level-3-manager")}
+                  className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                    roleLevelFilter === "level-3-manager"
+                      ? "bg-indigo-600 text-white border-indigo-600 font-semibold"
+                      : "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100"
+                  }`}
+                >
+                  Level 3: Manager
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRoleLevelFilter("level-4-ert")}
+                  className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                    roleLevelFilter === "level-4-ert"
                       ? "bg-rose-600 text-white border-rose-600 font-semibold"
                       : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
                   }`}
                 >
-                  In Danger ({affectedCount})
+                  Level 4: ERT
                 </button>
               </div>
-
-              <span className="text-xs font-mono text-slate-500">
-                Click any agent dot to inspect real-time biometrics
-              </span>
             </div>
           </div>
 
@@ -1384,6 +1637,29 @@ export default function SimulationPage() {
                       {selectedAgent.name}
                     </h2>
                     <p className="text-xs text-slate-500">{selectedAgent.role}</p>
+
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                        selectedAgent.roleLevel === "level-2-inspector"
+                          ? "bg-amber-100 text-amber-900 border border-amber-300"
+                          : selectedAgent.roleLevel === "level-3-manager"
+                          ? "bg-blue-100 text-blue-900 border border-blue-300"
+                          : selectedAgent.roleLevel === "level-4-ert"
+                          ? "bg-rose-100 text-rose-900 border border-rose-300"
+                          : "bg-slate-100 text-slate-700 border border-slate-200"
+                      }`}>
+                        {selectedAgent.roleLevel === "level-2-inspector"
+                          ? "LEVEL 2: INSPEKTUR K3 (SIDAK)"
+                          : selectedAgent.roleLevel === "level-3-manager"
+                          ? "LEVEL 3: DEPOT MANAGER"
+                          : selectedAgent.roleLevel === "level-4-ert"
+                          ? "LEVEL 4: ERT RESPONDER"
+                          : "LEVEL 1: OPERATOR"}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-500">
+                        Pos: {selectedAgent.originZone}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="text-right">
@@ -1394,6 +1670,19 @@ export default function SimulationPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Level 2 Inspector Inspection Notice */}
+                {selectedAgent.roleLevel === "level-2-inspector" && (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
+                    <div className="font-bold flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Protokol Khusus Sidak Lapangan B (Side B)</span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-amber-800">
+                      Inspektur sedang menyidak operasional di Gantry Bay B. Jika terdeteksi kebocoran gas di koridor manifold PIPE-01, jalur evakuasi utara terputus. Sistem mengunci arah evakuasi ke <strong>Koridor Selatan (Route B) menuju AP-BRAVO</strong>.
+                    </p>
+                  </div>
+                )}
 
                 {/* Agent Real-Time Telemetry Grid */}
                 <div className="grid grid-cols-2 gap-2.5 text-xs font-mono">

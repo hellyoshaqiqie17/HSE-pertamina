@@ -66,6 +66,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     lastUpdatedTimestamp,
     toasts,
     dismissToast,
+    currentRoleLevel,
+    setCurrentRoleLevel,
+    stationaryPosts,
+    aiExplosionPrediction,
+    isDelugeActive,
+    toggleDelugeSystem,
+    triggerSideBInspectionScenario,
+    isSideBScenarioActive,
   } = useEvora();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -74,7 +82,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [currentRole, setCurrentRole] = useState("HSE Incident Commander");
   const [globalQuery, setGlobalQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -208,12 +215,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     },
   ];
 
-  const roles = [
-    "HSE Incident Commander",
-    "Field Safety Officer",
-    "Depot Operations Manager",
-    "Emergency Response Team",
-    "HSSE Auditor",
+  const roleLevelOptions: {
+    value: import("@/types/evora").UserRoleLevel;
+    label: string;
+    badge: string;
+    desc: string;
+  }[] = [
+    {
+      value: "level-1-operator",
+      label: "Level 1 · Operator Lapangan",
+      badge: "L1 OPR",
+      desc: "Operasional gantry & pompa, eksekusi ESD lokal",
+    },
+    {
+      value: "level-2-inspector",
+      label: "Level 2 · Inspektur K3 (Sidak Lapangan B)",
+      badge: "L2 SIDAK",
+      desc: "Audit kepatuhan di Side B, evakuasi koridor selatan mandiri",
+    },
+    {
+      value: "level-3-manager",
+      label: "Level 3 · Incident Commander / Depot Manager",
+      badge: "L3 MGR",
+      desc: "Komando krisis depot penuh & aktivasi Deluge T-102",
+    },
+    {
+      value: "level-4-ert",
+      label: "Level 4 · Tim Tanggap Darurat (ERT)",
+      badge: "L4 ERT",
+      desc: "Penanggulangan busa api & perimeter Ex-Zone 1",
+    },
   ];
 
   const isNavActive = (href: string) => {
@@ -360,6 +391,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Live Telemetry Active</span>
             </div>
+
+            {/* Level 2 Sidak Active Badge */}
+            {(currentRoleLevel === "level-2-inspector" || isSideBScenarioActive) && (
+              <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800 font-semibold animate-pulse">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" aria-hidden="true" />
+                <span>Sidak Lapangan B Aktif · INSP-01 (Side B)</span>
+              </div>
+            )}
           </div>
 
           {/* TopBar Right: Search + Role Switcher + AI Copilot + Alerts + Profile */}
@@ -423,15 +462,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
             {/* Role Perspective Switcher (matching C:/ti) */}
             <div className="hidden sm:flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 rounded-xl px-2.5 py-1 text-xs">
-              <span className="text-slate-400 text-[11px] font-medium hidden md:inline">Peran:</span>
+              <span className="text-slate-400 text-[11px] font-medium hidden md:inline">Level Otoritas:</span>
               <select
-                value={currentRole}
-                onChange={(e) => setCurrentRole(e.target.value)}
+                aria-label="Pilih Level Otoritas & Peran"
+                value={currentRoleLevel}
+                onChange={(e) => setCurrentRoleLevel(e.target.value as import("@/types/evora").UserRoleLevel)}
                 className="bg-transparent font-bold text-slate-800 text-xs focus:outline-none cursor-pointer"
               >
-                {roles.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
+                {roleLevelOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
                   </option>
                 ))}
               </select>
@@ -697,6 +737,76 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
             {/* Copilot Body / Live Recommendations */}
             <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
+              {/* Dynamic Perspective Briefing based on currentRoleLevel */}
+              <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">
+                    Briefing Otoritas Level
+                  </span>
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                    currentRoleLevel === "level-2-inspector"
+                      ? "bg-amber-100 text-amber-800"
+                      : currentRoleLevel === "level-3-manager"
+                      ? "bg-blue-100 text-blue-800"
+                      : currentRoleLevel === "level-4-ert"
+                      ? "bg-rose-100 text-rose-800"
+                      : "bg-slate-200 text-slate-800"
+                  }`}>
+                    {currentRoleLevel === "level-1-operator"
+                      ? "Level 1: Operator"
+                      : currentRoleLevel === "level-2-inspector"
+                      ? "Level 2: Inspektur K3 (Sidak B)"
+                      : currentRoleLevel === "level-3-manager"
+                      ? "Level 3: Incident Commander"
+                      : "Level 4: ERT Tim Khusus"}
+                  </span>
+                </div>
+
+                {currentRoleLevel === "level-2-inspector" && (
+                  <div className="text-slate-700 space-y-1.5 leading-relaxed">
+                    <p className="font-semibold text-amber-900">
+                      Anda sedang melakukan inspeksi (sidak) di Gantry Bay B (Side B).
+                    </p>
+                    <p className="text-slate-600">
+                      Jika terjadi lonjakan hidrokarbon atau potensi BLEVE di T-102, koridor manifold utama terhalang plume. <strong>JANGAN melintasi utara</strong>; evakuasi mandiri melalui <strong>Jalur B Selatan langsung ke Titik Kumpul AP-BRAVO</strong>.
+                    </p>
+                  </div>
+                )}
+
+                {currentRoleLevel === "level-1-operator" && (
+                  <div className="text-slate-700 space-y-1.5 leading-relaxed">
+                    <p className="font-semibold text-slate-900">
+                      Fokus: Operasional Aman & Penghentian Darurat (ESD).
+                    </p>
+                    <p className="text-slate-600">
+                      Segera putuskan aliran bottom loading rack, lepas selang grounding, dan ikuti rambu arah dinamis terdekat menuju assembly point terdekat.
+                    </p>
+                  </div>
+                )}
+
+                {currentRoleLevel === "level-3-manager" && (
+                  <div className="text-slate-700 space-y-1.5 leading-relaxed">
+                    <p className="font-semibold text-blue-900">
+                      Komando Penuh Depo & Otorisasi Penanganan Bencana.
+                    </p>
+                    <p className="text-slate-600">
+                      Wewenang penuh evakuasi serentak 8 pos stasioner, pengaktifan sistem pendingin <strong>Deluge Spray T-102</strong>, dan koordinasi dengan Kantor Pusat Pertamina.
+                    </p>
+                  </div>
+                )}
+
+                {currentRoleLevel === "level-4-ert" && (
+                  <div className="text-slate-700 space-y-1.5 leading-relaxed">
+                    <p className="font-semibold text-rose-900">
+                      Operasi Penanggulangan Bahaya & Pemadaman (ERT).
+                    </p>
+                    <p className="text-slate-600">
+                      Gelar foam tender di sisi upwind, pastikan perimeter isolasi Ex-Zone 1 aman, dan amankan evakuasi petugas stasioner dari koridor pipa.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {/* Status Alert Banner */}
               <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200/80 text-blue-900 space-y-1.5">
                 <div className="flex items-center gap-1.5 font-bold text-blue-950">
@@ -736,6 +846,49 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {/* Quick Actions */}
               <div className="space-y-2 pt-2">
                 <span className="font-bold text-slate-700 block">Tindakan Cepat AI:</span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerSideBInspectionScenario();
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-amber-950 flex items-center justify-between group transition-colors cursor-pointer"
+                >
+                  <div>
+                    <div className="font-semibold text-amber-950 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Uji Insiden Side B (Sidak Terancam)</span>
+                    </div>
+                    <div className="text-[11px] text-amber-800 mt-0.5">
+                      Simulasi inspektur Level 2 di Bay B saat uap naik
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-amber-600 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleDelugeSystem();
+                  }}
+                  className={`w-full text-left p-2.5 rounded-xl border flex items-center justify-between group transition-colors cursor-pointer ${
+                    isDelugeActive
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-950"
+                      : "bg-blue-50 hover:bg-blue-100/80 border-blue-200 text-blue-950"
+                  }`}
+                >
+                  <div>
+                    <div className="font-semibold flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                      <span>{isDelugeActive ? "Deluge Spray T-102 Aktif (1,400 L/m)" : "Aktifkan Deluge Spray T-102"}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-600 mt-0.5">
+                      {isDelugeActive ? "Tekan untuk menonaktifkan pendingin" : "Cegah potensi ledakan BLEVE Tangki Pertalite"}
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -760,7 +913,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 >
                   <div>
                     <div className="font-semibold text-slate-900">Buka Tahap Simulasi Interaktif</div>
-                    <div className="text-[11px] text-slate-500">Inspeksi telemetri per agen pekerja</div>
+                    <div className="text-[11px] text-slate-500">Inspeksi telemetri per agen pekerja & Level 2</div>
                   </div>
                   <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
                 </button>

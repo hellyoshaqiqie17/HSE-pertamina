@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 import {
+  AIExplosionPrediction,
   EvacuationRoute,
   FacilityAsset,
   FacilityInfo,
@@ -18,8 +19,10 @@ import {
   Sensor,
   SimulatedIncident,
   SimulationScenario,
+  StationaryPostEvacuation,
   TimelineEvent,
   UIViewState,
+  UserRoleLevel,
   WorkerAgent,
 } from "@/types/evora";
 import {
@@ -36,6 +39,8 @@ import {
   SIMULATED_INCIDENTS,
   SIMULATION_SCENARIOS,
 } from "@/data/scenarios";
+import { INITIAL_STATIONARY_POSTS } from "@/data/stationary-posts";
+import { INITIAL_AI_EXPLOSION_PREDICTION } from "@/data/ai-prediction";
 import {
   DEFAULT_SCORING_CONFIG,
   evaluateFacilityRoutes,
@@ -68,6 +73,15 @@ interface EvoraContextValue {
   hazardExpansionStep: number;
   lastUpdatedTimestamp: string;
   toasts: ToastMessage[];
+  currentRoleLevel: UserRoleLevel;
+  setCurrentRoleLevel: (role: UserRoleLevel) => void;
+  stationaryPosts: StationaryPostEvacuation[];
+  aiExplosionPrediction: AIExplosionPrediction;
+  isDelugeActive: boolean;
+  toggleDelugeSystem: () => void;
+  triggerSideBInspectionScenario: () => void;
+  isSideBScenarioActive: boolean;
+  timeToFailureCountdown: number;
   pushToast: (
     title: string,
     detail: string,
@@ -113,6 +127,24 @@ export function EvoraProvider({ children }: { children: React.ReactNode }) {
   const [lastUpdatedTimestamp, setLastUpdatedTimestamp] =
     useState<string>("09:51:04 WIB");
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [currentRoleLevel, setCurrentRoleLevelState] =
+    useState<UserRoleLevel>("level-2-inspector");
+  const [stationaryPosts, setStationaryPosts] =
+    useState<StationaryPostEvacuation[]>(INITIAL_STATIONARY_POSTS);
+  const [aiExplosionPrediction, setAiExplosionPrediction] =
+    useState<AIExplosionPrediction>(INITIAL_AI_EXPLOSION_PREDICTION);
+  const [isDelugeActive, setIsDelugeActive] = useState<boolean>(false);
+  const [isSideBScenarioActive, setIsSideBScenarioActive] = useState<boolean>(false);
+  const [timeToFailureCountdown, setTimeToFailureCountdown] = useState<number>(680);
+
+  // BLEVE Time-to-Failure countdown
+  useEffect(() => {
+    if (isDelugeActive) return;
+    const interval = setInterval(() => {
+      setTimeToFailureCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isDelugeActive]);
 
   // Ensure HMR updates to static coordinates/waypoints immediately reflect in active state
   useEffect(() => {
@@ -393,6 +425,123 @@ export function EvoraProvider({ children }: { children: React.ReactNode }) {
     });
   }, [appendTimelineEvent, pushToast, selectedFacilityId]);
 
+  const setCurrentRoleLevel = useCallback(
+    (role: UserRoleLevel) => {
+      setCurrentRoleLevelState(role);
+      const labels: Record<UserRoleLevel, string> = {
+        "level-1-operator": "Level 1: Operator Lapangan",
+        "level-2-inspector": "Level 2: Inspektur K3 (Sidak Lapangan B)",
+        "level-3-manager": "Level 3: Incident Commander / Depot Manager",
+        "level-4-ert": "Level 4: Tim Tanggap Darurat / ERT",
+      };
+      pushToast(
+        `Perspektif: ${labels[role]}`,
+        `Dashboard & otorisasi evakuasi disesuaikan untuk ${labels[role]}.`,
+        "info"
+      );
+    },
+    [pushToast]
+  );
+
+  const toggleDelugeSystem = useCallback(() => {
+    setIsDelugeActive((prev) => {
+      const next = !prev;
+      setAiExplosionPrediction((pred) => ({
+        ...pred,
+        threatLevel: next ? "ELEVATED" : "CRITICAL",
+        probabilityPct: next ? 22.4 : 84.6,
+        telemetryFactors: {
+          ...pred.telemetryFactors,
+          shellTemperatureC: next ? 46.8 : 78.4,
+          internalPressureBar: next ? 2.15 : 3.42,
+        },
+        mitigationActions: pred.mitigationActions.map((act) =>
+          act.id === "act-deluge"
+            ? { ...act, status: next ? "completed" : "recommended" }
+            : act
+        ),
+      }));
+
+      appendTimelineEvent(
+        selectedFacilityId,
+        "operator",
+        next ? "Deluge Water Spray System T-102 Aktif" : "Deluge System Dinonaktifkan",
+        next
+          ? "Sistem semprotan pendingin air 1,400 L/menit mendinginkan cangkang T-102. Probabilitas BLEVE ditekan ke 22.4%."
+          : "Sistem semprotan air dikembalikan ke mode siaga."
+      );
+
+      pushToast(
+        next ? "Deluge Water Spray Aktif" : "Deluge System Siaga",
+        next
+          ? "Pendinginan aktif. Temperatur T-102 turun ke 46.8°C dan tekanan uap internal normal."
+          : "Sistem semprotan air standby.",
+        next ? "success" : "info"
+      );
+
+      return next;
+    });
+  }, [appendTimelineEvent, pushToast, selectedFacilityId]);
+
+  const triggerSideBInspectionScenario = useCallback(() => {
+    setIsSideBScenarioActive(true);
+    setCurrentRoleLevelState("level-2-inspector");
+
+    // Spiking gas at Bay B (Side B)
+    setAllSensors((sPrev) =>
+      sPrev.map((s) => {
+        if (s.id === "SNS-GAS-02") {
+          return {
+            ...s,
+            value: 68.4,
+            status: "critical",
+            lastUpdated: "Baru saja",
+          };
+        }
+        if (s.id === "SNS-TMP-01") {
+          return {
+            ...s,
+            value: 82.5,
+            status: "critical",
+            lastUpdated: "Baru saja",
+          };
+        }
+        return s;
+      })
+    );
+
+    // Update stationary post status
+    setStationaryPosts((posts) =>
+      posts.map((p) =>
+        p.id === "POST-GANTRY-B"
+          ? { ...p, currentRisk: "critical", status: "at_risk" }
+          : p
+      )
+    );
+
+    // Evacuate Side B workers & Level 2 Inspector via Route B
+    setAllWorkers((wPrev) =>
+      wPrev.map((w) =>
+        w.originZone.includes("Gantry Bay B") || w.id === "WRK-02"
+          ? { ...w, assignedRouteId: "RT-ALPHA-B", status: "affected" }
+          : w
+      )
+    );
+
+    appendTimelineEvent(
+      selectedFacilityId,
+      "simulation",
+      "Skenario Insiden Side B: Inspektur Sidak K3 Terancam",
+      "Peningkatan mendadak uap hidrokarbon 68.4% LEL di Gantry Bay B saat Inspektur Level 2 menyidak lapangan B. Rute evakuasi darurat selatan ke AP-BRAVO diaktifkan otomatis."
+    );
+
+    pushToast(
+      "PERINGATAN SIDAK SIDE B",
+      "Inspeksi dihentikan darurat! Inspektur Level 2 dan seluruh operator Bay B diarahkan keluar melalui Koridor Selatan ke AP-BRAVO.",
+      "danger"
+    );
+  }, [appendTimelineEvent, pushToast, selectedFacilityId]);
+
   const resetDemoState = useCallback(() => {
     setAllSensors(INITIAL_SENSORS);
     setAllHazards(INITIAL_HAZARDS);
@@ -402,6 +551,11 @@ export function EvoraProvider({ children }: { children: React.ReactNode }) {
     setScoringConfig(DEFAULT_SCORING_CONFIG);
     setHazardExpansionStep(0);
     setUiState("ready");
+    setIsDelugeActive(false);
+    setIsSideBScenarioActive(false);
+    setStationaryPosts(INITIAL_STATIONARY_POSTS);
+    setAiExplosionPrediction(INITIAL_AI_EXPLOSION_PREDICTION);
+    setTimeToFailureCountdown(680);
     appendTimelineEvent(
       selectedFacilityId,
       "operator",
@@ -665,6 +819,15 @@ export function EvoraProvider({ children }: { children: React.ReactNode }) {
     triggerSensorSpike,
     updateSensorThresholds,
     applyScenarioPreset,
+    currentRoleLevel,
+    setCurrentRoleLevel,
+    stationaryPosts,
+    aiExplosionPrediction,
+    isDelugeActive,
+    toggleDelugeSystem,
+    triggerSideBInspectionScenario,
+    isSideBScenarioActive,
+    timeToFailureCountdown,
   };
 
   return (
