@@ -4,28 +4,44 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Activity,
+  AlertTriangle,
+  ArrowRight,
   Bell,
+  Bot,
+  Box,
   CheckCircle2,
+  Clock,
   Compass,
+  Flame,
+  LayoutDashboard,
+  Layers,
   Menu,
+  Radio,
   RotateCcw,
   Search,
   ShieldAlert,
+  ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
+  Users,
+  Wind,
   X,
 } from "lucide-react";
 import { useEvora } from "@/lib/evora-context";
-import { DemoDataBadge, RiskBadge } from "@/components/shared/status-badge";
+import { RiskBadge } from "@/components/shared/status-badge";
 import { UIViewState } from "@/types/evora";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Overview" },
-  { href: "/digital-twin", label: "Digital Twin" },
-  { href: "/evacuation", label: "Evacuation" },
-  { href: "/simulation", label: "Simulation" },
-  { href: "/sensors", label: "Sensors" },
-  { href: "/incidents", label: "Incidents & Scenarios" },
-];
+interface NavGroup {
+  groupLabel: string;
+  items: {
+    href: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
+    badge?: number | string;
+    badgeVariant?: "danger" | "warning" | "neutral";
+  }[];
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -40,28 +56,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     assets,
     sensors,
     routes,
+    hazards,
+    workers,
     alerts,
     acknowledgeAlert,
     resetDemoState,
+    triggerHazardExpansion,
+    hazardExpansionStep,
     lastUpdatedTimestamp,
     toasts,
     dismissToast,
   } = useEvora();
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [currentRole, setCurrentRole] = useState("HSE Incident Commander");
   const [globalQuery, setGlobalQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const unacknowledgedCount = alerts.filter((a) => !a.acknowledged).length;
+  const criticalSensorsCount = sensors.filter((s) => s.status === "critical").length;
+  const affectedWorkersCount = workers.filter((w) => w.status === "affected").length;
+  const recommendedRoute = routes.find((r) => r.status === "recommended") ?? routes[0];
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setMobileNavOpen(false);
+        setCopilotOpen(false);
         setNotificationsOpen(false);
         setSettingsOpen(false);
         setProfileMenuOpen(false);
@@ -130,91 +157,217 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return results.slice(0, 6);
   }, [assets, globalQuery, routes, sensors]);
 
+  const navGroups: NavGroup[] = [
+    {
+      groupLabel: "Sistem Operasional",
+      items: [
+        {
+          href: "/",
+          label: "Dasbor Utama",
+          icon: LayoutDashboard,
+        },
+        {
+          href: "/digital-twin",
+          label: "Digital Twin 3D",
+          icon: Box,
+        },
+        {
+          href: "/evacuation",
+          label: "Adaptif Evakuasi",
+          icon: ShieldAlert,
+          badge: recommendedRoute ? recommendedRoute.shortCode : undefined,
+          badgeVariant: "neutral",
+        },
+      ],
+    },
+    {
+      groupLabel: "Simulasi & AI",
+      items: [
+        {
+          href: "/simulation",
+          label: "Simulasi Multi-Agent",
+          icon: Activity,
+          badge: `${workers.length} Agen`,
+          badgeVariant: "neutral",
+        },
+        {
+          href: "/sensors",
+          label: "Sensor IoT Telemetri",
+          icon: Radio,
+          badge: criticalSensorsCount > 0 ? `${criticalSensorsCount} Crit` : undefined,
+          badgeVariant: "danger",
+        },
+        {
+          href: "/incidents",
+          label: "Skenario & Bahaya",
+          icon: Flame,
+          badge: unacknowledgedCount > 0 ? unacknowledgedCount : undefined,
+          badgeVariant: "danger",
+        },
+      ],
+    },
+  ];
+
+  const roles = [
+    "HSE Incident Commander",
+    "Field Safety Officer",
+    "Depot Operations Manager",
+    "Emergency Response Team",
+    "HSSE Auditor",
+  ];
+
+  const isNavActive = (href: string) => {
+    return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  };
+
   return (
-    <div className="min-h-dvh flex flex-col bg-canvas text-ink-primary">
-      {/* Skip Link for Keyboard Users */}
+    <div className="min-h-screen flex w-full bg-[#FAFBFC] text-slate-900 font-sans">
+      {/* Skip Link for Accessibility */}
       <a
         href="#main-workspace"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 py-2.5 focus:bg-[#C84B28] focus:text-white focus:rounded-control focus:font-semibold"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 py-2 focus:bg-blue-600 focus:text-white focus:rounded-xl focus:font-semibold"
       >
         Skip to main operational workspace
       </a>
 
-      {/* Top Application Bar - Modern Minimalist Style matching C:/ti & C:/hellyoshaqiqie */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 py-2.5 sticky top-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-        <div className="max-w-[1640px] mx-auto flex items-center justify-between gap-3">
-          {/* Left: Brand Wordmark + Horizontal Pill Tabs */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <Link
-              href="/"
-              aria-label="EVORA Adaptive Evacuation Intelligence Home"
-              className="inline-flex items-center gap-2.5 pr-2 shrink-0 group cursor-pointer"
-              title="EVORA Adaptive Evacuation Decision-Support System"
-            >
-              <span className="w-9 h-9 rounded-xl bg-slate-900 group-hover:bg-blue-600 text-white flex items-center justify-center transition-all shadow-xs">
-                <Compass className="w-4 h-4 text-white" aria-hidden="true" />
+      {/* ====================================================================
+          DESKTOP SIDEBAR (matching C:/pkm & C:/ti .admin-sidebar architecture)
+          ==================================================================== */}
+      <aside
+        className={`hidden lg:flex flex-col w-[260px] h-screen bg-white border-r border-slate-200/90 fixed left-0 top-0 z-40 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "-translate-x-full" : "translate-x-0"
+        }`}
+      >
+        {/* Sidebar Header / Logo */}
+        <div className="p-5 border-b border-slate-200/80">
+          <Link
+            href="/"
+            className="flex items-center gap-3 group cursor-pointer"
+            title="EVORA HSE Incident Command System"
+          >
+            <div className="w-9 h-9 rounded-xl bg-blue-600 group-hover:bg-blue-700 text-white flex items-center justify-center transition-all shadow-xs shrink-0">
+              <Compass className="w-5 h-5 text-white" aria-hidden="true" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-[15px] text-slate-900 tracking-tight leading-snug">
+                EVORA
               </span>
-              <div className="flex flex-col">
-                <span className="font-extrabold tracking-tight text-sm text-slate-900 leading-none">
-                  EVORA
-                </span>
-                <span className="text-[10px] font-mono font-medium text-slate-500 leading-tight">
-                  HSE Pertamina
-                </span>
-              </div>
-            </Link>
+              <span className="text-[11px] font-medium text-slate-500 truncate leading-none">
+                HSE Decision Support
+              </span>
+            </div>
+          </Link>
+        </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              type="button"
-              onClick={() => setMobileNavOpen(true)}
-              aria-expanded={mobileNavOpen}
-              aria-controls="mobile-navigation-drawer"
-              className="lg:hidden inline-flex items-center gap-1.5 px-3 h-9 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 hover:bg-slate-200/70 cursor-pointer"
-            >
-              <Menu className="w-4 h-4" aria-hidden="true" />
-              <span>Menu</span>
-            </button>
-
-            {/* Desktop Horizontal Pill Tabs */}
-            <nav
-              aria-label="Main navigation"
-              className="hidden lg:flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80"
-            >
-              {NAV_ITEMS.map((item) => {
-                const isActive =
-                  item.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(item.href);
+        {/* Navigation Sections */}
+        <nav aria-label="Sidebar main navigation" className="flex-1 px-3 py-4 overflow-y-auto space-y-6">
+          {navGroups.map((group) => (
+            <div key={group.groupLabel} className="space-y-1">
+              <div className="nav-group-label">{group.groupLabel}</div>
+              {group.items.map((item) => {
+                const active = isNavActive(item.href);
+                const IconComponent = item.icon;
 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    aria-current={isActive ? "page" : undefined}
-                    className={`px-4 h-8 inline-flex items-center justify-center rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                      isActive
-                        ? "bg-white text-slate-900 shadow-xs font-bold"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                    }`}
+                    aria-current={active ? "page" : undefined}
+                    className={`admin-nav-item ${active ? "active" : ""}`}
                   >
-                    {item.label}
+                    <IconComponent
+                      className={`w-4 h-4 shrink-0 transition-colors ${
+                        active ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.badge !== undefined && (
+                      <span
+                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                          item.badgeVariant === "danger"
+                            ? "bg-rose-100 text-rose-700 animate-pulse"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
-            </nav>
+            </div>
+          ))}
+        </nav>
+
+        {/* Sidebar Footer: Active Facility Status Card */}
+        <div className="p-3.5 border-t border-slate-200/80 bg-slate-50/70">
+          <div className="bg-white border border-slate-200/80 rounded-xl p-3 shadow-2xs space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-700">Depot Fasilitas</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <div className="text-xs font-bold text-slate-900 truncate">
+              {currentFacility.name.replace("Synthetic ", "")}
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+              <span>{currentFacility.code}</span>
+              <span className="text-emerald-600 font-semibold">Ex-Zone 1 Sync</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* ====================================================================
+          MAIN WRAPPER & TOPBAR (matching C:/pkm & C:/ti structure)
+          ==================================================================== */}
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:ml-0" : "lg:ml-[260px]"
+        }`}
+      >
+        {/* Sticky TopBar (height: 56px, background: #ffffff, border-b: slate-200) */}
+        <header className="h-14 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 sticky top-0 z-30 flex items-center justify-between gap-3 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
+          {/* TopBar Left: Hamburger Toggle + Facility Status Pill + Live Telemetry Badge */}
+          <div className="flex items-center gap-3">
+            {/* Sidebar Collapse Toggle Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (window.innerWidth < 1024) {
+                  setMobileNavOpen(true);
+                } else {
+                  setSidebarCollapsed((prev) => !prev);
+                }
+              }}
+              className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              aria-label="Toggle Navigation Sidebar"
+              title="Toggle Sidebar"
+            >
+              <Menu className="w-5 h-5" aria-hidden="true" />
+            </button>
+
+            {/* Live Facility Telemetry Status Pill */}
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="font-bold text-slate-800">{currentFacility.code}</span>
+              <span className="w-px h-3 bg-slate-200 shrink-0" />
+              <span className="text-slate-500 hidden sm:inline">28 IoT Sensor Aktif</span>
+            </div>
+
+            {/* Live Telemetry Pill */}
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200/80 rounded-md text-xs text-emerald-800 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Live Telemetry Active</span>
+            </div>
           </div>
 
-          {/* Right: Search Bar + Notification Bell + Operator Box */}
+          {/* TopBar Right: Search + Role Switcher + AI Copilot + Alerts + Profile */}
           <div className="flex items-center gap-2">
-            {/* Search Input Box */}
-            <div className="relative hidden sm:block w-52 md:w-64">
-              <label htmlFor="global-header-search" className="sr-only">
-                Search depot assets, sensors, or routes
-              </label>
+            {/* Global Search Input */}
+            <div className="relative hidden xl:block w-56">
               <input
                 ref={searchInputRef}
-                id="global-header-search"
                 type="search"
                 value={globalQuery}
                 onFocus={() => setSearchFocused(true)}
@@ -222,24 +375,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   setGlobalQuery(e.target.value);
                   setSearchFocused(true);
                 }}
-                placeholder="Search (Ctrl + K)"
-                className="w-full h-9 pl-3.5 pr-8 rounded-xl bg-slate-100 text-xs font-medium text-slate-800 placeholder:text-slate-400 border border-slate-200/80 focus:bg-white focus:border-slate-400 transition-all"
+                placeholder="Cari aset, sensor... (Ctrl+K)"
+                className="w-full h-8 pl-3 pr-7 rounded-xl bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 border border-slate-200 focus:bg-white focus:border-blue-500 focus:outline-none transition-all"
               />
               <Search
-                className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5 pointer-events-none"
+                className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none"
                 aria-hidden="true"
               />
 
               {searchFocused && globalQuery.trim().length > 0 && (
                 <div
                   role="region"
-                  aria-label="Quick search results"
+                  aria-label="Hasil pencarian cepat"
                   className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-2 text-xs"
                 >
                   {searchResults.length === 0 ? (
                     <div className="p-2.5 text-slate-500">
-                      No matching depot assets, sensors, or routes for &quot;
-                      {globalQuery}&quot;.
+                      Tidak ditemukan hasil untuk &quot;{globalQuery}&quot;.
                     </div>
                   ) : (
                     <ul className="divide-y divide-slate-100">
@@ -269,42 +421,73 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            {/* Notification Bell Button */}
+            {/* Role Perspective Switcher (matching C:/ti) */}
+            <div className="hidden sm:flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 rounded-xl px-2.5 py-1 text-xs">
+              <span className="text-slate-400 text-[11px] font-medium hidden md:inline">Peran:</span>
+              <select
+                value={currentRole}
+                onChange={(e) => setCurrentRole(e.target.value)}
+                className="bg-transparent font-bold text-slate-800 text-xs focus:outline-none cursor-pointer"
+              >
+                {roles.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* AI Copilot Trigger Button (matching C:/ti & C:/pkm) */}
+            <button
+              type="button"
+              onClick={() => {
+                setCopilotOpen((prev) => !prev);
+                setNotificationsOpen(false);
+                setSettingsOpen(false);
+              }}
+              className="flex items-center gap-1.5 bg-[#EEF2FF] hover:bg-[#E0E7FF] border border-[#C7D2FE] text-[#2563EB] px-3 py-1.5 rounded-xl text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+              title="AI Decision Copilot"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
+              <span className="hidden sm:inline">AI Copilot</span>
+            </button>
+
+            {/* Safety Notifications Bell Button */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => {
-                  setNotificationsOpen((o) => !o);
+                  setNotificationsOpen((prev) => !prev);
+                  setCopilotOpen(false);
                   setSettingsOpen(false);
-                  setProfileMenuOpen(false);
                 }}
                 aria-expanded={notificationsOpen}
-                aria-label={`Safety notifications (${unacknowledgedCount} unacknowledged)`}
-                className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200/80 hover:bg-slate-200/70 flex items-center justify-center relative text-slate-700 cursor-pointer transition-colors"
+                aria-label={`Notifikasi keselamatan (${unacknowledgedCount} aktif)`}
+                className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center relative cursor-pointer transition-colors"
+                title="Notifikasi & Peringatan Bahaya"
               >
                 <Bell className="w-4 h-4" aria-hidden="true" />
                 {unacknowledgedCount > 0 && (
-                  <span
-                    className="w-2 h-2 rounded-full bg-rose-500 absolute top-2 right-2 ring-2 ring-white"
-                    aria-hidden="true"
-                  />
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-rose-600 text-white rounded-full text-[9px] font-bold flex items-center justify-center font-mono animate-pulse">
+                    {unacknowledgedCount}
+                  </span>
                 )}
               </button>
 
+              {/* Notification Drawer Modal */}
               {notificationsOpen && (
                 <div
                   role="dialog"
-                  aria-label="Active facility alerts"
-                  className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl z-40 p-4"
+                  aria-label="Active facility safety alerts"
+                  className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl z-50 p-4"
                 >
                   <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-100">
                     <span className="text-sm font-bold text-slate-900">
-                      Active Safety Alerts ({alerts.length})
+                      Peringatan Darurat Aktif ({alerts.length})
                     </span>
                     <button
                       type="button"
                       onClick={() => setNotificationsOpen(false)}
-                      aria-label="Close alerts panel"
                       className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
@@ -315,37 +498,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     {alerts.map((al) => (
                       <div
                         key={al.id}
-                        className="p-3 rounded-control bg-canvas border border-border-subtle text-xs space-y-1.5"
+                        className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <RiskBadge level={al.severity} />
-                          <span className="font-mono text-ink-secondary">
+                          <span className="font-mono text-slate-500 text-[11px]">
                             {al.timestamp}
                           </span>
                         </div>
-                        <div className="font-semibold text-ink-primary">
-                          {al.title}
-                        </div>
-                        <p className="text-ink-secondary">{al.description}</p>
+                        <div className="font-semibold text-slate-900">{al.title}</div>
+                        <p className="text-slate-600">{al.description}</p>
                         <div className="pt-1 flex items-center justify-between">
-                          <span className="font-mono text-[11px] text-ink-muted">
+                          <span className="font-mono text-[11px] text-slate-500">
                             {al.location}
                           </span>
                           {al.acknowledged ? (
-                            <span className="inline-flex items-center gap-1 text-[#136C34] font-semibold">
-                              <CheckCircle2
-                                className="w-3.5 h-3.5"
-                                aria-hidden="true"
-                              />
-                              Acknowledged
+                            <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+                              Diakui
                             </span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => acknowledgeAlert(al.id)}
-                              className="px-2.5 py-1 min-h-[34px] rounded bg-[#18181B] text-white font-semibold hover:bg-[#27272A]"
+                              className="px-2.5 py-1 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors"
                             >
-                              Acknowledge
+                              Konfirmasi
                             </button>
                           )}
                         </div>
@@ -356,18 +534,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            {/* Facility & View State Settings Square Button */}
+            {/* Simulation & Settings Button */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => {
-                  setSettingsOpen((o) => !o);
+                  setSettingsOpen((prev) => !prev);
+                  setCopilotOpen(false);
                   setNotificationsOpen(false);
-                  setProfileMenuOpen(false);
                 }}
                 aria-expanded={settingsOpen}
-                aria-label="Facility selector and simulation view state controls"
-                className="w-10 h-10 rounded-[6px] bg-pill hover:bg-[#E4E0D8] flex items-center justify-center text-ink-primary"
+                aria-label="Simulation settings and controls"
+                className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
+                title="Pengaturan Simulasi & Fasilitas"
               >
                 <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -375,18 +554,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {settingsOpen && (
                 <div
                   role="dialog"
-                  aria-label="Facility and view state configuration"
-                  className="absolute right-0 mt-2 w-80 rounded-card bg-surface border border-border-control shadow-lg z-40 p-4 text-xs space-y-3.5"
+                  aria-label="Simulation configuration panel"
+                  className="absolute right-0 mt-2 w-80 rounded-2xl bg-white border border-slate-200 shadow-xl z-50 p-4 text-xs space-y-3.5"
                 >
-                  <div className="flex items-center justify-between border-b border-border-subtle pb-2">
-                    <span className="font-bold text-sm text-ink-primary">
-                      Simulation & Facility Controls
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <span className="font-bold text-sm text-slate-900">
+                      Pengaturan Skenario EVORA
                     </span>
                     <button
                       type="button"
                       onClick={() => setSettingsOpen(false)}
-                      aria-label="Close simulation controls"
-                      className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded text-ink-secondary hover:bg-canvas"
+                      className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100"
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
                     </button>
@@ -395,15 +573,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <div>
                     <label
                       htmlFor="header-facility-select"
-                      className="block font-semibold text-ink-secondary mb-1"
+                      className="block font-semibold text-slate-700 mb-1"
                     >
-                      Active Synthetic Facility:
+                      Fasilitas Aktif:
                     </label>
                     <select
                       id="header-facility-select"
                       value={selectedFacilityId}
                       onChange={(e) => setSelectedFacilityId(e.target.value)}
-                      className="w-full px-3 py-2 min-h-[40px] rounded-control bg-canvas border border-border-control font-semibold text-ink-primary"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
                     >
                       {facilities.map((fac) => (
                         <option key={fac.id} value={fac.id}>
@@ -416,17 +594,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <div>
                     <label
                       htmlFor="header-ui-state-select"
-                      className="block font-semibold text-ink-secondary mb-1"
+                      className="block font-semibold text-slate-700 mb-1"
                     >
-                      Test UI Resilience State (R-27):
+                      Uji Ketahanan UI (R-27):
                     </label>
                     <select
                       id="header-ui-state-select"
                       value={uiState}
-                      onChange={(e) =>
-                        setUiState(e.target.value as UIViewState)
-                      }
-                      className="w-full px-3 py-2 min-h-[40px] rounded-control bg-canvas border border-border-control font-mono text-ink-primary"
+                      onChange={(e) => setUiState(e.target.value as UIViewState)}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-slate-800"
                     >
                       <option value="ready">Operational (Ready)</option>
                       <option value="loading">Loading Telemetry</option>
@@ -441,143 +617,234 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       resetDemoState();
                       setSettingsOpen(false);
                     }}
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 min-h-[40px] rounded-control bg-[#C84B28] text-white font-semibold hover:bg-[#A93B1D]"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition-colors"
                   >
                     <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span>Reset Demo Baseline</span>
+                    <span>Reset Data Simulasi Baseline</span>
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Operator Avatar Square Button (Honest Placeholder per R-23) */}
-            <div className="relative">
+            {/* Profile Avatar Pill */}
+            <div className="flex items-center gap-2 pl-1 border-l border-slate-200 ml-1">
+              <div className="w-8 h-8 rounded-xl bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center shadow-xs">
+                HQ
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Wrapper (matching C:/pkm & C:/ti .content-wrapper) */}
+        <main
+          id="main-workspace"
+          className="flex-1 p-4 sm:p-6 pb-24 lg:pb-8 bg-[#FAFBFC] bg-grid-pattern overflow-y-auto"
+        >
+          <div className="max-w-[1600px] mx-auto w-full space-y-6">
+            {children}
+          </div>
+        </main>
+
+        {/* Footer Landmark */}
+        <footer className="bg-white border-t border-slate-200/80 px-6 py-3 text-xs text-slate-500 hidden sm:block">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <strong>EVORA R&amp;D Decision-Support System</strong>: IoT Multi-Hazard, Digital Twin 3D &amp; Hybrid Multi-Agent Evacuation.
+            </div>
+            <div className="font-mono text-[11px] text-slate-400">
+              Pertamina TBBM Demo Dataset ({currentFacility.code}) · Live Telemetry Engine
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* ====================================================================
+          AI COPILOT SLIDE-OUT DRAWER (matching C:/ti AICopilotDrawer)
+          ==================================================================== */}
+      {copilotOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="AI Decision Copilot"
+          className="fixed inset-0 z-50 flex justify-end"
+        >
+          <div
+            className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs transition-opacity"
+            onClick={() => setCopilotOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 border-l border-slate-200">
+            {/* Copilot Header */}
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                  <Bot className="w-4 h-4 text-white" aria-hidden="true" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">EVORA AI Copilot</h3>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    Autonomous Decision Support Active
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
-                onClick={() => {
-                  setProfileMenuOpen((o) => !o);
-                  setNotificationsOpen(false);
-                  setSettingsOpen(false);
-                }}
-                aria-expanded={profileMenuOpen}
-                aria-label="Operator profile and session details"
-                className="w-10 h-10 rounded-[6px] bg-[#18181B] text-white font-mono text-xs font-bold flex items-center justify-center hover:bg-[#27272A]"
+                onClick={() => setCopilotOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
-                OP
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
+            </div>
 
-              {profileMenuOpen && (
-                <div
-                  role="dialog"
-                  aria-label="Operator session details"
-                  className="absolute right-0 mt-2 w-72 rounded-card bg-surface border border-border-control shadow-lg z-40 p-4 text-xs space-y-3"
-                >
-                  <div className="flex items-center justify-between border-b border-border-subtle pb-2">
-                    <div>
-                      <div className="font-bold text-ink-primary text-sm">
-                        HSE Duty Officer [DEMO]
-                      </div>
-                      <div className="text-ink-secondary font-mono">
-                        {currentFacility.code} | Sync: {lastUpdatedTimestamp}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setProfileMenuOpen(false)}
-                      aria-label="Close operator menu"
-                      className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded text-ink-secondary hover:bg-canvas"
-                    >
-                      <X className="w-4 h-4" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <p className="text-ink-secondary leading-relaxed">
-                    EVORA R&amp;D Prototype (UNAIR Occupational Health &amp;
-                    Safety + Robotics &amp; AI). All readings and evacuation
-                    routes use synthetic data.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      resetDemoState();
-                      setProfileMenuOpen(false);
-                    }}
-                    className="w-full py-2 min-h-[40px] rounded-control bg-[#18181B] text-white font-semibold hover:bg-[#27272A]"
-                  >
-                    Reset All Simulation Data
-                  </button>
+            {/* Copilot Body / Live Recommendations */}
+            <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
+              {/* Status Alert Banner */}
+              <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200/80 text-blue-900 space-y-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-blue-950">
+                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>Rekomendasi Rute Evakuasi Optimal</span>
                 </div>
-              )}
+                <p className="text-blue-800 leading-relaxed">
+                  Berdasarkan sensor LEL pada koridor pipa dan vektor angin <strong>4.8 m/s SE</strong>, rute evakuasi terbaik saat ini:
+                </p>
+                <div className="font-bold font-mono text-sm text-blue-950 bg-white/80 p-2 rounded-lg border border-blue-200">
+                  {recommendedRoute.shortCode}: {recommendedRoute.name} ({recommendedRoute.destinationName})
+                </div>
+              </div>
+
+              {/* Multi-Agent Telemetry Card */}
+              <div className="bg-white border border-slate-200 rounded-xl p-3.5 space-y-2 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-800">Dinamika Evakuasi Agen</span>
+                  <span className="font-mono text-[11px] text-slate-500">{workers.length} Personel</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200">
+                    <div className="text-lg font-bold text-emerald-700">
+                      {workers.filter((w) => w.status === "evacuated" || w.status === "moving").length}
+                    </div>
+                    <div className="text-[10px] text-emerald-800 font-medium">Bergerak Aman</div>
+                  </div>
+                  <div className="p-2 rounded-lg bg-rose-50 border border-rose-200">
+                    <div className="text-lg font-bold text-rose-700">
+                      {affectedWorkersCount}
+                    </div>
+                    <div className="text-[10px] text-rose-800 font-medium">Di Zona Terpapar</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-2 pt-2">
+                <span className="font-bold text-slate-700 block">Tindakan Cepat AI:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHazardExpansion();
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-between group transition-colors cursor-pointer"
+                >
+                  <div>
+                    <div className="font-semibold text-slate-900">Simulasikan Perubahan Plume</div>
+                    <div className="text-[11px] text-slate-500">Uji re-routing adaptif rute evakuasi</div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    router.push("/simulation");
+                    setCopilotOpen(false);
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-between group transition-colors cursor-pointer"
+                >
+                  <div>
+                    <div className="font-semibold text-slate-900">Buka Tahap Simulasi Interaktif</div>
+                    <div className="text-[11px] text-slate-500">Inspeksi telemetri per agen pekerja</div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                </button>
+              </div>
+            </div>
+
+            {/* Copilot Footer */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500 text-center font-mono">
+              EVORA Agentic Hybrid Decision Support Engine v2.4
             </div>
           </div>
         </div>
-      </header>
+      )}
 
-      {/* Mobile Slide-Out Navigation Drawer */}
+      {/* ====================================================================
+          MOBILE DRAWER (when on small screens)
+          ==================================================================== */}
       {mobileNavOpen && (
         <div
-          id="mobile-navigation-drawer"
           role="dialog"
           aria-modal="true"
-          aria-label="Navigation menu"
+          aria-label="Mobile Navigation Menu"
           className="fixed inset-0 z-50 lg:hidden flex"
         >
           <div
-            className="fixed inset-0 bg-black/40"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
             onClick={() => setMobileNavOpen(false)}
           />
-          <div className="relative w-72 max-w-[85vw] bg-surface h-full p-4 flex flex-col justify-between z-10 border-r border-border-subtle">
+          <div className="relative w-72 max-w-[85vw] bg-white h-full p-4 flex flex-col justify-between z-10 border-r border-slate-200 shadow-xl">
             <div>
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-border-subtle">
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded bg-[#C84B28] text-white font-mono text-xs font-bold flex items-center justify-center">
-                    EV
-                  </span>
-                  <span className="font-bold text-base text-ink-primary">
-                    EVORA [DEMO]
-                  </span>
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                    <Compass className="w-4 h-4 text-white" aria-hidden="true" />
+                  </div>
+                  <span className="font-bold text-base text-slate-900">EVORA HSE</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(false)}
-                  aria-label="Close navigation menu"
-                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-control border border-border-control text-ink-primary"
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                 >
-                  <X className="w-4 h-4" aria-hidden="true" />
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
               </div>
 
-              <nav aria-label="Mobile navigation" className="space-y-1.5">
-                {NAV_ITEMS.map((item) => {
-                  const isActive =
-                    item.href === "/"
-                      ? pathname === "/"
-                      : pathname.startsWith(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileNavOpen(false)}
-                      className={`flex items-center justify-between px-3.5 py-3 min-h-[48px] rounded-[6px] text-sm font-semibold ${
-                        isActive
-                          ? "bg-[#18181B] text-white"
-                          : "bg-pill text-ink-primary"
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
+              <nav aria-label="Mobile navigation list" className="space-y-4">
+                {navGroups.map((group) => (
+                  <div key={group.groupLabel} className="space-y-1">
+                    <div className="text-[10px] font-bold uppercase text-slate-400 px-2 tracking-wider">
+                      {group.groupLabel}
+                    </div>
+                    {group.items.map((item) => {
+                      const active = isNavActive(item.href);
+                      const IconComponent = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileNavOpen(false)}
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold ${
+                            active
+                              ? "bg-blue-50 text-blue-600"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                          }`}
+                        >
+                          <IconComponent className="w-4 h-4 shrink-0" aria-hidden="true" />
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                ))}
               </nav>
             </div>
 
-            <div className="pt-4 border-t border-border-subtle space-y-2">
+            <div className="pt-4 border-t border-slate-200">
               <button
                 type="button"
                 onClick={() => {
                   resetDemoState();
                   setMobileNavOpen(false);
                 }}
-                className="w-full py-2.5 min-h-[44px] rounded-[6px] bg-[#C84B28] text-white text-xs font-semibold"
+                className="w-full py-2.5 rounded-xl bg-rose-600 text-white text-xs font-semibold"
               >
                 Reset Demo Baseline
               </button>
@@ -586,74 +853,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      {/* Main Content Landmark */}
-      <main
-        id="main-workspace"
-        className="flex-1 px-4 sm:px-6 py-5 pb-24 lg:pb-8 max-w-[1640px] w-full mx-auto"
-      >
-        {children}
-      </main>
-
-      {/* Footer Landmark */}
-      <footer className="bg-surface border-t border-border-subtle px-4 sm:px-6 py-3.5 pb-24 lg:pb-3.5 text-xs text-ink-secondary">
-        <div className="max-w-[1640px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <strong>EVORA Demonstration Prototype</strong>: IoT, Digital Twin
-            &amp; Hybrid Multi-Agent Evacuation Decision Support.
-          </div>
-          <div className="font-mono text-[11px] text-ink-muted">
-            Synthetic R&amp;D Dataset ({currentFacility.code}) | Not connected
-            to live Pertamina infrastructure
-          </div>
-        </div>
-      </footer>
-
-      {/* Mobile Bottom Navigation Bar */}
-      <nav
-        aria-label="Mobile quick navigation"
-        className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface border-t border-border-control grid grid-cols-6"
-      >
-        {NAV_ITEMS.map((item) => {
-          const isActive =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center justify-center py-2.5 min-h-[52px] text-[10px] font-semibold ${
-                isActive
-                  ? "bg-[#18181B] text-white"
-                  : "text-ink-secondary hover:text-ink-primary"
-              }`}
-            >
-              <span className="truncate max-w-[58px]">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
       {/* Toast Notification Stack */}
       {toasts.length > 0 && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-16 lg:bottom-5 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+          className="fixed bottom-5 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
         >
           {toasts.map((t) => {
             const dotColor =
               t.tone === "danger"
-                ? "bg-[#C84B28]"
+                ? "bg-rose-500"
                 : t.tone === "warning"
                 ? "bg-amber-500"
                 : t.tone === "success"
                 ? "bg-emerald-500"
-                : "bg-[#18181B]";
+                : "bg-slate-900";
             return (
               <div
                 key={t.id}
-                className="pointer-events-auto rounded-2xl border border-[#E2E2DE] bg-white p-4 shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex items-start justify-between gap-3"
+                className="pointer-events-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-lg flex items-start justify-between gap-3"
               >
                 <div className="flex items-start gap-2.5">
                   <span
@@ -661,10 +880,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     aria-hidden="true"
                   />
                   <div>
-                    <div className="text-xs font-semibold text-[#18181B]">
+                    <div className="text-xs font-semibold text-slate-900">
                       {t.title}
                     </div>
-                    <div className="text-xs text-[#52525B] mt-0.5 leading-relaxed">
+                    <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">
                       {t.detail}
                     </div>
                   </div>
@@ -673,7 +892,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   type="button"
                   onClick={() => dismissToast(t.id)}
                   aria-label="Dismiss notification"
-                  className="p-1 min-h-[28px] min-w-[28px] flex items-center justify-center rounded-lg text-[#68686F] hover:bg-[#F7F7F4] hover:text-[#18181B]"
+                  className="p-1 rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700"
                 >
                   <X className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>

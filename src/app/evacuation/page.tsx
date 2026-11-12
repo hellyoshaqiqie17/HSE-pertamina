@@ -64,21 +64,21 @@ export default function AdaptiveEvacuationPage() {
   return (
     <div className="space-y-6 pb-12">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E2DE] pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <Badge variant="outline" dot>
               Adaptive Routing Engine
             </Badge>
-            <span className="text-xs text-[#68686F]">
+            <span className="text-xs text-[#64748B]">
               · Multi-Criteria Corridor Evaluation
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#18181B] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight">
             Adaptive Evacuation{" "}
-            <span className="font-normal text-[#68686F]">#A-01</span>
+            <span className="font-normal text-[#64748B]">#A-01</span>
           </h1>
-          <p className="text-xs sm:text-sm text-[#52525B] mt-1">
+          <p className="text-xs sm:text-sm text-[#475569] mt-1">
             Real-time corridor evaluation across distance, plume exposure, worker
             density, and physical gate accessibility.
           </p>
@@ -90,7 +90,7 @@ export default function AdaptiveEvacuationPage() {
             variant="outline"
             onClick={recalculateRoutesNow}
           >
-            <Calculator className="w-3.5 h-3.5 text-[#52525B]" aria-hidden="true" />
+            <Calculator className="w-3.5 h-3.5 text-[#475569]" aria-hidden="true" />
             <span>Recalculate Score</span>
           </Button>
 
@@ -106,9 +106,9 @@ export default function AdaptiveEvacuationPage() {
 
           <Link
             href="/digital-twin"
-            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 py-2 text-xs font-medium rounded-xl bg-white text-[#18181B] border border-[#E2E2DE] hover:bg-[#F7F7F4] shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 py-2 text-xs font-medium rounded-xl bg-white text-[#0F172A] border border-[#E2E8F0] hover:bg-[#F8FAFC] shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
           >
-            <Boxes className="w-3.5 h-3.5 text-[#52525B]" aria-hidden="true" />
+            <Boxes className="w-3.5 h-3.5 text-[#475569]" aria-hidden="true" />
             <span>Digital Twin</span>
           </Link>
         </div>
@@ -131,21 +131,21 @@ export default function AdaptiveEvacuationPage() {
                     ? "Baseline Telemetry · Route A Active"
                     : "Plume Shift · Rerouted to Route B"}
                 </Badge>
-                <span className="text-xs font-mono text-[#68686F]">
+                <span className="text-xs font-mono text-[#64748B]">
                   Threshold &le; {scoringConfig.riskThreshold}/100
                 </span>
               </div>
 
               <h2
                 id="guided-demo-heading"
-                className="text-base sm:text-lg font-semibold text-[#18181B] tracking-tight"
+                className="text-base sm:text-lg font-semibold text-[#0F172A] tracking-tight"
               >
                 {hazardExpansionStep === 0
                   ? "Route A (North-West Upwind Corridor) is Currently Recommended"
                   : "Route A Blocked by Westward Plume · Route B Promoted"}
               </h2>
 
-              <p className="text-xs sm:text-sm text-[#52525B] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
                 {hazardExpansionStep === 0
                   ? "The 44.2% LEL vapor plume is confined to the East Central Manifold, blocking Route C (86/100). Route A maintains the lowest composite risk score (23/100)."
                   : "Westward vapor dispersion (58.0% LEL) crossed the North-West Service Road, raising Route A risk to 78/100 (above the 65/100 limit). EVORA promoted Route B (South Perimeter Bypass, 28/100) and updated field signage."}
@@ -188,15 +188,15 @@ export default function AdaptiveEvacuationPage() {
             aria-labelledby="route-comparison-heading"
             className="p-5 sm:p-6 space-y-4"
           >
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-3.5 border-b border-[#EFEFEA]">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3.5 border-b border-[#F1F5F9]">
               <div>
                 <h2
                   id="route-comparison-heading"
-                  className="text-sm sm:text-base font-semibold text-[#18181B]"
+                  className="text-sm sm:text-base font-semibold text-[#0F172A]"
                 >
                   Candidate Corridor Comparison Matrix
                 </h2>
-                <p className="text-xs text-[#68686F] mt-0.5">
+                <p className="text-xs text-[#64748B] mt-0.5">
                   Comparing all candidate corridors against the configured maximum
                   risk threshold ({scoringConfig.riskThreshold}/100).
                 </p>
@@ -228,9 +228,9 @@ export default function AdaptiveEvacuationPage() {
               <TableBody>
                 {routes.map((rt) => (
                   <TableRow key={rt.id}>
-                    <TableCell className="font-semibold text-[#18181B]">
+                    <TableCell className="font-semibold text-[#0F172A]">
                       {rt.name}{" "}
-                      <span className="font-mono text-[#68686F] font-normal">
+                      <span className="font-mono text-[#64748B] font-normal">
                         ({rt.id})
                       </span>
                     </TableCell>
@@ -239,7 +239,7 @@ export default function AdaptiveEvacuationPage() {
                     </TableCell>
                     <TableCell className="font-mono font-semibold tabular-nums">
                       {rt.riskScore}/100{" "}
-                      <span className="text-[11px] font-normal text-[#68686F]">
+                      <span className="text-[11px] font-normal text-[#64748B]">
                         (max {scoringConfig.riskThreshold})
                       </span>
                     </TableCell>
@@ -264,7 +264,7 @@ export default function AdaptiveEvacuationPage() {
                         {rt.accessible ? "Clear" : "Obstructed"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-[#52525B]">
+                    <TableCell className="text-[#475569]">
                       {rt.destinationName}
                     </TableCell>
                   </TableRow>
@@ -309,14 +309,14 @@ export default function AdaptiveEvacuationPage() {
               aria-labelledby="decision-summary-heading"
               className="p-5 sm:p-6 space-y-4"
             >
-              <div className="flex items-center justify-between gap-2 pb-3.5 border-b border-[#EFEFEA]">
+              <div className="flex items-center justify-between gap-2 pb-3.5 border-b border-[#F1F5F9]">
                 <div>
-                  <span className="text-xs font-medium text-[#68686F] block">
+                  <span className="text-xs font-medium text-[#64748B] block">
                     Decision Output
                   </span>
                   <h2
                     id="decision-summary-heading"
-                    className="text-sm sm:text-base font-semibold text-[#18181B]"
+                    className="text-sm sm:text-base font-semibold text-[#0F172A]"
                   >
                     Active Evacuation Recommendation
                   </h2>
@@ -327,35 +327,35 @@ export default function AdaptiveEvacuationPage() {
               </div>
 
               {recommendedRoute ? (
-                <div className="p-4 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] space-y-2">
+                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-mono font-medium text-[#52525B]">
+                    <span className="text-xs font-mono font-medium text-[#475569]">
                       Primary Corridor · {recommendedRoute.id}
                     </span>
                     <RouteStatusBadge status="recommended" />
                   </div>
-                  <div className="text-base font-semibold text-[#18181B]">
+                  <div className="text-base font-semibold text-[#0F172A]">
                     {recommendedRoute.name}
                   </div>
-                  <div className="text-xs text-[#52525B]">
-                    Origin: <strong className="text-[#18181B]">{recommendedRoute.originZone}</strong>{" "}
+                  <div className="text-xs text-[#475569]">
+                    Origin: <strong className="text-[#0F172A]">{recommendedRoute.originZone}</strong>{" "}
                     · Muster:{" "}
-                    <strong className="text-[#18181B]">{recommendedRoute.destinationName}</strong>
+                    <strong className="text-[#0F172A]">{recommendedRoute.destinationName}</strong>
                   </div>
-                  <p className="text-xs text-[#52525B] leading-relaxed pt-1 border-t border-[#E2E2DE]">
+                  <p className="text-xs text-[#475569] leading-relaxed pt-1 border-t border-[#E2E8F0]">
                     {recommendedRoute.explanation}
                   </p>
                 </div>
               ) : (
                 <div
                   role="alert"
-                  className="p-4 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] space-y-2"
+                  className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-2"
                 >
-                  <div className="flex items-center gap-2 text-[#18181B] font-semibold text-sm">
+                  <div className="flex items-center gap-2 text-[#0F172A] font-semibold text-sm">
                     <AlertTriangle className="w-4 h-4 text-[#C84B28]" aria-hidden="true" />
                     <span>No Safe Corridor Below Threshold</span>
                   </div>
-                  <p className="text-xs text-[#52525B] leading-relaxed">
+                  <p className="text-xs text-[#475569] leading-relaxed">
                     All candidate corridors currently exceed the configured
                     maximum risk threshold ({scoringConfig.riskThreshold}/100)
                     or fail physical accessibility checks. Personnel must
@@ -375,20 +375,20 @@ export default function AdaptiveEvacuationPage() {
                   className="w-full justify-between"
                 >
                   <span className="inline-flex items-center gap-2">
-                    <Sliders className="w-3.5 h-3.5 text-[#52525B]" aria-hidden="true" />
+                    <Sliders className="w-3.5 h-3.5 text-[#475569]" aria-hidden="true" />
                     <span>
                       Threshold ({scoringConfig.riskThreshold}/100) &amp; Weights
                     </span>
                   </span>
-                  <span className="font-mono text-[#68686F]">
+                  <span className="font-mono text-[#64748B]">
                     {showScoringDrawer ? "Hide" : "Configure"}
                   </span>
                 </Button>
 
                 {showScoringDrawer && (
-                  <div className="mt-3 p-4 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] space-y-3.5 text-xs">
+                  <div className="mt-3 p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-3.5 text-xs">
                     <div>
-                      <div className="flex justify-between font-medium text-[#18181B] mb-1.5">
+                      <div className="flex justify-between font-medium text-[#0F172A] mb-1.5">
                         <label htmlFor="risk-threshold-slider">
                           Max Allowed Risk Threshold
                         </label>
@@ -408,21 +408,21 @@ export default function AdaptiveEvacuationPage() {
                             riskThreshold: Number(e.target.value),
                           })
                         }
-                        className="w-full accent-[#18181B]"
+                        className="w-full accent-[#0F172A]"
                       />
-                      <p className="text-[11px] text-[#68686F] mt-1">
+                      <p className="text-[11px] text-[#64748B] mt-1">
                         Lower threshold to 20 to test the shelter-in-place safety fallback.
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2.5 border-t border-[#E2E2DE]">
+                    <div className="grid grid-cols-2 gap-3 pt-2.5 border-t border-[#E2E8F0]">
                       <div>
                         <label
                           htmlFor="weight-exposure"
-                          className="block font-medium text-[#52525B] mb-1"
+                          className="block font-medium text-[#475569] mb-1"
                         >
                           Exposure Weight:{" "}
-                          <strong className="font-mono text-[#18181B]">
+                          <strong className="font-mono text-[#0F172A]">
                             {Math.round(scoringConfig.exposureWeight * 100)}%
                           </strong>
                         </label>
@@ -438,17 +438,17 @@ export default function AdaptiveEvacuationPage() {
                               exposureWeight: Number(e.target.value),
                             })
                           }
-                          className="w-full accent-[#18181B]"
+                          className="w-full accent-[#0F172A]"
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="weight-distance"
-                          className="block font-medium text-[#52525B] mb-1"
+                          className="block font-medium text-[#475569] mb-1"
                         >
                           Distance Weight:{" "}
-                          <strong className="font-mono text-[#18181B]">
+                          <strong className="font-mono text-[#0F172A]">
                             {Math.round(scoringConfig.distanceWeight * 100)}%
                           </strong>
                         </label>
@@ -464,7 +464,7 @@ export default function AdaptiveEvacuationPage() {
                               distanceWeight: Number(e.target.value),
                             })
                           }
-                          className="w-full accent-[#18181B]"
+                          className="w-full accent-[#0F172A]"
                         />
                       </div>
                     </div>
@@ -478,14 +478,14 @@ export default function AdaptiveEvacuationPage() {
               aria-labelledby="candidate-routes-heading"
               className="p-5 sm:p-6 space-y-4"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#EFEFEA]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#F1F5F9]">
                 <h2
                   id="candidate-routes-heading"
-                  className="text-sm sm:text-base font-semibold text-[#18181B]"
+                  className="text-sm sm:text-base font-semibold text-[#0F172A]"
                 >
                   Candidate Evacuation Corridors
                 </h2>
-                <span className="text-xs font-mono text-[#68686F]">
+                <span className="text-xs font-mono text-[#64748B]">
                   Limit &le; {scoringConfig.riskThreshold}/100
                 </span>
               </div>
@@ -498,16 +498,16 @@ export default function AdaptiveEvacuationPage() {
                       key={route.id}
                       className={`rounded-2xl border p-4 bg-white transition-all ${
                         isSelected
-                          ? "border-[#18181B] ring-1 ring-[#18181B]/10 shadow-xs"
-                          : "border-[#E2E2DE] hover:border-[#D4D4CE]"
+                          ? "border-[#0F172A] ring-1 ring-[#0F172A]/10 shadow-xs"
+                          : "border-[#E2E8F0] hover:border-[#CBD5E1]"
                       }`}
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-[#F7F7F4] border border-[#E2E2DE] text-[#18181B]">
+                          <span className="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A]">
                             {route.shortCode}
                           </span>
-                          <h3 className="text-sm font-semibold text-[#18181B]">
+                          <h3 className="text-sm font-semibold text-[#0F172A]">
                             {route.name}
                           </h3>
                         </div>
@@ -515,42 +515,42 @@ export default function AdaptiveEvacuationPage() {
                       </div>
 
                       {/* 4 Evaluation Criteria Grid */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-3 p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] text-xs">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-3 p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs">
                         <div>
-                          <div className="text-[11px] text-[#68686F]">
+                          <div className="text-[11px] text-[#64748B]">
                             Distance
                           </div>
-                          <div className="font-mono font-semibold tabular-nums text-[#18181B] mt-0.5">
+                          <div className="font-mono font-semibold tabular-nums text-[#0F172A] mt-0.5">
                             {route.distanceMeters} m{" "}
-                            <span className="font-normal text-[#68686F]">
+                            <span className="font-normal text-[#64748B]">
                               ({route.estimatedTimeSeconds}s)
                             </span>
                           </div>
                         </div>
 
                         <div>
-                          <div className="text-[11px] text-[#68686F]">
+                          <div className="text-[11px] text-[#64748B]">
                             Exposure
                           </div>
-                          <div className="font-mono font-semibold tabular-nums text-[#18181B] mt-0.5">
+                          <div className="font-mono font-semibold tabular-nums text-[#0F172A] mt-0.5">
                             {route.hazardExposure}/100
                           </div>
                         </div>
 
                         <div>
-                          <div className="text-[11px] text-[#68686F]">
+                          <div className="text-[11px] text-[#64748B]">
                             Density
                           </div>
-                          <div className="font-mono font-semibold tabular-nums text-[#18181B] mt-0.5">
+                          <div className="font-mono font-semibold tabular-nums text-[#0F172A] mt-0.5">
                             {route.densityScore}/100
                           </div>
                         </div>
 
                         <div>
-                          <div className="text-[11px] text-[#68686F]">
+                          <div className="text-[11px] text-[#64748B]">
                             Access
                           </div>
-                          <div className="font-medium text-[#18181B] mt-0.5 flex items-center gap-1">
+                          <div className="font-medium text-[#0F172A] mt-0.5 flex items-center gap-1">
                             <span
                               className={`h-1.5 w-1.5 rounded-full ${
                                 route.accessible
@@ -567,10 +567,10 @@ export default function AdaptiveEvacuationPage() {
                       {/* Composite Risk Bar */}
                       <div className="space-y-1.5 mb-3">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#68686F]">
+                          <span className="text-[#64748B]">
                             Composite Risk Score
                           </span>
-                          <span className="font-mono font-semibold tabular-nums text-[#18181B]">
+                          <span className="font-mono font-semibold tabular-nums text-[#0F172A]">
                             {route.riskScore} / 100
                           </span>
                         </div>
@@ -579,16 +579,16 @@ export default function AdaptiveEvacuationPage() {
                           indicatorClassName={
                             route.status === "blocked"
                               ? "bg-[#C84B28]"
-                              : "bg-[#18181B]"
+                              : "bg-[#0F172A]"
                           }
                         />
                       </div>
 
-                      <p className="text-xs text-[#52525B] leading-relaxed mb-3">
+                      <p className="text-xs text-[#475569] leading-relaxed mb-3">
                         {route.explanation}
                       </p>
 
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#EFEFEA]">
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#F1F5F9]">
                         <Button
                           type="button"
                           variant={isSelected ? "default" : "outline"}
@@ -622,61 +622,61 @@ export default function AdaptiveEvacuationPage() {
                 aria-labelledby="route-detail-breakdown-heading"
                 className="p-5 sm:p-6 space-y-3.5"
               >
-                <div className="flex items-center justify-between pb-3 border-b border-[#EFEFEA]">
+                <div className="flex items-center justify-between pb-3 border-b border-[#F1F5F9]">
                   <h2
                     id="route-detail-breakdown-heading"
-                    className="text-sm font-semibold text-[#18181B]"
+                    className="text-sm font-semibold text-[#0F172A]"
                   >
                     Factor Breakdown · {activeDetailRoute.name}
                   </h2>
-                  <span className="font-mono text-xs font-semibold text-[#18181B]">
+                  <span className="font-mono text-xs font-semibold text-[#0F172A]">
                     {activeDetailRoute.riskScore} pts
                   </span>
                 </div>
 
                 <dl className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE]">
-                    <dt className="text-[#68686F]">Distance Factor</dt>
-                    <dd className="text-sm font-mono font-semibold text-[#18181B] mt-1">
+                  <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <dt className="text-[#64748B]">Distance Factor</dt>
+                    <dd className="text-sm font-mono font-semibold text-[#0F172A] mt-1">
                       +{activeDetailRoute.scoreBreakdown.distanceContribution} pts{" "}
-                      <span className="text-[11px] font-normal text-[#68686F]">
+                      <span className="text-[11px] font-normal text-[#64748B]">
                         ({activeDetailRoute.distanceMeters} m)
                       </span>
                     </dd>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE]">
-                    <dt className="text-[#68686F]">Plume Exposure</dt>
-                    <dd className="text-sm font-mono font-semibold text-[#18181B] mt-1">
+                  <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <dt className="text-[#64748B]">Plume Exposure</dt>
+                    <dd className="text-sm font-mono font-semibold text-[#0F172A] mt-1">
                       +{activeDetailRoute.scoreBreakdown.exposureContribution} pts{" "}
-                      <span className="text-[11px] font-normal text-[#68686F]">
+                      <span className="text-[11px] font-normal text-[#64748B]">
                         (Idx {activeDetailRoute.hazardExposure})
                       </span>
                     </dd>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE]">
-                    <dt className="text-[#68686F]">Worker Density</dt>
-                    <dd className="text-sm font-mono font-semibold text-[#18181B] mt-1">
+                  <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <dt className="text-[#64748B]">Worker Density</dt>
+                    <dd className="text-sm font-mono font-semibold text-[#0F172A] mt-1">
                       +{activeDetailRoute.scoreBreakdown.densityContribution} pts{" "}
-                      <span className="text-[11px] font-normal text-[#68686F]">
+                      <span className="text-[11px] font-normal text-[#64748B]">
                         (Idx {activeDetailRoute.densityScore})
                       </span>
                     </dd>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE]">
-                    <dt className="text-[#68686F]">Access Penalty</dt>
-                    <dd className="text-sm font-mono font-semibold text-[#18181B] mt-1">
+                  <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <dt className="text-[#64748B]">Access Penalty</dt>
+                    <dd className="text-sm font-mono font-semibold text-[#0F172A] mt-1">
                       +{activeDetailRoute.scoreBreakdown.accessibilityPenalty} pts{" "}
-                      <span className="text-[11px] font-normal text-[#68686F]">
+                      <span className="text-[11px] font-normal text-[#64748B]">
                         ({activeDetailRoute.accessible ? "Open" : "Blocked"})
                       </span>
                     </dd>
                   </div>
                 </dl>
 
-                <p className="text-[11px] text-[#68686F] font-mono pt-1">
+                <p className="text-[11px] text-[#64748B] font-mono pt-1">
                   Score = w_dist·D + w_exp·E + w_den·C + w_acc·A
                 </p>
               </Card>

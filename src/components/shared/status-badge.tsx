@@ -123,12 +123,12 @@ export function DemoDataBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#F7F7F4] text-[#52525B] border border-[#E2E2DE]",
+        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0]",
         className
       )}
     >
       <span
-        className="w-1.5 h-1.5 rounded-full bg-[#71717A]"
+        className="w-1.5 h-1.5 rounded-full bg-[#64748B]"
         aria-hidden="true"
       />
       <span>{label}</span>

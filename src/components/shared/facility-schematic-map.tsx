@@ -185,25 +185,25 @@ export function FacilitySchematicMap({
   ];
 
   return (
-    <div className="bg-white border border-[#E2E2DE] rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03),0_1px_6px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col">
+    <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03),0_1px_6px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col">
       {/* Top Map Control Bar */}
-      <div className="px-4 py-3 border-b border-[#ECECE8] bg-white flex flex-wrap items-center justify-between gap-3">
+      <div className="px-4 py-3 border-b border-[#E2E8F0] bg-white flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-[#F7F7F4] border border-[#E2E2DE] text-[#18181B]">
+          <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A]">
             {facilityCode}
           </span>
-          <span className="text-sm font-semibold text-[#18181B]">
+          <span className="text-sm font-semibold text-[#0F172A]">
             {facilityName}
           </span>
           {layers.wind && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F7F7F4] border border-[#E2E2DE] text-xs font-mono text-[#52525B]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-mono text-[#475569]">
               <Compass
-                className="w-3.5 h-3.5 text-[#18181B]"
+                className="w-3.5 h-3.5 text-[#0F172A]"
                 aria-hidden="true"
               />
               <span>
                 Wind:{" "}
-                <strong className="text-[#18181B]">{windSpeedMps} m/s</strong>{" "}
+                <strong className="text-[#0F172A]">{windSpeedMps} m/s</strong>{" "}
                 {windDirectionLabel}
               </span>
             </span>
@@ -215,7 +215,7 @@ export function FacilitySchematicMap({
             <div
               role="group"
               aria-label="Schematic projection mode"
-              className="inline-flex rounded-[10px] border border-[#E2E2DE] bg-[#F7F7F4] p-0.5"
+              className="inline-flex rounded-[10px] border border-[#E2E8F0] bg-[#F8FAFC] p-0.5"
             >
               <button
                 type="button"
@@ -223,8 +223,8 @@ export function FacilitySchematicMap({
                 aria-pressed={viewMode === "2d"}
                 className={`inline-flex items-center gap-1.5 px-3 py-1 h-7 rounded-[8px] text-xs font-medium transition-all ${
                   viewMode === "2d"
-                    ? "bg-white text-[#18181B] shadow-[0_1px_2px_rgba(0,0,0,0.06)] font-semibold"
-                    : "text-[#52525B] hover:text-[#18181B]"
+                    ? "bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(0,0,0,0.06)] font-semibold"
+                    : "text-[#475569] hover:text-[#0F172A]"
                 }`}
               >
                 <MapIcon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -236,8 +236,8 @@ export function FacilitySchematicMap({
                 aria-pressed={viewMode === "3d"}
                 className={`inline-flex items-center gap-1.5 px-3 py-1 h-7 rounded-[8px] text-xs font-medium transition-all ${
                   viewMode === "3d"
-                    ? "bg-white text-[#18181B] shadow-[0_1px_2px_rgba(0,0,0,0.06)] font-semibold"
-                    : "text-[#52525B] hover:text-[#18181B]"
+                    ? "bg-white text-[#0F172A] shadow-[0_1px_2px_rgba(0,0,0,0.06)] font-semibold"
+                    : "text-[#475569] hover:text-[#0F172A]"
                 }`}
               >
                 <Box className="w-3.5 h-3.5" aria-hidden="true" />
@@ -250,17 +250,17 @@ export function FacilitySchematicMap({
           <div
             role="group"
             aria-label="Map pan controls"
-            className="hidden sm:inline-flex items-center rounded-[10px] border border-[#E2E2DE] bg-white px-1 h-8 text-xs font-mono text-[#52525B]"
+            className="hidden sm:inline-flex items-center rounded-[10px] border border-[#E2E8F0] bg-white px-1 h-8 text-xs font-mono text-[#475569]"
           >
             <Move
-              className="w-3 h-3 mx-1.5 text-[#71717A]"
+              className="w-3 h-3 mx-1.5 text-[#64748B]"
               aria-hidden="true"
             />
             <button
               type="button"
               onClick={() => setPan((p) => ({ ...p, x: p.x + 36 }))}
               aria-label="Pan schematic west"
-              className="px-1.5 py-0.5 rounded hover:bg-[#F7F7F4] hover:text-[#18181B]"
+              className="px-1.5 py-0.5 rounded hover:bg-[#F8FAFC] hover:text-[#0F172A]"
             >
               W
             </button>
@@ -268,7 +268,7 @@ export function FacilitySchematicMap({
               type="button"
               onClick={() => setPan((p) => ({ ...p, y: p.y + 28 }))}
               aria-label="Pan schematic north"
-              className="px-1.5 py-0.5 rounded hover:bg-[#F7F7F4] hover:text-[#18181B]"
+              className="px-1.5 py-0.5 rounded hover:bg-[#F8FAFC] hover:text-[#0F172A]"
             >
               N
             </button>
@@ -276,7 +276,7 @@ export function FacilitySchematicMap({
               type="button"
               onClick={() => setPan((p) => ({ ...p, y: p.y - 28 }))}
               aria-label="Pan schematic south"
-              className="px-1.5 py-0.5 rounded hover:bg-[#F7F7F4] hover:text-[#18181B]"
+              className="px-1.5 py-0.5 rounded hover:bg-[#F8FAFC] hover:text-[#0F172A]"
             >
               S
             </button>
@@ -284,7 +284,7 @@ export function FacilitySchematicMap({
               type="button"
               onClick={() => setPan((p) => ({ ...p, x: p.x - 36 }))}
               aria-label="Pan schematic east"
-              className="px-1.5 py-0.5 rounded hover:bg-[#F7F7F4] hover:text-[#18181B]"
+              className="px-1.5 py-0.5 rounded hover:bg-[#F8FAFC] hover:text-[#0F172A]"
             >
               E
             </button>
@@ -293,24 +293,24 @@ export function FacilitySchematicMap({
           <div
             role="group"
             aria-label="Map zoom controls"
-            className="inline-flex items-center rounded-[10px] border border-[#E2E2DE] bg-white h-8"
+            className="inline-flex items-center rounded-[10px] border border-[#E2E8F0] bg-white h-8"
           >
             <button
               type="button"
               onClick={handleZoomOut}
               aria-label="Zoom out map"
-              className="w-8 h-full flex items-center justify-center text-[#52525B] hover:text-[#18181B] border-r border-[#ECECE8]"
+              className="w-8 h-full flex items-center justify-center text-[#475569] hover:text-[#0F172A] border-r border-[#E2E8F0]"
             >
               <ZoomOut className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
-            <span className="px-2.5 text-xs font-mono font-medium tabular-nums text-[#18181B]">
+            <span className="px-2.5 text-xs font-mono font-medium tabular-nums text-[#0F172A]">
               {Math.round(zoom * 100)}%
             </span>
             <button
               type="button"
               onClick={handleZoomIn}
               aria-label="Zoom in map"
-              className="w-8 h-full flex items-center justify-center text-[#52525B] hover:text-[#18181B] border-l border-[#ECECE8]"
+              className="w-8 h-full flex items-center justify-center text-[#475569] hover:text-[#0F172A] border-l border-[#E2E8F0]"
             >
               <ZoomIn className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
@@ -318,7 +318,7 @@ export function FacilitySchematicMap({
               type="button"
               onClick={handleResetView}
               aria-label="Reset map zoom and pan"
-              className="px-2.5 h-full text-xs font-medium text-[#52525B] hover:text-[#18181B] border-l border-[#ECECE8] flex items-center gap-1"
+              className="px-2.5 h-full text-xs font-medium text-[#475569] hover:text-[#0F172A] border-l border-[#E2E8F0] flex items-center gap-1"
             >
               <Maximize2 className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Reset</span>
@@ -332,11 +332,11 @@ export function FacilitySchematicMap({
         <div
           role="region"
           aria-label="Digital twin visualization layers"
-          className="px-4 py-2 border-b border-[#ECECE8] bg-[#F7F7F4] flex flex-wrap items-center gap-1.5"
+          className="px-4 py-2 border-b border-[#E2E8F0] bg-[#F8FAFC] flex flex-wrap items-center gap-1.5"
         >
-          <span className="text-xs font-medium text-[#52525B] inline-flex items-center gap-1.5 mr-1">
+          <span className="text-xs font-medium text-[#475569] inline-flex items-center gap-1.5 mr-1">
             <Layers
-              className="w-3.5 h-3.5 text-[#52525B]"
+              className="w-3.5 h-3.5 text-[#475569]"
               aria-hidden="true"
             />
             <span>Layers:</span>
@@ -351,13 +351,13 @@ export function FacilitySchematicMap({
                 aria-pressed={active}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 h-7 rounded-lg text-xs font-medium border transition-colors ${
                   active
-                    ? "bg-white text-[#18181B] border-[#18181B] shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-                    : "bg-white/60 text-[#71717A] border-[#E2E2DE] hover:text-[#18181B]"
+                    ? "bg-white text-[#0F172A] border-[#0F172A] shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+                    : "bg-white/60 text-[#64748B] border-[#E2E8F0] hover:text-[#0F172A]"
                 }`}
               >
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
-                    active ? "bg-[#18181B]" : "bg-[#D4D4CE]"
+                    active ? "bg-[#0F172A]" : "bg-[#CBD5E1]"
                   }`}
                   aria-hidden="true"
                 />
@@ -369,7 +369,7 @@ export function FacilitySchematicMap({
       )}
 
       {/* Main Schematic Viewport */}
-      <div className="relative bg-[#F7F7F4] overflow-hidden select-none">
+      <div className="relative bg-[#F8FAFC] overflow-hidden select-none">
         <svg
           viewBox="0 0 1000 540"
           role="img"
@@ -436,9 +436,9 @@ export function FacilitySchematicMap({
               <stop offset="100%" stopColor="#D97706" stopOpacity="0.02" />
             </radialGradient>
             <radialGradient id="plume-smoke" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#71717A" stopOpacity="0.20" />
-              <stop offset="65%" stopColor="#71717A" stopOpacity="0.08" />
-              <stop offset="100%" stopColor="#71717A" stopOpacity="0.02" />
+              <stop offset="0%" stopColor="#64748B" stopOpacity="0.20" />
+              <stop offset="65%" stopColor="#64748B" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#64748B" stopOpacity="0.02" />
             </radialGradient>
           </defs>
 
@@ -459,7 +459,7 @@ export function FacilitySchematicMap({
               height="504"
               rx="16"
               fill="#FFFFFF"
-              stroke="#E2E2DE"
+              stroke="#E2E8F0"
               strokeWidth="1.5"
             />
             <rect
@@ -506,7 +506,7 @@ export function FacilitySchematicMap({
               height="144"
               rx="8"
               fill="none"
-              stroke="#E2E2DE"
+              stroke="#E2E8F0"
               strokeWidth="1"
               strokeDasharray="4 4"
             />
@@ -514,7 +514,7 @@ export function FacilitySchematicMap({
               x="756"
               y="74"
               textAnchor="end"
-              fill="#71717A"
+              fill="#64748B"
               fontSize="8.5"
               fontWeight="700"
               fontFamily="monospace"
@@ -529,7 +529,7 @@ export function FacilitySchematicMap({
                 hz.type === "gas" || hz.type === "fire"
                   ? "#C84B28"
                   : hz.type === "smoke"
-                  ? "#71717A"
+                  ? "#64748B"
                   : "#D97706";
               const fillUrl =
                 hz.type === "gas" || hz.type === "fire"
@@ -721,7 +721,7 @@ export function FacilitySchematicMap({
                             cy={asset.y + 12}
                             rx={r}
                             ry={r * 0.85}
-                            fill="#E2E2DE"
+                            fill="#E2E8F0"
                             stroke="#A1A19A"
                             strokeWidth="1.2"
                           />
@@ -730,7 +730,7 @@ export function FacilitySchematicMap({
                             y={asset.y - 10}
                             width={r * 2}
                             height={22}
-                            fill="#ECECE8"
+                            fill="#E2E8F0"
                             stroke="#A1A19A"
                             strokeWidth="1.2"
                           />
@@ -744,7 +744,7 @@ export function FacilitySchematicMap({
                         fill={isAssembly ? "#FFFFFF" : "#F3F3EF"}
                         stroke={
                           isSelected
-                            ? "#18181B"
+                            ? "#0F172A"
                             : isAssembly
                             ? "#16A34A"
                             : "#C4C0B6"
@@ -757,7 +757,7 @@ export function FacilitySchematicMap({
                         cy={cy}
                         r={isAssembly ? r - 5 : r - 8}
                         fill="#FFFFFF"
-                        stroke={isAssembly ? "#BBF7D0" : "#E2E2DE"}
+                        stroke={isAssembly ? "#BBF7D0" : "#E2E8F0"}
                         strokeWidth="1"
                       />
 
@@ -776,7 +776,7 @@ export function FacilitySchematicMap({
                         x={asset.x}
                         y={cy - 2}
                         textAnchor="middle"
-                        fill="#18181B"
+                        fill="#0F172A"
                         fontSize={isAssembly ? "9" : "10.5"}
                         fontWeight="700"
                         fontFamily="monospace"
@@ -787,7 +787,7 @@ export function FacilitySchematicMap({
                         x={asset.x}
                         y={cy + 10}
                         textAnchor="middle"
-                        fill={isAssembly ? "#15803D" : "#71717A"}
+                        fill={isAssembly ? "#15803D" : "#64748B"}
                         fontSize="8"
                         fontWeight="600"
                         fontFamily="monospace"
@@ -839,7 +839,7 @@ export function FacilitySchematicMap({
                         width={w}
                         height={h}
                         rx="8"
-                        fill="#E2E2DE"
+                        fill="#E2E8F0"
                       />
                     )}
 
@@ -850,7 +850,7 @@ export function FacilitySchematicMap({
                       height={h}
                       rx="8"
                       fill="#FFFFFF"
-                      stroke={isSelected ? "#18181B" : "#C4C0B6"}
+                      stroke={isSelected ? "#0F172A" : "#C4C0B6"}
                       strokeWidth={isSelected ? 2.2 : 1.4}
                     />
 
@@ -862,15 +862,15 @@ export function FacilitySchematicMap({
                           width={w - 6}
                           height={h - 6}
                           rx="5"
-                          fill="#F7F7F4"
-                          stroke="#E2E2DE"
+                          fill="#F8FAFC"
+                          stroke="#E2E8F0"
                           strokeWidth="1"
                         />
                         <text
                           x={rx + w / 2}
                           y={ry + 17}
                           textAnchor="middle"
-                          fill="#18181B"
+                          fill="#0F172A"
                           fontSize="9.5"
                           fontWeight="700"
                           fontFamily="monospace"
@@ -898,7 +898,7 @@ export function FacilitySchematicMap({
                           height={h - 8}
                           rx="5"
                           fill="#F8F8F5"
-                          stroke="#E2E2DE"
+                          stroke="#E2E8F0"
                           strokeWidth="1"
                         />
                         <circle
@@ -910,7 +910,7 @@ export function FacilitySchematicMap({
                         <text
                           x={rx + 28}
                           y={ry + h / 2 + 3.5}
-                          fill="#18181B"
+                          fill="#0F172A"
                           fontSize="9.5"
                           fontWeight="700"
                           fontFamily="monospace"
@@ -921,7 +921,7 @@ export function FacilitySchematicMap({
                           x={rx + w - 16}
                           y={ry + h / 2 + 3.5}
                           textAnchor="end"
-                          fill="#52525B"
+                          fill="#475569"
                           fontSize="9"
                           fontWeight="600"
                           fontFamily="monospace"
@@ -937,14 +937,14 @@ export function FacilitySchematicMap({
                           width={w - 2}
                           height="22"
                           rx="7"
-                          fill="#F7F7F4"
+                          fill="#F8FAFC"
                         />
                         <line
                           x1={rx}
                           y1={ry + 23}
                           x2={rx + w}
                           y2={ry + 23}
-                          stroke="#E2E2DE"
+                          stroke="#E2E8F0"
                           strokeWidth="1"
                         />
                         <circle
@@ -956,7 +956,7 @@ export function FacilitySchematicMap({
                         <text
                           x={rx + 21}
                           y={ry + 15.5}
-                          fill="#18181B"
+                          fill="#0F172A"
                           fontSize="9"
                           fontWeight="700"
                           fontFamily="monospace"
@@ -966,7 +966,7 @@ export function FacilitySchematicMap({
                         <text
                           x={rx + 12}
                           y={ry + 42}
-                          fill="#52525B"
+                          fill="#475569"
                           fontSize="9.5"
                           fontWeight="500"
                         >
@@ -975,7 +975,7 @@ export function FacilitySchematicMap({
                         <text
                           x={rx + 12}
                           y={ry + 58}
-                          fill="#71717A"
+                          fill="#64748B"
                           fontSize="8.5"
                           fontFamily="monospace"
                         >
@@ -1025,7 +1025,7 @@ export function FacilitySchematicMap({
                     <text
                       x="19"
                       y="13.5"
-                      fill="#18181B"
+                      fill="#0F172A"
                       fontSize="8.5"
                       fontWeight="700"
                       fontFamily="monospace"
@@ -1067,7 +1067,7 @@ export function FacilitySchematicMap({
                   : sensor.status === "warning"
                   ? "#D97706"
                   : sensor.status === "offline"
-                  ? "#71717A"
+                  ? "#64748B"
                   : "#16A34A";
               const valText = formatCompactSensorValue(sensor);
 
@@ -1100,10 +1100,10 @@ export function FacilitySchematicMap({
                     fill="#FFFFFF"
                     stroke={
                       isSelected
-                        ? "#18181B"
+                        ? "#0F172A"
                         : sensor.status === "critical"
                         ? "#C84B28"
-                        : "#E2E2DE"
+                        : "#E2E8F0"
                     }
                     strokeWidth={isSelected ? 1.8 : 1.2}
                   />
@@ -1111,7 +1111,7 @@ export function FacilitySchematicMap({
                   <text
                     x="-19"
                     y="3"
-                    fill="#18181B"
+                    fill="#0F172A"
                     fontSize="8"
                     fontWeight="700"
                     fontFamily="monospace"
@@ -1132,13 +1132,13 @@ export function FacilitySchematicMap({
                   height="50"
                   rx="10"
                   fill="#FFFFFF"
-                  stroke="#E2E2DE"
+                  stroke="#E2E8F0"
                   strokeWidth="1.25"
                 />
                 <text
                   x="12"
                   y="18"
-                  fill="#71717A"
+                  fill="#64748B"
                   fontSize="8"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -1148,7 +1148,7 @@ export function FacilitySchematicMap({
                 <text
                   x="12"
                   y="35"
-                  fill="#18181B"
+                  fill="#0F172A"
                   fontSize="10.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -1162,13 +1162,13 @@ export function FacilitySchematicMap({
                 >
                   <circle
                     r="12"
-                    fill="#F7F7F4"
-                    stroke="#E2E2DE"
+                    fill="#F8FAFC"
+                    stroke="#E2E8F0"
                     strokeWidth="1.2"
                   />
                   <path
                     d="M -5 0 L 4 0 M 1 -3.5 L 5 0 L 1 3.5"
-                    stroke="#18181B"
+                    stroke="#0F172A"
                     strokeWidth="1.6"
                     fill="none"
                     strokeLinecap="round"
@@ -1183,7 +1183,7 @@ export function FacilitySchematicMap({
                 <circle
                   r="28"
                   fill="none"
-                  stroke="#18181B"
+                  stroke="#0F172A"
                   strokeWidth="2"
                   strokeDasharray="5 4"
                 />
@@ -1193,7 +1193,7 @@ export function FacilitySchematicMap({
                   width="140"
                   height="19"
                   rx="6"
-                  fill="#18181B"
+                  fill="#0F172A"
                 />
                 <text
                   x="0"
@@ -1213,7 +1213,7 @@ export function FacilitySchematicMap({
             <text
               x="38"
               y="508"
-              fill="#71717A"
+              fill="#64748B"
               fontSize="9"
               fontFamily="monospace"
             >
@@ -1224,8 +1224,8 @@ export function FacilitySchematicMap({
       </div>
 
       {/* Live IoT Sensor & Hazard Telemetry Bar (Zero-Clutter Interactive Strip) */}
-      <div className="px-4 py-2.5 bg-[#F7F7F4] border-t border-[#ECECE8] flex flex-wrap items-center gap-1.5">
-        <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#71717A] mr-1">
+      <div className="px-4 py-2.5 bg-[#F8FAFC] border-t border-[#E2E8F0] flex flex-wrap items-center gap-1.5">
+        <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#64748B] mr-1">
           Nodes:
         </span>
         {visibleSensors.map((sensor) => {
@@ -1237,7 +1237,7 @@ export function FacilitySchematicMap({
               : sensor.status === "warning"
               ? "bg-[#D97706]"
               : sensor.status === "offline"
-              ? "bg-[#71717A]"
+              ? "bg-[#64748B]"
               : "bg-[#16A34A]";
 
           return (
@@ -1250,8 +1250,8 @@ export function FacilitySchematicMap({
               }}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-mono transition-colors border ${
                 isSelected
-                  ? "bg-[#18181B] text-white border-[#18181B]"
-                  : "bg-white text-[#18181B] border-[#E2E2DE] hover:border-[#18181B]"
+                  ? "bg-[#0F172A] text-white border-[#0F172A]"
+                  : "bg-white text-[#0F172A] border-[#E2E8F0] hover:border-[#0F172A]"
               }`}
             >
               <span
@@ -1260,7 +1260,7 @@ export function FacilitySchematicMap({
               />
               <span className="font-semibold">{shortId}</span>
               <span
-                className={isSelected ? "text-[#D4D4CE]" : "text-[#52525B]"}
+                className={isSelected ? "text-[#CBD5E1]" : "text-[#475569]"}
               >
                 {formatCompactSensorValue(sensor)}
               </span>
@@ -1274,26 +1274,26 @@ export function FacilitySchematicMap({
         <div
           role="region"
           aria-label="Selected map item details"
-          className="px-4 py-3.5 bg-white border-t border-[#E2E2DE] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          className="px-4 py-3.5 bg-white border-t border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
         >
           {selectedAsset && (
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="text-xs font-mono font-semibold text-[#52525B]">
+                <span className="text-xs font-mono font-semibold text-[#475569]">
                   {selectedAsset.code}
                 </span>
-                <span className="text-sm font-semibold text-[#18181B]">
+                <span className="text-sm font-semibold text-[#0F172A]">
                   {selectedAsset.name}
                 </span>
                 <RiskBadge level={selectedAsset.riskStatus} />
               </div>
-              <p className="text-xs text-[#52525B]">
+              <p className="text-xs text-[#475569]">
                 {selectedAsset.description} · Spec:{" "}
-                <strong className="text-[#18181B]">
+                <strong className="text-[#0F172A]">
                   {selectedAsset.capacityOrSpec}
                 </strong>{" "}
                 · Personnel in zone:{" "}
-                <strong className="text-[#18181B]">
+                <strong className="text-[#0F172A]">
                   {selectedAsset.workersPresent}
                 </strong>
               </p>
@@ -1303,17 +1303,17 @@ export function FacilitySchematicMap({
           {selectedSensor && (
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="text-xs font-mono font-semibold text-[#52525B]">
+                <span className="text-xs font-mono font-semibold text-[#475569]">
                   {selectedSensor.id}
                 </span>
-                <span className="text-sm font-semibold text-[#18181B]">
+                <span className="text-sm font-semibold text-[#0F172A]">
                   {selectedSensor.name} ({selectedSensor.location})
                 </span>
                 <SensorStatusBadge status={selectedSensor.status} />
               </div>
-              <p className="text-xs text-[#52525B] font-mono">
+              <p className="text-xs text-[#475569] font-mono">
                 Reading:{" "}
-                <strong className="text-[#18181B]">
+                <strong className="text-[#0F172A]">
                   {selectedSensor.value} {selectedSensor.unit}
                 </strong>{" "}
                 · Warning: {selectedSensor.warningThreshold}{" "}
@@ -1330,18 +1330,18 @@ export function FacilitySchematicMap({
                 <span className="text-xs font-mono font-semibold text-[#C84B28]">
                   {selectedHazard.id}
                 </span>
-                <span className="text-sm font-semibold text-[#18181B]">
+                <span className="text-sm font-semibold text-[#0F172A]">
                   {selectedHazard.name}
                 </span>
                 <RiskBadge level={selectedHazard.severity} />
               </div>
-              <p className="text-xs text-[#52525B]">
+              <p className="text-xs text-[#475569]">
                 {selectedHazard.description} · Zone:{" "}
-                <strong className="text-[#18181B]">
+                <strong className="text-[#0F172A]">
                   {selectedHazard.affectedArea}
                 </strong>{" "}
                 · Radius:{" "}
-                <strong className="text-[#18181B]">
+                <strong className="text-[#0F172A]">
                   {selectedHazard.radius} m
                 </strong>
               </p>
@@ -1351,7 +1351,7 @@ export function FacilitySchematicMap({
           <button
             type="button"
             onClick={clearSelection}
-            className="px-3 py-1.5 h-8 rounded-lg bg-[#F7F7F4] border border-[#E2E2DE] text-xs font-medium text-[#18181B] hover:bg-[#EFEFEA] shrink-0"
+            className="px-3 py-1.5 h-8 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-medium text-[#0F172A] hover:bg-[#F1F5F9] shrink-0"
           >
             Dismiss
           </button>
@@ -1359,17 +1359,17 @@ export function FacilitySchematicMap({
       )}
 
       {/* Map Legend */}
-      <div className="px-4 py-2.5 border-t border-[#E2E2DE] bg-white flex flex-wrap items-center justify-between gap-3 text-xs text-[#52525B]">
+      <div className="px-4 py-2.5 border-t border-[#E2E8F0] bg-white flex flex-wrap items-center justify-between gap-3 text-xs text-[#475569]">
         <div className="flex flex-wrap items-center gap-4">
-          <span className="inline-flex items-center gap-1.5 font-medium text-[#18181B]">
+          <span className="inline-flex items-center gap-1.5 font-medium text-[#0F172A]">
             <span className="w-4 h-1 bg-[#16A34A] inline-block rounded-full" />
             <span>Recommended Route</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 font-medium text-[#18181B]">
+          <span className="inline-flex items-center gap-1.5 font-medium text-[#0F172A]">
             <span className="w-4 h-1 bg-[#D97706] inline-block rounded-full" />
             <span>Alternative Route</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 font-medium text-[#18181B]">
+          <span className="inline-flex items-center gap-1.5 font-medium text-[#0F172A]">
             <span className="w-4 h-1 bg-[#C84B28] inline-block rounded-full" />
             <span>Blocked Route</span>
           </span>
@@ -1382,7 +1382,7 @@ export function FacilitySchematicMap({
             <span>Hazard Contour (% LEL / °C / ppm)</span>
           </span>
         </div>
-        <span className="font-mono text-[11px] text-[#71717A]">
+        <span className="font-mono text-[11px] text-[#64748B]">
           Click any tank, building, sensor node, or route to inspect
         </span>
       </div>

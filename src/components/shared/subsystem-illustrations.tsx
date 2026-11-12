@@ -38,20 +38,20 @@ export function ManifoldArmCard({
       aria-label={`Inspect Storage Tank T-102 and Manifold PIPE-01, status ${status}, reading ${lelValue}% LEL`}
       className={`bg-white rounded-2xl border p-4 flex flex-col justify-between transition-all shadow-[0_1px_2px_rgba(0,0,0,0.03),0_1px_6px_rgba(0,0,0,0.04)] ${
         selected
-          ? "border-[#18181B] ring-1 ring-[#18181B]/10"
-          : "border-[#E2E2DE] hover:border-[#D4D4CE]"
+          ? "border-[#0F172A] ring-1 ring-[#0F172A]/10"
+          : "border-[#E2E8F0] hover:border-[#CBD5E1]"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-[#18181B]">
+          <h3 className="text-sm font-semibold text-[#0F172A]">
             Tank T-102 &amp; Manifold
           </h3>
-          <p className="text-[11px] text-[#68686F] font-mono mt-0.5">
+          <p className="text-[11px] text-[#64748B] font-mono mt-0.5">
             IoT Telemetry : {lastScan}
           </p>
         </div>
-        <span className="p-1 rounded-lg text-[#68686F] hover:bg-[#F7F7F4] hover:text-[#18181B]">
+        <span className="p-1 rounded-lg text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]">
           <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
         </span>
       </div>
@@ -81,7 +81,7 @@ export function ManifoldArmCard({
             width="68"
             height="78"
             fill="#E5E3DD"
-            stroke="#71717A"
+            stroke="#64748B"
             strokeWidth="1.4"
           />
           <rect
@@ -98,7 +98,7 @@ export function ManifoldArmCard({
             x="60"
             y="72"
             textAnchor="middle"
-            fill="#18181B"
+            fill="#0F172A"
             fontSize="9.5"
             fontWeight="700"
             fontFamily="monospace"
@@ -113,7 +113,7 @@ export function ManifoldArmCard({
             width="56"
             height="8"
             fill="#A8A49C"
-            stroke="#52525B"
+            stroke="#475569"
             strokeWidth="1.2"
           />
           <rect
@@ -122,7 +122,7 @@ export function ManifoldArmCard({
             width="14"
             height="42"
             fill="#D4D2CC"
-            stroke="#52525B"
+            stroke="#475569"
             strokeWidth="1.2"
           />
           <circle
@@ -156,7 +156,7 @@ export function ManifoldArmCard({
       </div>
 
       <div className="flex items-center justify-between gap-2 pt-1">
-        <span className="text-[11px] font-mono text-[#68686F]">
+        <span className="text-[11px] font-mono text-[#64748B]">
           GS-204 ({lelValue}% LEL)
         </span>
         <Badge variant={variant} dot>
@@ -201,20 +201,20 @@ export function DynamicSignageArmCard({
       aria-label={`Inspect Tanker Loading Gantry LB-01 and Multi-Agent Egress, active route ${routeCode}, status ${status}`}
       className={`bg-white rounded-2xl border p-4 flex flex-col justify-between transition-all shadow-[0_1px_2px_rgba(0,0,0,0.03),0_1px_6px_rgba(0,0,0,0.04)] ${
         selected
-          ? "border-[#18181B] ring-1 ring-[#18181B]/10"
-          : "border-[#E2E2DE] hover:border-[#D4D4CE]"
+          ? "border-[#0F172A] ring-1 ring-[#0F172A]/10"
+          : "border-[#E2E8F0] hover:border-[#CBD5E1]"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-[#18181B]">
+          <h3 className="text-sm font-semibold text-[#0F172A]">
             Tanker Gantry LB-01
           </h3>
-          <p className="text-[11px] text-[#68686F] font-mono mt-0.5">
+          <p className="text-[11px] text-[#64748B] font-mono mt-0.5">
             Agent Sync : {lastScan}
           </p>
         </div>
-        <span className="p-1 rounded-lg text-[#68686F] hover:bg-[#F7F7F4] hover:text-[#18181B]">
+        <span className="p-1 rounded-lg text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]">
           <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
         </span>
       </div>
@@ -234,7 +234,7 @@ export function DynamicSignageArmCard({
             height="12"
             rx="2"
             fill="#D4D2CC"
-            stroke="#52525B"
+            stroke="#475569"
             strokeWidth="1.3"
           />
           <rect x="28" y="34" width="7" height="76" fill="#C4C0B6" />
@@ -244,7 +244,7 @@ export function DynamicSignageArmCard({
           <path
             d="M 68 34 L 68 54 L 84 68"
             fill="none"
-            stroke="#52525B"
+            stroke="#475569"
             strokeWidth="3"
             strokeLinecap="round"
           />
@@ -257,14 +257,14 @@ export function DynamicSignageArmCard({
             height="30"
             rx="13"
             fill="#FFFFFF"
-            stroke="#52525B"
+            stroke="#475569"
             strokeWidth="1.4"
           />
           <rect x="46" y="76" width="60" height="5" rx="2" fill="#C84B28" />
           <path
             d="M 114 70 L 134 70 L 138 82 L 138 96 L 114 96 Z"
             fill="#E5E3DD"
-            stroke="#52525B"
+            stroke="#475569"
             strokeWidth="1.3"
           />
           <circle cx="56" cy="100" r="7" fill="#27272A" />
@@ -286,7 +286,7 @@ export function DynamicSignageArmCard({
       </div>
 
       <div className="flex items-center justify-between gap-2 pt-1">
-        <span className="text-[11px] font-mono text-[#68686F]">
+        <span className="text-[11px] font-mono text-[#64748B]">
           #LB-01 ({routeCode})
         </span>
         <Badge variant={variant} dot>
@@ -333,16 +333,16 @@ export function ContainmentCorridorCard({
       aria-label={`Inspect ${corridorName}, status ${status}, risk score ${riskScore}`}
       className={`bg-white rounded-2xl border p-4 flex flex-col justify-between transition-all shadow-[0_1px_2px_rgba(0,0,0,0.03),0_1px_6px_rgba(0,0,0,0.04)] ${
         selected
-          ? "border-[#18181B] ring-1 ring-[#18181B]/10"
-          : "border-[#E2E2DE] hover:border-[#D4D4CE]"
+          ? "border-[#0F172A] ring-1 ring-[#0F172A]/10"
+          : "border-[#E2E8F0] hover:border-[#CBD5E1]"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-[#18181B]">
+          <h3 className="text-sm font-semibold text-[#0F172A]">
             {corridorName}
           </h3>
-          <p className="text-[11px] text-[#68686F] font-mono mt-0.5">
+          <p className="text-[11px] text-[#64748B] font-mono mt-0.5">
             Backup Power : 24V UPS Active · Route Risk : {riskScore}/100 (Threshold &lt;= 65)
           </p>
         </div>
@@ -365,15 +365,15 @@ export function ContainmentCorridorCard({
             width="68"
             height="58"
             rx="6"
-            fill="#F7F7F4"
-            stroke="#D4D4CE"
+            fill="#F8FAFC"
+            stroke="#CBD5E1"
             strokeWidth="1.4"
           />
           <circle cx="28" cy="28" r="3.5" fill="#16A34A" />
           <text
             x="36"
             y="31"
-            fill="#18181B"
+            fill="#0F172A"
             fontSize="8.5"
             fontWeight="700"
             fontFamily="monospace"
@@ -383,7 +383,7 @@ export function ContainmentCorridorCard({
           <text
             x="26"
             y="47"
-            fill="#52525B"
+            fill="#475569"
             fontSize="8"
             fontFamily="monospace"
           >
@@ -406,7 +406,7 @@ export function ContainmentCorridorCard({
             y1="43"
             x2="108"
             y2="43"
-            stroke="#52525B"
+            stroke="#475569"
             strokeWidth="2"
             strokeDasharray="4 3"
           />
@@ -419,7 +419,7 @@ export function ContainmentCorridorCard({
             height="62"
             rx="8"
             fill="#FFFFFF"
-            stroke="#18181B"
+            stroke="#0F172A"
             strokeWidth="1.6"
           />
           <rect
@@ -428,7 +428,7 @@ export function ContainmentCorridorCard({
             width="42"
             height="42"
             rx="7"
-            fill="#18181B"
+            fill="#0F172A"
           />
           <path
             d="M 129 43 L 149 43 M 142 36 L 149 43 L 142 50"
@@ -440,7 +440,7 @@ export function ContainmentCorridorCard({
           <text
             x="170"
             y="34"
-            fill="#52525B"
+            fill="#475569"
             fontSize="8.5"
             fontWeight="700"
             fontFamily="monospace"
@@ -450,7 +450,7 @@ export function ContainmentCorridorCard({
           <text
             x="170"
             y="50"
-            fill="#18181B"
+            fill="#0F172A"
             fontSize="10.5"
             fontWeight="700"
             fontFamily="monospace"

@@ -5,12 +5,14 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?:
     | "default"
+    | "primary"
     | "embossed"
     | "secondary"
     | "outline"
     | "ghost"
     | "destructive"
-    | "terracotta";
+    | "terracotta"
+    | "accent";
   size?: "default" | "sm" | "lg" | "icon";
 }
 
@@ -18,17 +20,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
       default:
-        "bg-[#18181B] text-white hover:bg-[#27272A] border border-[#18181B] shadow-xs",
-      embossed: "btn-embossed text-white",
+        "bg-slate-900 text-white hover:bg-slate-800 border border-slate-900 shadow-xs font-semibold",
+      primary:
+        "btn-primary text-white",
+      embossed: "btn-embossed text-white font-semibold",
       secondary:
-        "bg-[#F1F1EE] text-[#18181B] hover:bg-[#E6E5E0] border border-[#E2E2DE]",
+        "bg-slate-100 text-slate-800 hover:bg-slate-200/80 border border-slate-200 font-semibold",
       outline:
-        "bg-white text-[#18181B] border border-[#E2E2DE] hover:bg-[#F7F7F4] hover:border-[#D4D4CE] shadow-[0_1px_2px_rgba(0,0,0,0.02)]",
-      ghost: "bg-transparent text-[#52525B] hover:bg-[#F1F1EE] hover:text-[#18181B]",
+        "bg-white text-slate-800 border border-slate-200 hover:bg-slate-50 shadow-xs font-medium",
+      ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium",
       destructive:
-        "bg-white text-[#991B1B] border border-[#E2E2DE] hover:bg-[#FAF8F7] hover:border-[#D4D4CE]",
+        "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100/80 font-semibold",
       terracotta:
-        "bg-[#C84B28] text-white hover:bg-[#A93B1D] border border-[#B03E1F] shadow-xs",
+        "bg-rose-600 text-white hover:bg-rose-700 border border-rose-700 shadow-xs font-semibold",
+      accent:
+        "bg-[#EEF2FF] hover:bg-[#E0E7FF] border border-[#C7D2FE] text-[#2563EB] font-semibold",
     };
 
     const sizeClasses: Record<NonNullable<ButtonProps["size"]>, string> = {

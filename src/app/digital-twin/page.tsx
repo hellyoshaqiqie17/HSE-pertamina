@@ -139,26 +139,26 @@ export default function DigitalTwinPage() {
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <Clock
-                  className="w-4 h-4 text-[#52525B] shrink-0"
+                  className="w-4 h-4 text-[#475569] shrink-0"
                   aria-hidden="true"
                 />
                 <h2
                   id="twin-replay-heading"
-                  className="text-sm sm:text-base font-semibold text-[#18181B]"
+                  className="text-sm sm:text-base font-semibold text-[#0F172A]"
                 >
                   Time-Series Plume Replay ·{" "}
-                  <span className="font-mono font-normal text-[#52525B]">
+                  <span className="font-mono font-normal text-[#475569]">
                     {currentReplay.timeLabel}
                   </span>
                 </h2>
               </div>
-              <p className="text-xs text-[#68686F]">
+              <p className="text-xs text-[#64748B]">
                 {currentReplay.summary}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <div className="inline-flex p-1 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] gap-1">
+              <div className="inline-flex p-1 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] gap-1">
                 {REPLAY_TIMELINE_STEPS.map((st, idx) => (
                   <button
                     key={st.step}
@@ -172,8 +172,8 @@ export default function DigitalTwinPage() {
                     aria-pressed={replayIndex === idx}
                     className={`px-3 py-1.5 h-8 rounded-lg text-xs font-mono font-medium transition-colors ${
                       replayIndex === idx
-                        ? "bg-white text-[#18181B] shadow-xs border border-[#E2E2DE]"
-                        : "text-[#68686F] hover:text-[#18181B]"
+                        ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                        : "text-[#64748B] hover:text-[#0F172A]"
                     }`}
                   >
                     {idx === 0 ? "T-15m" : idx === 1 ? "T-05m" : "T-00m"}
@@ -195,7 +195,7 @@ export default function DigitalTwinPage() {
                 variant="outline"
                 onClick={() => handleSetAllLayers(true)}
               >
-                <Eye className="w-3.5 h-3.5 text-[#52525B]" aria-hidden="true" />
+                <Eye className="w-3.5 h-3.5 text-[#475569]" aria-hidden="true" />
                 <span>All Layers</span>
               </Button>
 
@@ -240,65 +240,65 @@ export default function DigitalTwinPage() {
               aria-labelledby="hazard-legend-heading"
               className="p-5 space-y-4"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#EFEFEA]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#F1F5F9]">
                 <h2
                   id="hazard-legend-heading"
-                  className="text-sm font-semibold text-[#18181B] flex items-center gap-2"
+                  className="text-sm font-semibold text-[#0F172A] flex items-center gap-2"
                 >
                   <Wind
-                    className="w-4 h-4 text-[#52525B]"
+                    className="w-4 h-4 text-[#475569]"
                     aria-hidden="true"
                   />
                   <span>Multi-Hazard Telemetry Envelope</span>
                 </h2>
-                <span className="text-[11px] font-mono text-[#68686F]">
+                <span className="text-[11px] font-mono text-[#64748B]">
                   {currentFacility.windSpeedMps} m/s{" "}
                   {currentFacility.windDirectionLabel}
                 </span>
               </div>
 
               <div className="space-y-2.5 text-xs">
-                <div className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] flex items-center justify-between gap-2">
+                <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-[#18181B] flex items-center gap-1.5">
+                    <div className="font-semibold text-[#0F172A] flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-[#C84B28]" aria-hidden="true" />
                       <span>Hydrocarbon Gas (% LEL)</span>
                     </div>
-                    <div className="text-[#68686F] mt-0.5">
+                    <div className="text-[#64748B] mt-0.5">
                       Warn: 20% LEL · Exclusion: &gt;40% LEL
                     </div>
                   </div>
-                  <span className="font-mono font-semibold text-[#18181B]">
+                  <span className="font-mono font-semibold text-[#0F172A]">
                     44-58% LEL
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] flex items-center justify-between gap-2">
+                <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-[#18181B] flex items-center gap-1.5">
+                    <div className="font-semibold text-[#0F172A] flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />
                       <span>Radiant Thermal Flux (deg C)</span>
                     </div>
-                    <div className="text-[#68686F] mt-0.5">
+                    <div className="text-[#64748B] mt-0.5">
                       Warn: 55 deg C · Critical: &gt;85 deg C
                     </div>
                   </div>
-                  <span className="font-mono font-semibold text-[#18181B]">
+                  <span className="font-mono font-semibold text-[#0F172A]">
                     78.4 deg C
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] flex items-center justify-between gap-2">
+                <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-[#18181B] flex items-center gap-1.5">
+                    <div className="font-semibold text-[#0F172A] flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" aria-hidden="true" />
                       <span>Particulate Smoke (ppm)</span>
                     </div>
-                    <div className="text-[#68686F] mt-0.5">
+                    <div className="text-[#64748B] mt-0.5">
                       Obscuration limit: &gt;100 ppm
                     </div>
                   </div>
-                  <span className="font-mono font-semibold text-[#18181B]">
+                  <span className="font-mono font-semibold text-[#0F172A]">
                     148 ppm
                   </span>
                 </div>
@@ -313,7 +313,7 @@ export default function DigitalTwinPage() {
               <div
                 role="tablist"
                 aria-label="Twin entity categories"
-                className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE]"
+                className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]"
               >
                 <button
                   type="button"
@@ -322,8 +322,8 @@ export default function DigitalTwinPage() {
                   onClick={() => setSelectedAssetTab("assets")}
                   className={`py-1.5 h-8 rounded-lg text-xs font-medium transition-colors ${
                     selectedAssetTab === "assets"
-                      ? "bg-white text-[#18181B] shadow-xs border border-[#E2E2DE]"
-                      : "text-[#68686F] hover:text-[#18181B]"
+                      ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                      : "text-[#64748B] hover:text-[#0F172A]"
                   }`}
                 >
                   Assets ({assets.length})
@@ -335,8 +335,8 @@ export default function DigitalTwinPage() {
                   onClick={() => setSelectedAssetTab("hazards")}
                   className={`py-1.5 h-8 rounded-lg text-xs font-medium transition-colors ${
                     selectedAssetTab === "hazards"
-                      ? "bg-white text-[#18181B] shadow-xs border border-[#E2E2DE]"
-                      : "text-[#68686F] hover:text-[#18181B]"
+                      ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                      : "text-[#64748B] hover:text-[#0F172A]"
                   }`}
                 >
                   Hazards ({replayAdjustedHazards.filter((h) => h.active).length})
@@ -348,8 +348,8 @@ export default function DigitalTwinPage() {
                   onClick={() => setSelectedAssetTab("sensors")}
                   className={`py-1.5 h-8 rounded-lg text-xs font-medium transition-colors ${
                     selectedAssetTab === "sensors"
-                      ? "bg-white text-[#18181B] shadow-xs border border-[#E2E2DE]"
-                      : "text-[#68686F] hover:text-[#18181B]"
+                      ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                      : "text-[#64748B] hover:text-[#0F172A]"
                   }`}
                 >
                   Sensors ({sensors.length})
@@ -361,16 +361,16 @@ export default function DigitalTwinPage() {
                   assets.map((asset) => (
                     <div
                       key={asset.id}
-                      className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] text-xs space-y-1"
+                      className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs space-y-1"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-mono font-semibold text-[#18181B]">
+                        <span className="font-mono font-semibold text-[#0F172A]">
                           {asset.code} · {asset.name}
                         </span>
                         <RiskBadge level={asset.riskStatus} />
                       </div>
-                      <p className="text-[#52525B]">{asset.description}</p>
-                      <div className="flex items-center justify-between text-[11px] font-mono text-[#68686F] pt-1">
+                      <p className="text-[#475569]">{asset.description}</p>
+                      <div className="flex items-center justify-between text-[11px] font-mono text-[#64748B] pt-1">
                         <span>{asset.capacityOrSpec}</span>
                         <span>Workers: {asset.workersPresent}</span>
                       </div>
@@ -381,16 +381,16 @@ export default function DigitalTwinPage() {
                   replayAdjustedHazards.map((hz) => (
                     <div
                       key={hz.id}
-                      className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] text-xs space-y-1.5"
+                      className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs space-y-1.5"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-[#18181B]">
+                        <span className="font-semibold text-[#0F172A]">
                           {hz.name}
                         </span>
                         <RiskBadge level={hz.severity} />
                       </div>
-                      <p className="text-[#52525B]">{hz.description}</p>
-                      <div className="flex items-center justify-between text-[11px] font-mono text-[#68686F]">
+                      <p className="text-[#475569]">{hz.description}</p>
+                      <div className="flex items-center justify-between text-[11px] font-mono text-[#64748B]">
                         <span>Radius: {hz.radius} m</span>
                         <span>
                           <Badge
@@ -408,17 +408,17 @@ export default function DigitalTwinPage() {
                   sensors.map((sn) => (
                     <div
                       key={sn.id}
-                      className="p-3 rounded-xl bg-[#F7F7F4] border border-[#E2E2DE] text-xs space-y-1"
+                      className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs space-y-1"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-mono font-semibold text-[#18181B]">
+                        <span className="font-mono font-semibold text-[#0F172A]">
                           {sn.id} · {sn.name}
                         </span>
                         <SensorStatusBadge status={sn.status} />
                       </div>
-                      <div className="flex items-center justify-between text-[#52525B] font-mono pt-1">
+                      <div className="flex items-center justify-between text-[#475569] font-mono pt-1">
                         <span>{sn.location}</span>
-                        <strong className="text-[#18181B]">
+                        <strong className="text-[#0F172A]">
                           {sn.value} {sn.unit}
                         </strong>
                       </div>
@@ -426,7 +426,7 @@ export default function DigitalTwinPage() {
                   ))}
               </div>
 
-              <div className="pt-2 border-t border-[#EFEFEA]">
+              <div className="pt-2 border-t border-[#F1F5F9]">
                 <Link
                   href="/evacuation"
                   className="w-full inline-flex items-center justify-center gap-2 h-10 px-4 py-2.5 rounded-xl btn-embossed text-xs font-medium"

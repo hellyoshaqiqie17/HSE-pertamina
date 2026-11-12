@@ -66,16 +66,16 @@ export function DepotTechnicalStage({
       {/* Stage Top Header Row: Title + Pills on Left, 4 Square Tool Buttons on Right */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-3">
         <div>
-          <h1 className="text-2xl sm:text-[32px] font-semibold tracking-tight text-[#18181B] leading-tight">
+          <h1 className="text-2xl sm:text-[32px] font-semibold tracking-tight text-[#0F172A] leading-tight">
             {stageTitle}{" "}
             <span className="text-[#C84B28] font-normal">{stageNumber}</span>
           </h1>
 
           {/* Two Metadata Pills below Title */}
           <div className="flex flex-wrap items-center gap-2 mt-3">
-            <div className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] bg-white border border-[#E2E2DE] text-xs font-medium text-[#18181B] shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+            <div className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] bg-white border border-[#E2E8F0] text-xs font-medium text-[#0F172A] shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
               <Network
-                className="w-3.5 h-3.5 text-[#52525B] shrink-0"
+                className="w-3.5 h-3.5 text-[#475569] shrink-0"
                 aria-hidden="true"
               />
               <label htmlFor="stage-zone-selector" className="sr-only">
@@ -85,7 +85,7 @@ export function DepotTechnicalStage({
                 id="stage-zone-selector"
                 value={selectedFacilityId}
                 onChange={(e) => setSelectedFacilityId(e.target.value)}
-                className="bg-transparent font-semibold text-[#18181B] pr-1 focus:outline-none"
+                className="bg-transparent font-semibold text-[#0F172A] pr-1 focus:outline-none"
               >
                 {facilities.map((f) => (
                   <option key={f.id} value={f.id}>
@@ -97,14 +97,14 @@ export function DepotTechnicalStage({
               </select>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3.5 h-9 rounded-[10px] bg-[#F1F1EE] border border-[#E2E2DE]/60 text-xs text-[#52525B]">
+            <div className="inline-flex items-center gap-2 px-3.5 h-9 rounded-[10px] bg-[#F1F5F9] border border-[#E2E8F0]/60 text-xs text-[#475569]">
               <span>Wind :</span>
-              <strong className="text-[#18181B] font-mono font-semibold">
+              <strong className="text-[#0F172A] font-mono font-semibold">
                 {currentFacility.windSpeedMps} m/s {currentFacility.windDirectionLabel}
               </strong>
-              <span className="text-[#D4D4CE]">|</span>
+              <span className="text-[#CBD5E1]">|</span>
               <span>Telemetry :</span>
-              <strong className="text-[#18181B] font-semibold">
+              <strong className="text-[#0F172A] font-semibold">
                 IoT Sync Active
               </strong>
             </div>
@@ -126,7 +126,7 @@ export function DepotTechnicalStage({
             className={`w-10 h-10 rounded-[10px] flex items-center justify-center border transition-all ${
               showAnnotations
                 ? "btn-embossed"
-                : "bg-white text-[#18181B] border-[#E2E2DE] hover:bg-[#F7F7F4]"
+                : "bg-white text-[#0F172A] border-[#E2E8F0] hover:bg-[#F8FAFC]"
             }`}
           >
             <Crosshair className="w-4 h-4" aria-hidden="true" />
@@ -137,7 +137,7 @@ export function DepotTechnicalStage({
             onClick={handleCycleZoom}
             aria-label={`Cycle stage zoom (currently ${Math.round(zoomScale * 100)}%)`}
             title={`Zoom (${Math.round(zoomScale * 100)}%)`}
-            className="w-10 h-10 rounded-[10px] bg-white border border-[#E2E2DE] hover:bg-[#F7F7F4] text-[#18181B] flex items-center justify-center transition-colors"
+            className="w-10 h-10 rounded-[10px] bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#0F172A] flex items-center justify-center transition-colors"
           >
             <ZoomIn className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -151,7 +151,7 @@ export function DepotTechnicalStage({
             }}
             aria-label="Reset stage zoom and restore baseline state"
             title="Reset stage view & baseline"
-            className="w-10 h-10 rounded-[10px] bg-white border border-[#E2E2DE] hover:bg-[#F7F7F4] text-[#18181B] flex items-center justify-center transition-colors"
+            className="w-10 h-10 rounded-[10px] bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#0F172A] flex items-center justify-center transition-colors"
           >
             <Maximize2 className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -164,7 +164,7 @@ export function DepotTechnicalStage({
             className={`w-10 h-10 rounded-[10px] flex items-center justify-center border transition-all ${
               hazardExpansionStep > 0
                 ? "bg-[#C84B28] text-white border-[#C84B28]"
-                : "bg-white text-[#18181B] border-[#E2E2DE] hover:bg-[#F7F7F4]"
+                : "bg-white text-[#0F172A] border-[#E2E8F0] hover:bg-[#F8FAFC]"
             }`}
           >
             <Flame className="w-4 h-4" aria-hidden="true" />
@@ -174,7 +174,7 @@ export function DepotTechnicalStage({
 
       {/* Main Technical Illustration Canvas: EVORA Downstream Fuel Storage & Distribution Depot (TBBM) */}
       {planeMode === "front" ? (
-        <div className="relative overflow-hidden rounded-2xl bg-[#F7F7F4] pt-1 pb-2">
+        <div className="relative overflow-hidden rounded-2xl bg-[#F8FAFC] pt-1 pb-2">
           <div
             style={{
               transform: `scale(${zoomScale})`,
@@ -236,7 +236,7 @@ export function DepotTechnicalStage({
                   y1="0"
                   x2="0"
                   y2="20"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="2"
                 />
                 <line
@@ -244,11 +244,11 @@ export function DepotTechnicalStage({
                   y1="6"
                   x2="12"
                   y2="6"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="1.5"
                 />
-                <circle cx="-12" cy="6" r="2.5" fill="#18181B" />
-                <circle cx="12" cy="6" r="2.5" fill="#18181B" />
+                <circle cx="-12" cy="6" r="2.5" fill="#0F172A" />
+                <circle cx="12" cy="6" r="2.5" fill="#0F172A" />
                 <polygon points="0,0 10,3 0,6" fill="#C84B28" />
               </g>
 
@@ -276,7 +276,7 @@ export function DepotTechnicalStage({
                     width="8"
                     height="9"
                     rx="1"
-                    fill="#71717A"
+                    fill="#64748B"
                   />
                   {/* Cylindrical Shell Courses */}
                   <rect
@@ -304,7 +304,7 @@ export function DepotTechnicalStage({
                   <path
                     d="M 14 206 L 36 170 L 58 134 L 80 98 L 92 62"
                     fill="none"
-                    stroke="#71717A"
+                    stroke="#64748B"
                     strokeWidth="2"
                   />
                   {/* Tank Identifier Plate */}
@@ -322,7 +322,7 @@ export function DepotTechnicalStage({
                     x="52"
                     y="85"
                     textAnchor="middle"
-                    fill="#18181B"
+                    fill="#0F172A"
                     fontSize="10"
                     fontWeight="700"
                     fontFamily="monospace"
@@ -333,7 +333,7 @@ export function DepotTechnicalStage({
                     x="52"
                     y="96"
                     textAnchor="middle"
-                    fill="#52525B"
+                    fill="#475569"
                     fontSize="8"
                     fontWeight="600"
                     fontFamily="monospace"
@@ -383,7 +383,7 @@ export function DepotTechnicalStage({
                     fill="#DFDDD6"
                     stroke={
                       highlightedSubsystem === "manifold"
-                        ? "#18181B"
+                        ? "#0F172A"
                         : "#C84B28"
                     }
                     strokeWidth={highlightedSubsystem === "manifold" ? "2.5" : "1.8"}
@@ -415,7 +415,7 @@ export function DepotTechnicalStage({
                     y1="26"
                     x2="114"
                     y2="216"
-                    stroke="#52525B"
+                    stroke="#475569"
                     strokeWidth="2.5"
                   />
                   {/* Tank T-102 Nameplate */}
@@ -433,7 +433,7 @@ export function DepotTechnicalStage({
                     x="60"
                     y="90"
                     textAnchor="middle"
-                    fill="#18181B"
+                    fill="#0F172A"
                     fontSize="10.5"
                     fontWeight="700"
                     fontFamily="monospace"
@@ -479,7 +479,7 @@ export function DepotTechnicalStage({
                   height="22"
                   rx="3"
                   fill="#C4C1B8"
-                  stroke="#71717A"
+                  stroke="#64748B"
                   strokeWidth="1.5"
                 />
                 <rect
@@ -489,7 +489,7 @@ export function DepotTechnicalStage({
                   height="44"
                   rx="2"
                   fill="#B8B4AA"
-                  stroke="#71717A"
+                  stroke="#64748B"
                   strokeWidth="1.4"
                 />
                 <rect
@@ -499,14 +499,14 @@ export function DepotTechnicalStage({
                   height="44"
                   rx="2"
                   fill="#B8B4AA"
-                  stroke="#71717A"
+                  stroke="#64748B"
                   strokeWidth="1.4"
                 />
                 <text
                   x="158"
                   y="328"
                   textAnchor="middle"
-                  fill="#18181B"
+                  fill="#0F172A"
                   fontSize="8.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -530,7 +530,7 @@ export function DepotTechnicalStage({
                   width="242"
                   height="12"
                   fill="#A8A49C"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="1.4"
                 />
                 <rect
@@ -539,7 +539,7 @@ export function DepotTechnicalStage({
                   width="222"
                   height="10"
                   fill="#B8B4AA"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="1.2"
                 />
 
@@ -551,14 +551,14 @@ export function DepotTechnicalStage({
                   height="26"
                   rx="3"
                   fill="#D4D2CC"
-                  stroke="#71717A"
+                  stroke="#64748B"
                   strokeWidth="1.5"
                 />
                 <text
                   x="405"
                   y="326"
                   textAnchor="middle"
-                  fill="#18181B"
+                  fill="#0F172A"
                   fontSize="8.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -575,7 +575,7 @@ export function DepotTechnicalStage({
                       width="12"
                       height="92"
                       fill="#D4D2CC"
-                      stroke="#52525B"
+                      stroke="#475569"
                       strokeWidth="1.3"
                     />
                     {/* Flanged Valve Body */}
@@ -585,7 +585,7 @@ export function DepotTechnicalStage({
                       width="22"
                       height="24"
                       rx="3"
-                      fill={i === 1 ? "#C84B28" : "#71717A"}
+                      fill={i === 1 ? "#C84B28" : "#64748B"}
                       stroke="#3F3F46"
                       strokeWidth="1.3"
                     />
@@ -595,7 +595,7 @@ export function DepotTechnicalStage({
                       cy="226"
                       r="7"
                       fill="#FFFFFF"
-                      stroke={i === 1 ? "#C84B28" : "#52525B"}
+                      stroke={i === 1 ? "#C84B28" : "#475569"}
                       strokeWidth="2"
                     />
                   </g>
@@ -620,7 +620,7 @@ export function DepotTechnicalStage({
                   cy="232"
                   r={hazardExpansionStep > 0 ? 58 : 40}
                   fill="rgba(113, 113, 122, 0.14)"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="1.5"
                   strokeDasharray="4 4"
                 />
@@ -660,7 +660,7 @@ export function DepotTechnicalStage({
                   height="16"
                   rx="3"
                   fill="#D4D2CC"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="1.5"
                 />
                 <rect
@@ -677,7 +677,7 @@ export function DepotTechnicalStage({
                   x="632"
                   y="143"
                   textAnchor="middle"
-                  fill="#18181B"
+                  fill="#0F172A"
                   fontSize="8.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -692,7 +692,7 @@ export function DepotTechnicalStage({
                   width="10"
                   height="166"
                   fill="#C4C0B6"
-                  stroke="#71717A"
+                  stroke="#64748B"
                   strokeWidth="1.2"
                 />
                 <rect
@@ -701,7 +701,7 @@ export function DepotTechnicalStage({
                   width="10"
                   height="166"
                   fill="#C4C0B6"
-                  stroke="#71717A"
+                  stroke="#64748B"
                   strokeWidth="1.2"
                 />
 
@@ -709,7 +709,7 @@ export function DepotTechnicalStage({
                 <path
                   d="M 580 148 L 580 182 L 602 208 L 602 232"
                   fill="none"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -717,7 +717,7 @@ export function DepotTechnicalStage({
                 <path
                   d="M 642 148 L 642 182 L 624 208 L 624 232"
                   fill="none"
-                  stroke="#52525B"
+                  stroke="#475569"
                   strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -733,7 +733,7 @@ export function DepotTechnicalStage({
                     height="46"
                     rx="20"
                     fill="#FFFFFF"
-                    stroke="#52525B"
+                    stroke="#475569"
                     strokeWidth="1.6"
                   />
                   {/* Pertamina-style Red/Teal Accent Stripe on Tanker */}
@@ -749,7 +749,7 @@ export function DepotTechnicalStage({
                     x="56"
                     y="20"
                     textAnchor="middle"
-                    fill="#18181B"
+                    fill="#0F172A"
                     fontSize="8"
                     fontWeight="700"
                     fontFamily="monospace"
@@ -760,7 +760,7 @@ export function DepotTechnicalStage({
                   <path
                     d="M 114 16 L 142 16 L 150 32 L 150 54 L 114 54 Z"
                     fill="#E5E3DD"
-                    stroke="#52525B"
+                    stroke="#475569"
                     strokeWidth="1.5"
                   />
                   <rect
@@ -770,7 +770,7 @@ export function DepotTechnicalStage({
                     height="12"
                     rx="2"
                     fill="#FFFFFF"
-                    stroke="#71717A"
+                    stroke="#64748B"
                     strokeWidth="1.2"
                   />
                   {/* Chassis Rail */}
@@ -780,7 +780,7 @@ export function DepotTechnicalStage({
                     width="146"
                     height="7"
                     rx="2"
-                    fill="#52525B"
+                    fill="#475569"
                   />
                   {/* Road Wheels */}
                   {[22, 44, 92, 134].map((wx) => (
@@ -790,7 +790,7 @@ export function DepotTechnicalStage({
                         cy="64"
                         r="10"
                         fill="#27272A"
-                        stroke="#18181B"
+                        stroke="#0F172A"
                         strokeWidth="1.5"
                       />
                       <circle cx={wx} cy="64" r="4" fill="#D4D2CC" />
@@ -806,14 +806,14 @@ export function DepotTechnicalStage({
                   height="22"
                   rx="3"
                   fill="#D4D2CC"
-                  stroke="#71717A"
+                  stroke="#64748B"
                   strokeWidth="1.5"
                 />
                 <text
                   x="632"
                   y="328"
                   textAnchor="middle"
-                  fill="#18181B"
+                  fill="#0F172A"
                   fontSize="8.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -836,7 +836,7 @@ export function DepotTechnicalStage({
                   y="142"
                   width="8"
                   height="172"
-                  fill="#71717A"
+                  fill="#64748B"
                 />
 
                 {/* Backup Power Supply Cabinet (Catu Daya Cadangan / UPS Battery) */}
@@ -847,7 +847,7 @@ export function DepotTechnicalStage({
                   height="56"
                   rx="5"
                   fill="#FFFFFF"
-                  stroke="#18181B"
+                  stroke="#0F172A"
                   strokeWidth="1.6"
                 />
                 <rect
@@ -856,14 +856,14 @@ export function DepotTechnicalStage({
                   width="40"
                   height="14"
                   rx="2"
-                  fill="#F7F7F4"
+                  fill="#F8FAFC"
                 />
                 <circle cx="783" cy="247" r="3" fill="#16A34A" />
                 <text
                   x="798"
                   y="250"
                   textAnchor="middle"
-                  fill="#18181B"
+                  fill="#0F172A"
                   fontSize="7.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -874,7 +874,7 @@ export function DepotTechnicalStage({
                   x="796"
                   y="268"
                   textAnchor="middle"
-                  fill="#52525B"
+                  fill="#475569"
                   fontSize="7.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -916,7 +916,7 @@ export function DepotTechnicalStage({
                   width="52"
                   height="24"
                   rx="4"
-                  fill="#F7F7F4"
+                  fill="#F8FAFC"
                   stroke="#BBF7D0"
                   strokeWidth="1.2"
                 />
@@ -935,7 +935,7 @@ export function DepotTechnicalStage({
                   x="868"
                   y="216"
                   textAnchor="middle"
-                  fill="#18181B"
+                  fill="#0F172A"
                   fontSize="7.5"
                   fontWeight="700"
                   fontFamily="monospace"
@@ -970,7 +970,7 @@ export function DepotTechnicalStage({
                       y1="9"
                       x2="-5"
                       y2="22"
-                      stroke="#18181B"
+                      stroke="#0F172A"
                       strokeWidth="2"
                       strokeLinecap="round"
                     />
@@ -979,7 +979,7 @@ export function DepotTechnicalStage({
                       y1="9"
                       x2="5"
                       y2="22"
-                      stroke="#18181B"
+                      stroke="#0F172A"
                       strokeWidth="2"
                       strokeLinecap="round"
                     />
@@ -1017,8 +1017,8 @@ export function DepotTechnicalStage({
                 width="890"
                 height="24"
                 rx="6"
-                fill="#ECECE8"
-                stroke="#D4D4CE"
+                fill="#E2E8F0"
+                stroke="#CBD5E1"
                 strokeWidth="1.2"
               />
               <line
@@ -1076,14 +1076,14 @@ export function DepotTechnicalStage({
                       height="42"
                       rx="8"
                       fill="#FFFFFF"
-                      stroke="#E2E2DE"
+                      stroke="#E2E8F0"
                       strokeWidth="1.5"
                     />
                     <circle cx="14" cy="15" r="4" fill="#D97706" />
                     <text
                       x="25"
                       y="18"
-                      fill="#52525B"
+                      fill="#475569"
                       fontSize="9"
                       fontWeight="600"
                       fontFamily="monospace"
@@ -1093,7 +1093,7 @@ export function DepotTechnicalStage({
                     <text
                       x="25"
                       y="33"
-                      fill="#18181B"
+                      fill="#0F172A"
                       fontSize="10"
                       fontWeight="700"
                       fontFamily="monospace"
@@ -1118,7 +1118,7 @@ export function DepotTechnicalStage({
                     <text
                       x="25"
                       y="18"
-                      fill="#52525B"
+                      fill="#475569"
                       fontSize="9"
                       fontWeight="600"
                       fontFamily="monospace"
@@ -1128,7 +1128,7 @@ export function DepotTechnicalStage({
                     <text
                       x="25"
                       y="33"
-                      fill="#18181B"
+                      fill="#0F172A"
                       fontSize="10"
                       fontWeight="700"
                       fontFamily="monospace"
@@ -1146,7 +1146,7 @@ export function DepotTechnicalStage({
                       height="50"
                       rx="10"
                       fill="#FFFFFF"
-                      stroke="#E2E2DE"
+                      stroke="#E2E8F0"
                       strokeWidth="1.5"
                     />
                     <rect
@@ -1155,7 +1155,7 @@ export function DepotTechnicalStage({
                       width="34"
                       height="34"
                       rx="7"
-                      fill={hazardExpansionStep > 0 ? "#C84B28" : "#18181B"}
+                      fill={hazardExpansionStep > 0 ? "#C84B28" : "#0F172A"}
                     />
                     <path
                       d="M 17 25 L 33 25 M 27 19 L 33 25 L 27 31"
@@ -1167,7 +1167,7 @@ export function DepotTechnicalStage({
                     <text
                       x="52"
                       y="21"
-                      fill="#52525B"
+                      fill="#475569"
                       fontSize="9"
                       fontWeight="600"
                       fontFamily="monospace"
@@ -1179,7 +1179,7 @@ export function DepotTechnicalStage({
                     <text
                       x="52"
                       y="37"
-                      fill="#18181B"
+                      fill="#0F172A"
                       fontSize="10.5"
                       fontWeight="700"
                       fontFamily="monospace"
@@ -1221,7 +1221,7 @@ export function DepotTechnicalStage({
         <div
           role="tablist"
           aria-label="Technical projection plane selector"
-          className="inline-flex items-center gap-1 p-1 rounded-[10px] bg-[#F1F1EE] border border-[#E2E2DE]/60"
+          className="inline-flex items-center gap-1 p-1 rounded-[10px] bg-[#F1F5F9] border border-[#E2E8F0]/60"
         >
           {(
             [
@@ -1240,8 +1240,8 @@ export function DepotTechnicalStage({
                 onClick={() => setPlaneMode(tab.key)}
                 className={`px-3.5 py-1.5 min-h-[32px] rounded-[8px] text-xs font-medium transition-all ${
                   active
-                    ? "bg-white text-[#18181B] font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
-                    : "text-[#52525B] hover:text-[#18181B]"
+                    ? "bg-white text-[#0F172A] font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+                    : "text-[#475569] hover:text-[#0F172A]"
                 }`}
               >
                 {tab.label}
