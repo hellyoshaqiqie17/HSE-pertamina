@@ -25,7 +25,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sliders,
-  Sparkles,
   StepBack,
   StepForward,
   Thermometer,
@@ -300,8 +299,12 @@ export default function SimulationPage() {
           points.push({ x: 370, y: 472 });
           points.push({ x: 530, y: 472 });
         } else {
-          // Gantry Bay A / B / VRU: step directly down to South Road y=472 -> (530, 472)
-          points.push({ x: spec.startPos.x, y: 472 });
+          // Gantry Bay A / B / VRU: clear OPS-01 along open aisle (x = 370) before reaching South Road y=472
+          if (spec.startPos.x < 360) {
+            points.push({ x: spec.startPos.x, y: 426 });
+            points.push({ x: 370, y: 426 });
+          }
+          points.push({ x: 370, y: 472 });
           points.push({ x: 530, y: 472 });
         }
       }
@@ -408,39 +411,30 @@ export default function SimulationPage() {
 
   return (
     <div className="space-y-6 pb-12 font-sans">
-      {/* Top Page Header in C:/ti Minimalist Style */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/90 pb-5">
+      {/* Top Page Header (C:/ti & C:/pkm clean architectural header, zero pill stack) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-              Real-Time Multi-Agent Physics & Behavior Engine
-            </span>
-            <span className="text-xs font-mono text-slate-500">
-              · 42 Autonomous Personnel Agents
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight">
             Multi-Agent Evacuation Simulation
           </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Coupled continuous simulation: Worker Agents dynamically avoid expanding Gas & Thermal Hazards, navigate road channels, and adapt to live digital signage.
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1">
+            Coupled continuous simulation across {simulatedAgents.length} autonomous worker agents avoiding dynamic hydrocarbon and thermal hazard contours.
           </p>
         </div>
 
         {/* Live Simulation Emergency Interventions Toolbar */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => setSirenActive((s) => !s)}
-            className={`cursor-pointer transition-all ${
-              sirenActive ? "bg-amber-500 text-slate-950 font-bold border-amber-500 shadow-sm" : ""
+            className={`cursor-pointer transition-colors ${
+              sirenActive ? "bg-amber-500 text-slate-950 font-semibold border-amber-500" : ""
             }`}
           >
-            {sirenActive ? <Volume2 className="w-3.5 h-3.5 mr-1.5 text-slate-950 animate-bounce" /> : <VolumeX className="w-3.5 h-3.5 mr-1.5 text-amber-600" />}
-            <span>{sirenActive ? "Smart Siren Active (Panic Sprint)" : "Broadcast Smart Siren"}</span>
+            {sirenActive ? <Volume2 className="w-3.5 h-3.5 mr-1.5 text-slate-950" /> : <VolumeX className="w-3.5 h-3.5 mr-1.5 text-amber-600" />}
+            <span>{sirenActive ? "Smart Siren Active (Sprint)" : "Broadcast Smart Siren"}</span>
           </Button>
 
           <Button
@@ -453,7 +447,7 @@ export default function SimulationPage() {
             }}
             className="cursor-pointer"
           >
-            <Flame className="w-3.5 h-3.5 mr-1.5 text-rose-600" />
+            <Flame className="w-3.5 h-3.5 mr-1.5 text-red-600" />
             <span>{hazardExpansionStep > 0 ? "Reset Vapor Plume" : "Simulate West Plume Flare"}</span>
           </Button>
 
@@ -462,34 +456,34 @@ export default function SimulationPage() {
             variant="outline"
             size="sm"
             onClick={() => setIsRouteABlockedManually((b) => !b)}
-            className={`cursor-pointer transition-all ${
-              isRouteABlockedManually ? "bg-rose-600 text-white font-bold border-rose-600 shadow-sm" : ""
+            className={`cursor-pointer transition-colors ${
+              isRouteABlockedManually ? "bg-red-600 text-white font-semibold border-red-600" : ""
             }`}
           >
-            <ShieldAlert className="w-3.5 h-3.5 mr-1.5 text-rose-500" />
+            <ShieldAlert className={`w-3.5 h-3.5 mr-1.5 ${isRouteABlockedManually ? "text-white" : "text-red-600"}`} />
             <span>{isRouteABlockedManually ? "Route A Blocked (All Diverted)" : "Block Route A (Debris)"}</span>
           </Button>
         </div>
       </div>
 
       <UIStateWrapper pageTitle="Multi-Agent Simulation">
-        {/* KPI Live Metric Cards in C:/ti Minimalist Style */}
+        {/* KPI Live Metric Cards in C:/ti & C:/pkm Clean Style */}
         <section
           aria-label="Simulation live metrics"
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5"
         >
-          <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
+          <Card className="p-4 border-[#E2E8F0]">
+            <div className="text-xs font-medium text-[#64748B] flex items-center justify-between">
               <span>Evacuated</span>
               <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
             </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-slate-900 mt-1">
+            <div className="text-2xl font-bold font-mono tabular-nums text-[#0F172A] mt-1">
               {evacuatedCount}{" "}
-              <span className="text-xs font-normal text-slate-400">
+              <span className="text-xs font-normal text-[#94A3B8]">
                 / {simulatedAgents.length}
               </span>
             </div>
-            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-[#F1F5F9] h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-300"
                 style={{ width: `${evacuationRatePct}%` }}
@@ -497,84 +491,84 @@ export default function SimulationPage() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
+          <Card className="p-4 border-[#E2E8F0]">
+            <div className="text-xs font-medium text-[#64748B] flex items-center justify-between">
               <span>In Transit</span>
-              <Waypoints className="w-3.5 h-3.5 text-blue-600" />
+              <Waypoints className="w-3.5 h-3.5 text-[#4B6BFB]" />
             </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-blue-600 mt-1">
+            <div className="text-2xl font-bold font-mono tabular-nums text-[#4B6BFB] mt-1">
               {movingCount}
             </div>
-            <div className="text-[11px] font-mono text-slate-500 mt-2">
+            <div className="text-[11px] font-mono text-[#64748B] mt-2">
               Pace: {(sirenActive ? 1.62 : 1.38).toFixed(2)} m/s avg
             </div>
           </Card>
 
-          <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
+          <Card className="p-4 border-[#E2E8F0]">
+            <div className="text-xs font-medium text-[#64748B] flex items-center justify-between">
               <span>At Risk</span>
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+              <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
             </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-rose-600 mt-1">
+            <div className="text-2xl font-bold font-mono tabular-nums text-red-600 mt-1">
               {affectedCount}
             </div>
-            <div className="text-[11px] font-mono text-slate-500 mt-2">
+            <div className="text-[11px] font-mono text-[#64748B] mt-2">
               {affectedCount === 0 ? "0 within 40% LEL" : "Immediate auto-reroute"}
             </div>
           </Card>
 
-          <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
+          <Card className="p-4 border-[#E2E8F0]">
+            <div className="text-xs font-medium text-[#64748B] flex items-center justify-between">
               <span>Simulation Clock</span>
-              <Radio className="w-3.5 h-3.5 text-slate-500" />
+              <Radio className="w-3.5 h-3.5 text-[#64748B]" />
             </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-slate-900 mt-1">
+            <div className="text-2xl font-bold font-mono tabular-nums text-[#0F172A] mt-1">
               T+{simTickSeconds}s
             </div>
-            <div className="text-[11px] font-mono text-slate-500 mt-2">
+            <div className="text-[11px] font-mono text-[#64748B] mt-2">
               Benchmark limit: 210s
             </div>
           </Card>
 
-          <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
+          <Card className="p-4 border-[#E2E8F0]">
+            <div className="text-xs font-medium text-[#64748B] flex items-center justify-between">
               <span>Active Directive</span>
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             </div>
-            <div className="text-base font-bold font-mono text-slate-900 mt-2 truncate">
+            <div className="text-base font-bold font-mono text-[#0F172A] mt-2 truncate">
               {isRouteABlockedManually || hazardExpansionStep > 0 ? "ROUTE B (DIVERT)" : "ROUTE A (PRIMARY)"}
             </div>
-            <div className="text-[11px] font-mono text-slate-500 mt-1">
+            <div className="text-[11px] font-mono text-[#64748B] mt-1">
               Signage sync: &lt;300ms
             </div>
           </Card>
 
-          <Card className="p-4 bg-white border border-slate-200/90 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500 flex items-center justify-between">
+          <Card className="p-4 border-[#E2E8F0]">
+            <div className="text-xs font-medium text-[#64748B] flex items-center justify-between">
               <span>Evacuation Cleared</span>
-              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             </div>
             <div className="text-2xl font-bold font-mono tabular-nums text-emerald-600 mt-1">
               {evacuationRatePct}%
             </div>
-            <div className="text-[11px] font-mono text-slate-500 mt-2">
-              Muster: Alpha & Bravo
+            <div className="text-[11px] font-mono text-[#64748B] mt-2">
+              Muster: Alpha &amp; Bravo
             </div>
           </Card>
         </section>
 
         {/* Main Simulation Workspace Grid: Simulation Stage (8 cols) + Live Inspector & Controls (4 cols) */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
-          {/* Left 8 Cols: High-Tech Control Room / Blueprint Simulation Canvas */}
+          {/* Left 8 Cols: Simulation Canvas */}
           <div className="xl:col-span-8 space-y-4">
-            <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+            <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-card overflow-hidden">
               {/* Simulation Stage Ribbon */}
-              <div className="px-5 py-3 border-b border-slate-200/80 bg-slate-50/80 flex flex-wrap items-center justify-between gap-3">
+              <div className="px-5 py-3 border-b border-[#E2E8F0] bg-[#FAFBFC] flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-900 shadow-2xs">
+                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-white border border-[#E2E8F0] text-[#0F172A]">
                     T+{simTickSeconds}s / 210s
                   </span>
-                  <span className="text-xs font-bold text-slate-900">
+                  <span className="text-xs font-semibold text-[#0F172A]">
                     {activeScenario.name}
                   </span>
                   <RiskBadge level={activeScenario.severity} />
@@ -585,10 +579,10 @@ export default function SimulationPage() {
                   <button
                     type="button"
                     onClick={() => setShowBlastRadiusOverlay((b) => !b)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                       showBlastRadiusOverlay
-                        ? "bg-rose-50 text-rose-700 border-rose-200 font-semibold"
-                        : "bg-white text-slate-600 border-slate-200"
+                        ? "bg-red-50 text-red-700 border-red-200 font-semibold"
+                        : "bg-white text-[#475569] border-[#E2E8F0]"
                     }`}
                   >
                     Radius BLEVE T-102: {showBlastRadiusOverlay ? "ON" : "OFF"}
@@ -597,10 +591,10 @@ export default function SimulationPage() {
                   <button
                     type="button"
                     onClick={triggerSideBInspectionScenario}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
                       isSideBScenarioActive
-                        ? "bg-amber-100 text-amber-900 border-amber-300 animate-pulse"
-                        : "bg-amber-50 hover:bg-amber-100/70 text-amber-800 border-amber-200"
+                        ? "bg-amber-100 text-amber-900 border-amber-300"
+                        : "bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200"
                     }`}
                     title="Simulasi insiden gas naik saat inspektur K3 menyidak Side B"
                   >
@@ -611,10 +605,10 @@ export default function SimulationPage() {
                   <button
                     type="button"
                     onClick={toggleDelugeSystem}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
                       isDelugeActive
                         ? "bg-emerald-100 text-emerald-900 border-emerald-300"
-                        : "bg-blue-50 hover:bg-blue-100/70 text-blue-800 border-blue-200"
+                        : "bg-[#EEF2FF] hover:bg-[#E0E7FF] text-[#4B6BFB] border-[#4B6BFB]/20"
                     }`}
                     title="Semprotan pendingin air cangkang tangki T-102"
                   >
@@ -624,21 +618,21 @@ export default function SimulationPage() {
                   <button
                     type="button"
                     onClick={() => setShowDensityHeatmap((h) => !h)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                       showDensityHeatmap
-                        ? "bg-blue-50 text-blue-700 border-blue-200 font-semibold"
-                        : "bg-white text-slate-600 border-slate-200"
+                        ? "bg-[#EEF2FF] text-[#4B6BFB] border-[#4B6BFB]/20 font-semibold"
+                        : "bg-white text-[#475569] border-[#E2E8F0]"
                     }`}
                   >
                     Heatmap: {showDensityHeatmap ? "ON" : "OFF"}
                   </button>
 
-                  <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-mono">
+                  <div className="inline-flex rounded-lg border border-[#E2E8F0] bg-[#F1F5F9] p-0.5 text-xs font-mono">
                     <button
                       type="button"
                       onClick={() => setCanvasTheme("dark")}
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-                        canvasTheme === "dark" ? "bg-slate-900 text-white font-bold" : "text-slate-600"
+                      className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                        canvasTheme === "dark" ? "bg-[#0F172A] text-white font-semibold" : "text-[#475569]"
                       }`}
                     >
                       Dark Stage
@@ -646,8 +640,8 @@ export default function SimulationPage() {
                     <button
                       type="button"
                       onClick={() => setCanvasTheme("light")}
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-                        canvasTheme === "light" ? "bg-white text-slate-900 font-bold shadow-2xs" : "text-slate-600"
+                      className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                        canvasTheme === "light" ? "bg-white text-[#0F172A] font-semibold shadow-sm" : "text-[#475569]"
                       }`}
                     >
                       CAD Blueprint
@@ -1040,7 +1034,6 @@ export default function SimulationPage() {
                         stroke="#EF4444"
                         strokeWidth="1.8"
                         strokeDasharray="4 3"
-                        className="animate-pulse"
                       />
                       <text
                         x={370}
@@ -1155,7 +1148,7 @@ export default function SimulationPage() {
                   {/* Route A Path */}
                   <g>
                     <polyline
-                      points="124,372 124,132 82,132"
+                      points="261,338 261,304 124,304 124,132 82,132"
                       fill="none"
                       stroke={isRouteABlockedManually || hazardExpansionStep > 0 ? "#EF4444" : "#10B981"}
                       strokeWidth={isRouteABlockedManually ? 2.5 : 4}
@@ -1164,7 +1157,7 @@ export default function SimulationPage() {
                     />
                     {!isRouteABlockedManually && hazardExpansionStep === 0 && (
                       <polyline
-                        points="124,372 124,132 82,132"
+                        points="261,338 261,304 124,304 124,132 82,132"
                         fill="none"
                         stroke="#86EFAC"
                         strokeWidth="2.5"
@@ -1246,9 +1239,8 @@ export default function SimulationPage() {
                               r="15"
                               fill="none"
                               stroke="#F59E0B"
-                              strokeWidth="2"
-                              className="animate-ping"
-                              style={{ animationDuration: "1.8s" }}
+                              strokeWidth="1.6"
+                              strokeDasharray="4 3"
                             />
                             <circle
                               r="11"
@@ -1269,36 +1261,24 @@ export default function SimulationPage() {
                           </>
                         )}
 
-                        {/* Selected Pulsing Radar Ring */}
+                        {/* Selected Static Focus Ring */}
                         {isSelected && !isInspector && (
-                          <>
-                            <circle
-                              r="13"
-                              fill="none"
-                              stroke="#60A5FA"
-                              strokeWidth="1.8"
-                              className="animate-ping"
-                              style={{ animationDuration: "2s" }}
-                            />
-                            <circle
-                              r="10"
-                              fill="none"
-                              stroke="#FFFFFF"
-                              strokeWidth="2"
-                              strokeDasharray="3 3"
-                            />
-                          </>
+                          <circle
+                            r="11"
+                            fill="none"
+                            stroke="#4B6BFB"
+                            strokeWidth="1.8"
+                            strokeDasharray="3 3"
+                          />
                         )}
 
-                        {/* Affected Panic Indicator */}
+                        {/* Affected Warning Ring */}
                         {agent.status === "affected" && (
                           <circle
-                            r="12"
+                            r="11"
                             fill="none"
                             stroke="#EF4444"
-                            strokeWidth="1.8"
-                            className="animate-ping"
-                            style={{ animationDuration: "1.2s" }}
+                            strokeWidth="1.6"
                           />
                         )}
 
@@ -1358,7 +1338,7 @@ export default function SimulationPage() {
                     <button
                       type="button"
                       onClick={() => setIsPlaying((p) => !p)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[40px] rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-all cursor-pointer shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[40px] rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-all cursor-pointer shadow-sm"
                     >
                       {isPlaying ? (
                         <>
@@ -1428,7 +1408,7 @@ export default function SimulationPage() {
                         aria-pressed={simSpeed === spd}
                         className={`px-3 py-1 min-h-[30px] rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                           simSpeed === spd
-                            ? "bg-white text-slate-900 shadow-2xs border border-slate-200/80"
+                            ? "bg-white text-slate-900 shadow-sm border border-slate-200/80"
                             : "text-slate-600 hover:text-slate-900"
                         }`}
                       >
@@ -1473,7 +1453,7 @@ export default function SimulationPage() {
             </div>
 
             {/* Agent Distribution & Role Level Filter Tabs */}
-            <div className="bg-white p-3.5 border border-slate-200/90 rounded-2xl shadow-xs space-y-2.5">
+            <div className="bg-white p-3.5 border border-slate-200/90 rounded-2xl shadow-sm space-y-2.5">
               {/* Row 1: Status Filter */}
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -1562,7 +1542,7 @@ export default function SimulationPage() {
                   }}
                   className={`px-2.5 py-0.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                     roleLevelFilter === "level-2-inspector"
-                      ? "bg-amber-500 text-white border-amber-600 font-bold shadow-xs"
+                      ? "bg-amber-500 text-white border-amber-600 font-bold shadow-sm"
                       : "bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100"
                   }`}
                 >
@@ -1600,7 +1580,7 @@ export default function SimulationPage() {
             {selectedAgent && (
               <section
                 aria-label="Worker agent real-time inspector"
-                className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4"
+                className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4"
               >
                 <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3.5">
                   <div>
@@ -1665,7 +1645,7 @@ export default function SimulationPage() {
                   <div className="text-right">
                     <span className="text-xs text-slate-400 font-mono">Heart Rate</span>
                     <div className="flex items-center justify-end gap-1 text-sm font-mono font-bold text-rose-600 mt-0.5">
-                      <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500 animate-pulse" />
+                      <Heart className="w-3.5 h-3.5 fill-red-500 text-red-500" />
                       <span>{selectedAgent.heartRate} bpm</span>
                     </div>
                   </div>
@@ -1761,7 +1741,7 @@ export default function SimulationPage() {
             {/* Scenario Configuration Card */}
             <section
               aria-labelledby="sim-parameters-heading"
-              className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4"
+              className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4"
             >
               <h2
                 id="sim-parameters-heading"
@@ -1823,53 +1803,53 @@ export default function SimulationPage() {
             {/* 4-Component Multi-Agent Methodology Architecture */}
             <section
               aria-labelledby="agent-architecture-heading"
-              className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-3"
+              className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3"
             >
               <h2
                 id="agent-architecture-heading"
-                className="text-sm font-bold text-slate-900 flex items-center gap-2"
+                className="text-sm font-bold text-[#0F172A] flex items-center gap-2"
               >
-                <Sparkles className="w-4 h-4 text-blue-600" />
+                <Layers className="w-4 h-4 text-[#4B6BFB]" />
                 <span>Four-Component Agent Architecture</span>
               </h2>
 
               <div className="space-y-2 text-xs">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                  <div className="font-semibold text-slate-900 flex items-center gap-2">
-                    <Users className="w-3.5 h-3.5 text-blue-600" />
+                <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <div className="font-semibold text-[#0F172A] flex items-center gap-2">
+                    <Users className="w-3.5 h-3.5 text-[#4B6BFB]" />
                     <span>1. Worker Agents ({simulatedAgents.length} Active Personnel)</span>
                   </div>
-                  <p className="text-slate-500 mt-1">
+                  <p className="text-[#64748B] mt-1">
                     Continuous physical agent movement along orthogonal road networks with individualized walking speeds and heart-rate stress response.
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                  <div className="font-semibold text-slate-900 flex items-center gap-2">
-                    <Flame className="w-3.5 h-3.5 text-rose-600" />
+                <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <div className="font-semibold text-[#0F172A] flex items-center gap-2">
+                    <Flame className="w-3.5 h-3.5 text-red-600" />
                     <span>2. Hazard Agents ({hazards.filter((h) => h.active).length} Plumes)</span>
                   </div>
-                  <p className="text-slate-500 mt-1">
+                  <p className="text-[#64748B] mt-1">
                     Expanding multi-hazard dispersion model of gasoline vapor (% LEL), thermal radiation (°C), and smoke opacity drifting SE with wind.
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                  <div className="font-semibold text-slate-900 flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <div className="font-semibold text-[#0F172A] flex items-center gap-2">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                     <span>3. Safety Agents (Threshold Gate)</span>
                   </div>
-                  <p className="text-slate-500 mt-1">
+                  <p className="text-[#64748B] mt-1">
                     Continuously checks corridor risk scores against threshold 65/100, blocking hazardous corridors instantly upon vapor breach.
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                  <div className="font-semibold text-slate-900 flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <div className="font-semibold text-[#0F172A] flex items-center gap-2">
                     <Waypoints className="w-3.5 h-3.5 text-amber-600" />
                     <span>4. Routing Agents (Dynamic Guidance)</span>
                   </div>
-                  <p className="text-slate-500 mt-1">
+                  <p className="text-[#64748B] mt-1">
                     Optimizes corridor choice across distance, exposure, and congestion, updating electronic field signage in under 300 ms.
                   </p>
                 </div>
@@ -1884,15 +1864,11 @@ export default function SimulationPage() {
 
 function ClockIndicator({ isPlaying }: { isPlaying: boolean }) {
   return (
-    <span className="relative flex h-2 w-2">
-      {isPlaying && (
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-      )}
-      <span
-        className={`relative inline-flex rounded-full h-2 w-2 ${
-          isPlaying ? "bg-emerald-500" : "bg-slate-400"
-        }`}
-      />
-    </span>
+    <span
+      className={`inline-block rounded-full h-2 w-2 ${
+        isPlaying ? "bg-emerald-500" : "bg-[#94A3B8]"
+      }`}
+      aria-hidden="true"
+    />
   );
 }

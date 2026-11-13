@@ -16,7 +16,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sliders,
-  Sparkles,
 } from "lucide-react";
 import { useEvora } from "@/lib/evora-context";
 import { RouteStatusBadge } from "@/components/shared/status-badge";
@@ -79,17 +78,8 @@ export default function AdaptiveEvacuationPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Badge variant="outline" dot>
-              Adaptive Routing Engine
-            </Badge>
-            <span className="text-xs text-[#64748B]">
-              · Multi-Criteria Corridor Evaluation
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight">
-            Adaptive Evacuation{" "}
-            <span className="font-normal text-[#64748B]">#A-01</span>
+            Adaptive Evacuation
           </h1>
           <p className="text-xs sm:text-sm text-[#475569] mt-1">
             Real-time corridor evaluation across distance, plume exposure, worker
@@ -172,7 +162,7 @@ export default function AdaptiveEvacuationPage() {
                 size="lg"
                 onClick={triggerHazardExpansion}
               >
-                <Flame className="w-3.5 h-3.5 text-[#C84B28]" aria-hidden="true" />
+                <Flame className="w-3.5 h-3.5 text-red-600" aria-hidden="true" />
                 <span>
                   {hazardExpansionStep === 0
                     ? "Simulate Plume Shift Near Route A"
@@ -365,7 +355,7 @@ export default function AdaptiveEvacuationPage() {
                   className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-2"
                 >
                   <div className="flex items-center gap-2 text-[#0F172A] font-semibold text-sm">
-                    <AlertTriangle className="w-4 h-4 text-[#C84B28]" aria-hidden="true" />
+                    <AlertTriangle className="w-4 h-4 text-red-600" aria-hidden="true" />
                     <span>No Safe Corridor Below Threshold</span>
                   </div>
                   <p className="text-xs text-[#475569] leading-relaxed">
@@ -511,7 +501,7 @@ export default function AdaptiveEvacuationPage() {
                       key={route.id}
                       className={`rounded-2xl border p-4 bg-white transition-all ${
                         isSelected
-                          ? "border-[#0F172A] ring-1 ring-[#0F172A]/10 shadow-xs"
+                          ? "border-[#4B6BFB] ring-1 ring-[#4B6BFB]/20 shadow-sm"
                           : "border-[#E2E8F0] hover:border-[#CBD5E1]"
                       }`}
                     >
@@ -568,7 +558,7 @@ export default function AdaptiveEvacuationPage() {
                               className={`h-1.5 w-1.5 rounded-full ${
                                 route.accessible
                                   ? "bg-emerald-500"
-                                  : "bg-[#C84B28]"
+                                  : "bg-red-600"
                               }`}
                               aria-hidden="true"
                             />
@@ -591,7 +581,7 @@ export default function AdaptiveEvacuationPage() {
                           value={route.riskScore}
                           indicatorClassName={
                             route.status === "blocked"
-                              ? "bg-[#C84B28]"
+                              ? "bg-red-600"
                               : "bg-[#0F172A]"
                           }
                         />
@@ -710,7 +700,7 @@ export default function AdaptiveEvacuationPage() {
                 </h2>
               </div>
               <p className="text-xs text-[#475569]">
-                Distribusi rute aman dan status gerbang pelarian untuk seluruh pos depo — memastikan keselamatan operator, inspektur sidak, hingga penjaga pos jaga gerbang.
+                Distribusi rute aman dan status gerbang pelarian untuk seluruh pos depo: memastikan keselamatan operator, inspektur sidak, hingga penjaga pos jaga gerbang.
               </p>
             </div>
 

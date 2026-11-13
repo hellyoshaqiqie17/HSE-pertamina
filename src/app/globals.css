@@ -1,10 +1,12 @@
-@import "https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400,300&display=swap";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   /* Modern minimalist palette matching C:/ti, C:/pkm & C:/hellyoshaqiqie */
+  --font-sans: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
   --color-canvas: #FAFBFC;
   --color-foreground: #0F172A;
   --color-muted: #94A3B8;
@@ -14,10 +16,10 @@
   --color-surface-nested: #CBD5E1;
   --color-border: #E2E8F0;
 
-  /* Accent colors matching C:/pkm & C:/ti */
-  --color-accent: #2563EB;
+  /* Accent colors matching C:/ti & C:/pkm */
+  --color-accent: #4B6BFB;
   --color-accent-light: #EEF2FF;
-  --color-accent-hover: #1D4ED8;
+  --color-accent-hover: #3B5BEB;
 
   /* Semantic status colors */
   --color-success: #10B981;
@@ -27,8 +29,8 @@
   --color-danger: #EF4444;
   --color-danger-light: #FEF2F2;
 
-  /* Elevated shadows matching C:/ti & C:/pkm */
-  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  /* Elevated shadows matching C:/ti, C:/pkm & C:/hellyoshaqiqie */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.03), 0 1px 6px rgba(15, 23, 42, 0.04);
   --shadow-elevated: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.04), 0 10px 24px rgba(0, 0, 0, 0.08);
 }
@@ -37,15 +39,22 @@
   html {
     background-color: var(--color-canvas);
     color: var(--color-foreground);
-    font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: var(--font-sans);
   }
 
   body {
     background-color: var(--color-canvas);
     color: var(--color-foreground);
-    font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans);
     overflow-x: hidden;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre,
+  .font-mono {
+    font-family: var(--font-mono);
   }
 
   a[href],
@@ -138,15 +147,38 @@
     border-radius: 12px;
     font-weight: 600;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 1px 3px rgba(75, 107, 251, 0.2);
   }
   .btn-primary:hover {
     background: var(--color-accent-hover);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 12px rgba(75, 107, 251, 0.3);
     transform: translateY(-1px);
   }
   .btn-primary:active {
     transform: translateY(0);
+  }
+
+  /* Shimmer loading skeleton matching C:/pkm & C:/hellyoshaqiqie */
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  .skeleton {
+    background-color: var(--color-shell);
+  }
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-shell) 0%,
+      var(--color-surface) 40%,
+      var(--color-shell) 80%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
   }
 
   /* Dashboard KPI grid */

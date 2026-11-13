@@ -101,19 +101,10 @@ export default function SensorsPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Badge variant="outline" dot>
-              MQTT Edge Telemetry
-            </Badge>
-            <span className="text-xs text-[#64748B]">
-              · Environmental Node Fleet
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight">
-            IoT Sensor Telemetry{" "}
-            <span className="font-normal text-[#64748B]">#204</span>
+            IoT Sensor Telemetry
           </h1>
-          <p className="text-xs sm:text-sm text-[#475569] mt-1">
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1">
             Environmental telemetry nodes (temperature, hydrocarbon gas, smoke,
             flame, and ultrasonic wind) feeding the Digital Twin.
           </p>
@@ -137,11 +128,11 @@ export default function SensorsPage() {
           aria-label="Sensor fleet summary"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          <Card className="p-4.5">
+          <Card className="p-5">
             <div className="flex items-center justify-between text-xs font-medium text-[#64748B]">
               <span>Deployed Nodes</span>
-              <span className="w-7 h-7 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#0F172A]">
-                <Radio className="w-3.5 h-3.5" aria-hidden="true" />
+              <span className="w-8 h-8 rounded-[10px] bg-[#EEF2FF] text-[#4B6BFB] flex items-center justify-center">
+                <Radio className="w-4 h-4" aria-hidden="true" />
               </span>
             </div>
             <div className="text-2xl font-bold font-mono tabular-nums text-[#0F172A] mt-2">
@@ -152,12 +143,12 @@ export default function SensorsPage() {
             </p>
           </Card>
 
-          <Card className="p-4.5">
+          <Card className="p-5">
             <div className="flex items-center justify-between text-xs font-medium text-[#64748B]">
               <span>Online Telemetry</span>
-              <span className="w-7 h-7 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#0F172A]">
+              <span className="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-600 flex items-center justify-center">
                 <CheckCircle2
-                  className="w-3.5 h-3.5"
+                  className="w-4 h-4"
                   aria-hidden="true"
                 />
               </span>
@@ -170,12 +161,12 @@ export default function SensorsPage() {
             </p>
           </Card>
 
-          <Card className="p-4.5">
+          <Card className="p-5">
             <div className="flex items-center justify-between text-xs font-medium text-[#64748B]">
               <span>Threshold Exceedance</span>
-              <span className="w-7 h-7 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#C84B28]">
+              <span className="w-8 h-8 rounded-[10px] bg-red-50 text-red-600 flex items-center justify-center">
                 <AlertTriangle
-                  className="w-3.5 h-3.5"
+                  className="w-4 h-4"
                   aria-hidden="true"
                 />
               </span>
@@ -188,7 +179,7 @@ export default function SensorsPage() {
             </p>
           </Card>
 
-          <Card className="p-4.5">
+          <Card className="p-5">
             <div className="flex items-center justify-between text-xs font-medium text-[#64748B]">
               <span>Offline / Fault</span>
               <span className="w-7 h-7 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#64748B]">
@@ -422,7 +413,7 @@ export default function SensorsPage() {
                     className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs flex items-start gap-2.5"
                   >
                     <AlertTriangle
-                      className="w-4 h-4 text-[#C84B28] shrink-0 mt-0.5"
+                      className="w-4 h-4 text-[#DC2626] shrink-0 mt-0.5"
                       aria-hidden="true"
                     />
                     <div>
@@ -492,7 +483,7 @@ export default function SensorsPage() {
                         />
                         <ReferenceLine
                           y={activeSensor.criticalThreshold}
-                          stroke="#C84B28"
+                          stroke="#DC2626"
                           strokeDasharray="4 4"
                         />
                         <Line
@@ -516,7 +507,7 @@ export default function SensorsPage() {
                     onClick={() => triggerSensorSpike(activeSensor.id)}
                     disabled={activeSensor.status === "offline"}
                   >
-                    <Zap className="w-3.5 h-3.5 text-[#C84B28]" aria-hidden="true" />
+                    <Zap className="w-3.5 h-3.5 text-[#DC2626]" aria-hidden="true" />
                     <span>Trigger Reading Spike</span>
                   </Button>
 

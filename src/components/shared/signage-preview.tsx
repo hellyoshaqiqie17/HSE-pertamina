@@ -49,7 +49,7 @@ export function SignagePreview({
     blocked?: boolean
   ) => {
     if (blocked) {
-      return <Ban className="w-7 h-7 text-[#C84B28]" aria-hidden="true" />;
+      return <Ban className="w-7 h-7 text-[#DC2626]" aria-hidden="true" />;
     }
     switch (dir) {
       case "NORTH-WEST":
@@ -168,7 +168,7 @@ export function SignagePreview({
         {recommendedRoute === null ? (
           <div className="rounded-xl bg-white border border-[#E2E8F0] p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center shrink-0">
-              <Ban className="w-6 h-6 text-[#C84B28]" aria-hidden="true" />
+              <Ban className="w-6 h-6 text-[#DC2626]" aria-hidden="true" />
             </div>
             <div>
               <div className="mb-1">
@@ -246,7 +246,7 @@ export function SignagePreview({
         {blockedRoutes.length > 0 && (
           <div className="pt-1 flex flex-wrap items-center justify-between gap-2 text-xs text-[#475569]">
             <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#C84B28]" aria-hidden="true" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#DC2626]" aria-hidden="true" />
               <span>
                 Active interlock on <strong className="text-[#0F172A]">{blockedRoutes.map((b) => b.shortCode).join(", ")}</strong> (No Entry barrier active)
               </span>

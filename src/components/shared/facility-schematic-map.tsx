@@ -94,11 +94,11 @@ function formatCompactSensorValue(sensor: Sensor): string {
 
 function getRoutePillAnchor(route: EvacuationRoute): { x: number; y: number } {
   if (route.id === "RT-ALPHA-A") return { x: 124, y: 218 };
-  if (route.id === "RT-ALPHA-B") return { x: 432, y: 472 };
-  if (route.id === "RT-ALPHA-C") return { x: 825, y: 258 };
-  if (route.id === "RT-BETA-A") return { x: 140, y: 240 };
-  if (route.id === "RT-BETA-B") return { x: 660, y: 455 };
-  if (route.id === "RT-BETA-C") return { x: 635, y: 165 };
+  if (route.id === "RT-ALPHA-B") return { x: 445, y: 472 };
+  if (route.id === "RT-ALPHA-C") return { x: 825, y: 245 };
+  if (route.id === "RT-BETA-A") return { x: 150, y: 232 };
+  if (route.id === "RT-BETA-B") return { x: 705, y: 470 };
+  if (route.id === "RT-BETA-C") return { x: 735, y: 232 };
   const midIndex = Math.floor(route.waypoints.length / 2);
   return route.waypoints[midIndex] ?? route.waypoints[0];
 }
@@ -421,14 +421,14 @@ export function FacilitySchematicMap({
               markerHeight="5.5"
               orient="auto-start-reverse"
             >
-              <path d="M 0 1 L 10 5 L 0 9 z" fill="#C84B28" />
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#DC2626" />
             </marker>
 
             {/* Clean Radial Gradients for Hazard Plumes */}
             <radialGradient id="plume-critical" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#C84B28" stopOpacity="0.22" />
-              <stop offset="65%" stopColor="#C84B28" stopOpacity="0.09" />
-              <stop offset="100%" stopColor="#C84B28" stopOpacity="0.02" />
+              <stop offset="0%" stopColor="#DC2626" stopOpacity="0.22" />
+              <stop offset="65%" stopColor="#DC2626" stopOpacity="0.09" />
+              <stop offset="100%" stopColor="#DC2626" stopOpacity="0.02" />
             </radialGradient>
             <radialGradient id="plume-warning" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#D97706" stopOpacity="0.20" />
@@ -471,63 +471,77 @@ export function FacilitySchematicMap({
               fill="url(#cad-grid)"
             />
 
-            {/* Layer 1B: Orthogonal Internal Service Road Network */}
-            <path
-              d="M 82 132 L 124 132 L 124 304 L 825 304 M 370 304 L 370 472 L 825 472 L 825 215 L 885 215"
-              fill="none"
-              stroke="#F2F2EE"
-              strokeWidth="22"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M 82 132 L 124 132 L 124 304 L 825 304 M 370 304 L 370 472 L 825 472 L 825 215 L 885 215"
-              fill="none"
-              stroke="#DCDBD4"
-              strokeWidth="1.2"
-              strokeDasharray="5 5"
-            />
+            {/* Layer 1B: Orthogonal Internal Service Road Network (Per-Facility) */}
+            {(() => {
+              const isBeta = facilityCode === "DEMO-TBBM-02";
+              const roadPath = isBeta
+                ? "M 110 142 L 150 142 L 150 322 L 735 322 M 640 322 L 640 470 L 786 470 M 150 322 L 150 404 M 735 322 L 735 142 L 610 142"
+                : "M 102 132 L 124 132 L 124 304 L 825 304 M 370 304 L 370 472 L 848 472 M 825 472 L 825 185 L 878 185";
+              const bund = isBeta
+                ? { x: 190, y: 62, w: 420, h: 152, label: "NORTH STORAGE & LPG BUND" }
+                : { x: 170, y: 56, w: 600, h: 152, label: "NORTH TANK FARM BUND" };
 
-            {/* Layer 1C: North Tank Farm Secondary Containment Bund (Aligned x=170..770) */}
-            <rect
-              x="170"
-              y="56"
-              width="600"
-              height="152"
-              rx="10"
-              fill="#F8F8F5"
-              stroke="#D0CEC6"
-              strokeWidth="1.5"
-            />
-            <rect
-              x="174"
-              y="60"
-              width="592"
-              height="144"
-              rx="8"
-              fill="none"
-              stroke="#E2E8F0"
-              strokeWidth="1"
-              strokeDasharray="4 4"
-            />
-            <text
-              x="756"
-              y="74"
-              textAnchor="end"
-              fill="#64748B"
-              fontSize="8.5"
-              fontWeight="700"
-              fontFamily="monospace"
-            >
-              NORTH TANK FARM BUND
-            </text>
+              return (
+                <>
+                  <path
+                    d={roadPath}
+                    fill="none"
+                    stroke="#F2F2EE"
+                    strokeWidth="22"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d={roadPath}
+                    fill="none"
+                    stroke="#DCDBD4"
+                    strokeWidth="1.2"
+                    strokeDasharray="5 5"
+                  />
+
+                  {/* Layer 1C: Secondary Containment Bund */}
+                  <rect
+                    x={bund.x}
+                    y={bund.y}
+                    width={bund.w}
+                    height={bund.h}
+                    rx="10"
+                    fill="#F8F8F5"
+                    stroke="#D0CEC6"
+                    strokeWidth="1.5"
+                  />
+                  <rect
+                    x={bund.x + 4}
+                    y={bund.y + 4}
+                    width={bund.w - 8}
+                    height={bund.h - 8}
+                    rx="8"
+                    fill="none"
+                    stroke="#E2E8F0"
+                    strokeWidth="1"
+                    strokeDasharray="4 4"
+                  />
+                  <text
+                    x={bund.x + bund.w - 14}
+                    y={bund.y + 18}
+                    textAnchor="end"
+                    fill="#64748B"
+                    fontSize="8.5"
+                    fontWeight="700"
+                    fontFamily="monospace"
+                  >
+                    {bund.label}
+                  </text>
+                </>
+              );
+            })()}
 
             {/* Layer 2: Soft Radial Hazard Plumes (Rendered behind assets so labels are never obscured) */}
             {visibleHazards.map((hz) => {
               const isSelected = selectedHazard?.id === hz.id;
               const stroke =
                 hz.type === "gas" || hz.type === "fire"
-                  ? "#C84B28"
+                  ? "#DC2626"
                   : hz.type === "smoke"
                   ? "#64748B"
                   : "#D97706";
@@ -591,97 +605,13 @@ export function FacilitySchematicMap({
               );
             })}
 
-            {/* Layer 3: Orthogonal Evacuation Routes (Along Road Channels) */}
-            {layers.routes &&
-              routes.map((route) => {
-                const pointsAttr = route.waypoints
-                  .map((p) => `${p.x},${p.y}`)
-                  .join(" ");
-                const isSelected = selectedRouteId === route.id;
-                const strokeColor =
-                  route.status === "recommended"
-                    ? "#16A34A"
-                    : route.status === "alternative"
-                    ? "#D97706"
-                    : "#C84B28";
-                const dashArray =
-                  route.status === "recommended"
-                    ? undefined
-                    : route.status === "alternative"
-                    ? "8 5"
-                    : "4 5";
-                const markerEnd =
-                  route.status === "recommended"
-                    ? "url(#arrow-recommended)"
-                    : route.status === "alternative"
-                    ? "url(#arrow-alternative)"
-                    : "url(#arrow-blocked)";
-
-                return (
-                  <g
-                    key={route.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${route.name}, status ${route.status}, risk score ${route.riskScore}`}
-                    onClick={() => onSelectRoute?.(route.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onSelectRoute?.(route.id);
-                      }
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <polyline
-                      points={pointsAttr}
-                      fill="none"
-                      stroke="#FFFFFF"
-                      strokeWidth={isSelected ? 8 : 6}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      opacity="0.95"
-                    />
-                    <polyline
-                      points={pointsAttr}
-                      fill="none"
-                      stroke={strokeColor}
-                      strokeWidth={
-                        route.status === "recommended"
-                          ? isSelected
-                            ? 4
-                            : 3.25
-                          : isSelected
-                          ? 3.5
-                          : 2.5
-                      }
-                      strokeDasharray={dashArray}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      markerEnd={markerEnd}
-                    />
-                    {route.status === "recommended" && (
-                      <polyline
-                        points={pointsAttr}
-                        fill="none"
-                        stroke="#86EFAC"
-                        strokeWidth="2"
-                        strokeDasharray="6 12"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="animate-route-flow pointer-events-none"
-                      />
-                    )}
-                  </g>
-                );
-              })}
-
-            {/* Layer 4: Facility Assets (Aligned Storage Tanks, Pipe Manifold, Gantry Bays, Buildings) */}
+            {/* Layer 3: Facility Assets (Aligned Storage Tanks, Pipe Manifold, Gantry Bays, Buildings) */}
             {layers.assets &&
               assets.map((asset) => {
                 const isSelected = selectedAsset?.id === asset.id;
                 const statusColor =
                   asset.riskStatus === "critical"
-                    ? "#C84B28"
+                    ? "#DC2626"
                     : asset.riskStatus === "high" ||
                       asset.riskStatus === "moderate"
                     ? "#D97706"
@@ -987,6 +917,90 @@ export function FacilitySchematicMap({
                 );
               })}
 
+            {/* Layer 4: Orthogonal Evacuation Routes (Rendered cleanly above assets & pads, below pills) */}
+            {layers.routes &&
+              routes.map((route) => {
+                const pointsAttr = route.waypoints
+                  .map((p) => `${p.x},${p.y}`)
+                  .join(" ");
+                const isSelected = selectedRouteId === route.id;
+                const strokeColor =
+                  route.status === "recommended"
+                    ? "#16A34A"
+                    : route.status === "alternative"
+                    ? "#D97706"
+                    : "#DC2626";
+                const dashArray =
+                  route.status === "recommended"
+                    ? undefined
+                    : route.status === "alternative"
+                    ? "8 5"
+                    : "4 5";
+                const markerEnd =
+                  route.status === "recommended"
+                    ? "url(#arrow-recommended)"
+                    : route.status === "alternative"
+                    ? "url(#arrow-alternative)"
+                    : "url(#arrow-blocked)";
+
+                return (
+                  <g
+                    key={route.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${route.name}, status ${route.status}, risk score ${route.riskScore}`}
+                    onClick={() => onSelectRoute?.(route.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSelectRoute?.(route.id);
+                      }
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <polyline
+                      points={pointsAttr}
+                      fill="none"
+                      stroke="#FFFFFF"
+                      strokeWidth={isSelected ? 8 : 6}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      opacity="0.95"
+                    />
+                    <polyline
+                      points={pointsAttr}
+                      fill="none"
+                      stroke={strokeColor}
+                      strokeWidth={
+                        route.status === "recommended"
+                          ? isSelected
+                            ? 4
+                            : 3.25
+                          : isSelected
+                          ? 3.5
+                          : 2.5
+                      }
+                      strokeDasharray={dashArray}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      markerEnd={markerEnd}
+                    />
+                    {route.status === "recommended" && (
+                      <polyline
+                        points={pointsAttr}
+                        fill="none"
+                        stroke="#86EFAC"
+                        strokeWidth="2"
+                        strokeDasharray="6 12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="animate-route-flow pointer-events-none"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+
             {/* Layer 5: Route Callout Pills (Positioned on Orthogonal Corridors) */}
             {layers.routes &&
               routes.map((route) => {
@@ -996,7 +1010,7 @@ export function FacilitySchematicMap({
                     ? "#16A34A"
                     : route.status === "alternative"
                     ? "#D97706"
-                    : "#C84B28";
+                    : "#DC2626";
                 const statusShort =
                   route.status === "recommended"
                     ? "REC"
@@ -1041,7 +1055,7 @@ export function FacilitySchematicMap({
               workers.map((w) => {
                 const fill =
                   w.status === "affected"
-                    ? "#C84B28"
+                    ? "#DC2626"
                     : w.status === "evacuated"
                     ? "#16A34A"
                     : "#2563EB";
@@ -1063,7 +1077,7 @@ export function FacilitySchematicMap({
               const isSelected = selectedSensor?.id === sensor.id;
               const dotColor =
                 sensor.status === "critical"
-                  ? "#C84B28"
+                  ? "#DC2626"
                   : sensor.status === "warning"
                   ? "#D97706"
                   : sensor.status === "offline"
@@ -1102,7 +1116,7 @@ export function FacilitySchematicMap({
                       isSelected
                         ? "#0F172A"
                         : sensor.status === "critical"
-                        ? "#C84B28"
+                        ? "#DC2626"
                         : "#E2E8F0"
                     }
                     strokeWidth={isSelected ? 1.8 : 1.2}
@@ -1233,7 +1247,7 @@ export function FacilitySchematicMap({
           const shortId = sensor.id.replace("SNS-", "").replace("B-", "");
           const dotClass =
             sensor.status === "critical"
-              ? "bg-[#C84B28]"
+              ? "bg-[#DC2626]"
               : sensor.status === "warning"
               ? "bg-[#D97706]"
               : sensor.status === "offline"
@@ -1327,7 +1341,7 @@ export function FacilitySchematicMap({
           {selectedHazard && (
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="text-xs font-mono font-semibold text-[#C84B28]">
+                <span className="text-xs font-mono font-semibold text-[#DC2626]">
                   {selectedHazard.id}
                 </span>
                 <span className="text-sm font-semibold text-[#0F172A]">
@@ -1370,7 +1384,7 @@ export function FacilitySchematicMap({
             <span>Alternative Route</span>
           </span>
           <span className="inline-flex items-center gap-1.5 font-medium text-[#0F172A]">
-            <span className="w-4 h-1 bg-[#C84B28] inline-block rounded-full" />
+            <span className="w-4 h-1 bg-[#DC2626] inline-block rounded-full" />
             <span>Blocked Route</span>
           </span>
           <span className="inline-flex items-center gap-1.5">
@@ -1378,7 +1392,7 @@ export function FacilitySchematicMap({
             <span>Assembly Point (Safe Muster)</span>
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#C84B28] inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#DC2626] inline-block" />
             <span>Hazard Contour (% LEL / °C / ppm)</span>
           </span>
         </div>

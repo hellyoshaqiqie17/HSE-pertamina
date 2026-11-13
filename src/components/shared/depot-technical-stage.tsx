@@ -68,7 +68,7 @@ export function DepotTechnicalStage({
         <div>
           <h1 className="text-2xl sm:text-[32px] font-semibold tracking-tight text-[#0F172A] leading-tight">
             {stageTitle}{" "}
-            <span className="text-[#C84B28] font-normal">{stageNumber}</span>
+            <span className="text-[#DC2626] font-normal">{stageNumber}</span>
           </h1>
 
           {/* Two Metadata Pills below Title */}
@@ -163,7 +163,7 @@ export function DepotTechnicalStage({
             title="Trigger Multi-Hazard Plume Expansion (Block Route A -> Recommend Route B)"
             className={`w-10 h-10 rounded-[10px] flex items-center justify-center border transition-all ${
               hazardExpansionStep > 0
-                ? "bg-[#C84B28] text-white border-[#C84B28]"
+                ? "bg-[#DC2626] text-white border-[#DC2626]"
                 : "bg-white text-[#0F172A] border-[#E2E8F0] hover:bg-[#F8FAFC]"
             }`}
           >
@@ -249,7 +249,7 @@ export function DepotTechnicalStage({
                 />
                 <circle cx="-12" cy="6" r="2.5" fill="#0F172A" />
                 <circle cx="12" cy="6" r="2.5" fill="#0F172A" />
-                <polygon points="0,0 10,3 0,6" fill="#C84B28" />
+                <polygon points="0,0 10,3 0,6" fill="#DC2626" />
               </g>
 
               {/* ============================================================
@@ -370,7 +370,7 @@ export function DepotTechnicalStage({
                     rx="48"
                     ry="10"
                     fill="rgba(200, 75, 40, 0.22)"
-                    stroke="#C84B28"
+                    stroke="#DC2626"
                     strokeWidth="1.5"
                     strokeDasharray="4 3"
                   />
@@ -384,7 +384,7 @@ export function DepotTechnicalStage({
                     stroke={
                       highlightedSubsystem === "manifold"
                         ? "#0F172A"
-                        : "#C84B28"
+                        : "#DC2626"
                     }
                     strokeWidth={highlightedSubsystem === "manifold" ? "2.5" : "1.8"}
                   />
@@ -406,7 +406,7 @@ export function DepotTechnicalStage({
                     y="31"
                     width="118"
                     height="10"
-                    fill="#C84B28"
+                    fill="#DC2626"
                     opacity="0.85"
                   />
                   {/* Foam Deluge Cooling Riser Pipe along Right Wall */}
@@ -426,7 +426,7 @@ export function DepotTechnicalStage({
                     height="34"
                     rx="4"
                     fill="#FFFFFF"
-                    stroke="#C84B28"
+                    stroke="#DC2626"
                     strokeWidth="1.4"
                   />
                   <text
@@ -444,7 +444,7 @@ export function DepotTechnicalStage({
                     x="60"
                     y="102"
                     textAnchor="middle"
-                    fill="#C84B28"
+                    fill="#DC2626"
                     fontSize="8"
                     fontWeight="700"
                     fontFamily="monospace"
@@ -585,7 +585,7 @@ export function DepotTechnicalStage({
                       width="22"
                       height="24"
                       rx="3"
-                      fill={i === 1 ? "#C84B28" : "#64748B"}
+                      fill={i === 1 ? "#DC2626" : "#64748B"}
                       stroke="#3F3F46"
                       strokeWidth="1.3"
                     />
@@ -595,7 +595,7 @@ export function DepotTechnicalStage({
                       cy="226"
                       r="7"
                       fill="#FFFFFF"
-                      stroke={i === 1 ? "#C84B28" : "#475569"}
+                      stroke={i === 1 ? "#DC2626" : "#475569"}
                       strokeWidth="2"
                     />
                   </g>
@@ -611,7 +611,7 @@ export function DepotTechnicalStage({
                       ? "rgba(200, 75, 40, 0.22)"
                       : "rgba(200, 75, 40, 0.14)"
                   }
-                  stroke="#C84B28"
+                  stroke="#DC2626"
                   strokeWidth="2"
                   strokeDasharray="6 4"
                 />
@@ -630,7 +630,7 @@ export function DepotTechnicalStage({
                   cx="382"
                   cy="252"
                   r="5.5"
-                  fill="#C84B28"
+                  fill="#DC2626"
                   stroke="#FFFFFF"
                   strokeWidth="1.75"
                 />
@@ -743,7 +743,7 @@ export function DepotTechnicalStage({
                     width="96"
                     height="7"
                     rx="3"
-                    fill="#C84B28"
+                    fill="#DC2626"
                   />
                   <text
                     x="56"
@@ -1026,7 +1026,7 @@ export function DepotTechnicalStage({
                 y1="354"
                 x2="520"
                 y2="354"
-                stroke="#C84B28"
+                stroke="#DC2626"
                 strokeWidth="2.5"
                 strokeDasharray="6 5"
               />
@@ -1111,10 +1111,10 @@ export function DepotTechnicalStage({
                       height="42"
                       rx="8"
                       fill="#FFFFFF"
-                      stroke="#C84B28"
+                      stroke="#DC2626"
                       strokeWidth="1.5"
                     />
-                    <circle cx="14" cy="15" r="4" fill="#C84B28" />
+                    <circle cx="14" cy="15" r="4" fill="#DC2626" />
                     <text
                       x="25"
                       y="18"
@@ -1155,7 +1155,7 @@ export function DepotTechnicalStage({
                       width="34"
                       height="34"
                       rx="7"
-                      fill={hazardExpansionStep > 0 ? "#C84B28" : "#0F172A"}
+                      fill={hazardExpansionStep > 0 ? "#DC2626" : "#0F172A"}
                     />
                     <path
                       d="M 17 25 L 33 25 M 27 19 L 33 25 L 27 31"
@@ -1260,7 +1260,7 @@ export function DepotTechnicalStage({
             <text
               x="11"
               y="10"
-              fill="#C84B28"
+              fill="#DC2626"
               fontSize="9"
               fontWeight="700"
               fontFamily="monospace"
@@ -1282,10 +1282,10 @@ export function DepotTechnicalStage({
               y1="40"
               x2="14"
               y2="15"
-              stroke="#C84B28"
+              stroke="#DC2626"
               strokeWidth="2"
             />
-            <polygon points="14,11 10,18 18,18" fill="#C84B28" />
+            <polygon points="14,11 10,18 18,18" fill="#DC2626" />
             <line
               x1="14"
               y1="40"

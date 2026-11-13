@@ -24,7 +24,6 @@ import {
   Shield,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
   Users,
   Wind,
 } from "lucide-react";
@@ -139,37 +138,37 @@ export default function OverviewPage() {
     <UIStateWrapper pageTitle="Emergency Command Center">
       <div className="space-y-6">
         {/* ================================================================
-            PAGE HEADER & FACILITY STATUS BANNER (EVORA Brief Section 5.1)
+            PAGE HEADER & FACILITY STATUS BANNER (C:/ti & C:/pkm clean hierarchy)
             ================================================================ */}
-        <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+        <Card className="border-[#E2E8F0]">
           <CardContent className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
+                  Emergency Command Center
+                </h1>
                 <RiskBadge level={currentFacility.overallRisk} />
-                <Badge variant="neutral">
-                  {currentFacility.statusBannerText}
-                </Badge>
-                <span className="text-xs font-mono text-slate-500 inline-flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Updated {lastUpdatedTimestamp}</span>
-                </span>
               </div>
-
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                Emergency Command Center
-              </h1>
-              <p className="text-sm text-slate-600 max-w-3xl leading-relaxed">
+              <p className="text-sm text-[#64748B] max-w-3xl leading-relaxed">
                 Pusat komando dan pemantauan keselamatan operasional{" "}
-                <strong className="text-slate-900 font-semibold">
+                <strong className="text-[#0F172A] font-semibold">
                   {currentFacility.name} ({currentFacility.code})
                 </strong>{" "}
                 mengintegrasikan telemetri multi-hazard IoT, pemodelan spasial Digital Twin, dan rute evakuasi cerdas Hybrid Multi-Agent.
               </p>
+              <div className="flex flex-wrap items-center gap-3 pt-0.5 text-xs text-[#64748B] font-mono">
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-[#94A3B8]" aria-hidden="true" />
+                  <span>Updated {lastUpdatedTimestamp}</span>
+                </span>
+                <span className="text-[#CBD5E1]">|</span>
+                <span>{currentFacility.statusBannerText}</span>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              <div className="inline-flex items-center gap-2 px-3 h-9 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800">
-                <label htmlFor="overview-facility-select" className="text-slate-500">
+              <div className="inline-flex items-center gap-2 px-3 h-9 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-medium text-[#0F172A]">
+                <label htmlFor="overview-facility-select" className="text-[#64748B]">
                   Fasilitas:
                 </label>
                 <select
@@ -179,7 +178,7 @@ export default function OverviewPage() {
                     setSelectedFacilityId(e.target.value);
                     setFocusPoint(null);
                   }}
-                  className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer"
+                  className="bg-transparent font-semibold text-[#0F172A] focus:outline-none cursor-pointer"
                 >
                   {facilities.map((fac) => (
                     <option key={fac.id} value={fac.id}>
@@ -193,16 +192,16 @@ export default function OverviewPage() {
                 <Button
                   variant="outline"
                   onClick={triggerHazardExpansion}
-                  className="rounded-xl font-medium"
+                  className="font-medium"
                 >
                   <Flame
-                    className="w-3.5 h-3.5 text-rose-600"
+                    className="w-3.5 h-3.5 text-red-600"
                     aria-hidden="true"
                   />
                   <span>Simulasi Plume Bahaya</span>
                 </Button>
               ) : (
-                <Button variant="outline" onClick={resetDemoState} className="rounded-xl font-medium">
+                <Button variant="outline" onClick={resetDemoState} className="font-medium">
                   <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Reset Baseline</span>
                 </Button>
@@ -211,7 +210,7 @@ export default function OverviewPage() {
               <Button
                 variant="primary"
                 onClick={() => router.push("/evacuation")}
-                className="rounded-xl font-semibold"
+                className="font-semibold"
               >
                 <span>Analisis Evakuasi</span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -225,69 +224,71 @@ export default function OverviewPage() {
             ================================================================ */}
         <div className="grid-kpis">
           {/* KPI 1: Active Alerts */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className={`bg-white border border-[#E2E8F0] rounded-xl p-5 flex items-center justify-between shadow-card ${
+            unacknowledgedAlerts.length > 0 ? "border-l-4 border-l-red-600" : ""
+          }`}>
             <div>
-              <span className="text-xs text-slate-500 font-medium">Peringatan Bahaya Aktif</span>
-              <div className="text-2xl font-bold font-mono text-slate-900 mt-1">
+              <span className="text-xs text-[#64748B] font-medium">Peringatan Aktif</span>
+              <div className="text-2xl font-bold font-mono text-[#0F172A] mt-1 tabular-nums">
                 {unacknowledgedAlerts.length}
-                <span className="text-sm font-normal text-slate-400">/{alerts.length}</span>
+                <span className="text-sm font-normal text-[#94A3B8]">/{alerts.length}</span>
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">
+              <div className="text-[11px] text-[#64748B] mt-0.5">
                 {unacknowledgedAlerts.length > 0 ? "Perlu Konfirmasi HSE" : "Semua Terkendali"}
               </div>
             </div>
-            <div className={`h-11 w-11 rounded-full flex items-center justify-center shrink-0 ${
-              unacknowledgedAlerts.length > 0 ? "bg-rose-50 text-rose-600" : "bg-slate-50 text-slate-400"
+            <div className={`h-10 w-10 rounded-[10px] flex items-center justify-center shrink-0 ${
+              unacknowledgedAlerts.length > 0 ? "bg-red-50 text-red-600" : "bg-[#F8FAFC] text-[#94A3B8]"
             }`}>
               <AlertTriangle className="w-5 h-5" aria-hidden="true" />
             </div>
           </div>
 
           {/* KPI 2: Active Sensors */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex items-center justify-between shadow-card">
             <div>
-              <span className="text-xs text-slate-500 font-medium">Sensor IoT Online</span>
-              <div className="text-2xl font-bold font-mono text-slate-900 mt-1">
+              <span className="text-xs text-[#64748B] font-medium">Sensor Online</span>
+              <div className="text-2xl font-bold font-mono text-[#0F172A] mt-1 tabular-nums">
                 {onlineSensors.length}
-                <span className="text-sm font-normal text-slate-400">/{sensors.length}</span>
+                <span className="text-sm font-normal text-[#94A3B8]">/{sensors.length}</span>
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">
+              <div className="text-[11px] text-[#64748B] mt-0.5">
                 Gas, Suhu, Smoke, IR, Wind
               </div>
             </div>
-            <div className="h-11 w-11 rounded-full flex items-center justify-center bg-blue-50 text-blue-600 shrink-0">
+            <div className="h-10 w-10 rounded-[10px] flex items-center justify-center bg-[#EEF2FF] text-[#4B6BFB] shrink-0">
               <Radio className="w-5 h-5" aria-hidden="true" />
             </div>
           </div>
 
           {/* KPI 3: Workers in Facility */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex items-center justify-between shadow-card">
             <div>
-              <span className="text-xs text-slate-500 font-medium">Personel di Depo</span>
-              <div className="text-2xl font-bold font-mono text-slate-900 mt-1">
+              <span className="text-xs text-[#64748B] font-medium">Personel Depo</span>
+              <div className="text-2xl font-bold font-mono text-[#0F172A] mt-1 tabular-nums">
                 {currentFacility.totalWorkers}
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">
+              <div className="text-[11px] text-[#64748B] mt-0.5">
                 42 Agen Multi-Agent Tracked
               </div>
             </div>
-            <div className="h-11 w-11 rounded-full flex items-center justify-center bg-indigo-50 text-indigo-600 shrink-0">
+            <div className="h-10 w-10 rounded-[10px] flex items-center justify-center bg-[#EEF2FF] text-[#4B6BFB] shrink-0">
               <Users className="w-5 h-5" aria-hidden="true" />
             </div>
           </div>
 
           {/* KPI 4: Workers in Affected Zones */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex items-center justify-between shadow-card">
             <div>
-              <span className="text-xs text-slate-500 font-medium">Personel Dekat Plume</span>
-              <div className="text-2xl font-bold font-mono text-slate-900 mt-1">
+              <span className="text-xs text-[#64748B] font-medium">Dekat Plume</span>
+              <div className="text-2xl font-bold font-mono text-[#0F172A] mt-1 tabular-nums">
                 {affectedWorkersCount * 3}
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">
+              <div className="text-[11px] text-[#64748B] mt-0.5">
                 {affectedWorkersCount} Grup Di-Reroute Otomatis
               </div>
             </div>
-            <div className={`h-11 w-11 rounded-full flex items-center justify-center shrink-0 ${
+            <div className={`h-10 w-10 rounded-[10px] flex items-center justify-center shrink-0 ${
               affectedWorkersCount > 0 ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"
             }`}>
               <Activity className="w-5 h-5" aria-hidden="true" />
@@ -295,17 +296,17 @@ export default function OverviewPage() {
           </div>
 
           {/* KPI 5: Evacuation Readiness */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex items-center justify-between shadow-card">
             <div>
-              <span className="text-xs text-slate-500 font-medium">Kesiapan Rambu Evakuasi</span>
-              <div className="text-2xl font-bold font-mono text-slate-900 mt-1">
+              <span className="text-xs text-[#64748B] font-medium">Kesiapan Rambu</span>
+              <div className="text-2xl font-bold font-mono text-[#0F172A] mt-1 tabular-nums">
                 {currentFacility.evacuationReadinessPct}%
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">
+              <div className="text-[11px] text-[#64748B] mt-0.5">
                 UPS 24V Rambu VMS Aktif
               </div>
             </div>
-            <div className="h-11 w-11 rounded-full flex items-center justify-center bg-emerald-50 text-emerald-600 shrink-0">
+            <div className="h-10 w-10 rounded-[10px] flex items-center justify-center bg-emerald-50 text-emerald-600 shrink-0">
               <ShieldCheck className="w-5 h-5" aria-hidden="true" />
             </div>
           </div>
@@ -369,8 +370,8 @@ export default function OverviewPage() {
                       key={alert.id}
                       className={`p-3.5 rounded-xl border transition-all ${
                         isFocused
-                          ? "bg-blue-50/70 border-blue-400 shadow-xs"
-                          : "bg-white border-slate-200/90 hover:border-slate-300"
+                          ? "bg-[#EEF2FF] border-[#4B6BFB] shadow-sm"
+                          : "bg-white border-[#E2E8F0] hover:border-[#CBD5E1]"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2 mb-1.5">
@@ -529,34 +530,41 @@ export default function OverviewPage() {
 
         {/* ================================================================
             AI EXPLOSION RISK PREDICTOR (BLEVE & VCE BLAST OVERPRESSURE)
+            Matching C:/ti & C:/pkm light engineering card + alert system
             ================================================================ */}
-        <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden">
-          <CardHeader className="bg-slate-900 text-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <Card className="border-[#E2E8F0] overflow-hidden">
+          <CardHeader className="bg-white border-b border-[#E2E8F0] p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold font-mono tracking-wide uppercase bg-rose-500/20 text-rose-300 border border-rose-500/40 inline-flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-rose-400 animate-pulse" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono font-semibold bg-red-50 text-red-700 border border-red-200">
+                  <Flame className="w-3.5 h-3.5 text-red-600" aria-hidden="true" />
                   <span>AI Explosion Risk Engine</span>
                 </span>
-                <span className="text-xs text-slate-400 font-mono">
-                  Target: {aiExplosionPrediction.targetAssetName} ({aiExplosionPrediction.tankProduct})
+                <span className="text-xs text-[#64748B] font-mono">
+                  Target: {aiExplosionPrediction.targetAssetName.replace(/\s*\([^)]*\)$/, "")} · {aiExplosionPrediction.tankProduct}
                 </span>
               </div>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                Prediksi Potensi Ledakan Kilang & BLEVE (Vapor Cloud Explosion)
+              <CardTitle className="text-lg sm:text-xl font-bold text-[#0F172A] tracking-tight">
+                Prediksi Potensi Ledakan Kilang &amp; BLEVE (Vapor Cloud Explosion)
               </CardTitle>
-              <CardDescription className="text-slate-300 text-xs sm:text-sm">
-                Analisis termodinamika bejana bertekanan, pemodelan gelombang kejut overpressure, dan waktu kritis menuju kegagalan cangkang (*Time-to-Failure*).
+              <CardDescription className="text-[#64748B] text-xs sm:text-sm max-w-3xl">
+                Analisis termodinamika bejana bertekanan, pemodelan gelombang kejut overpressure, dan estimasi waktu kritis menuju kegagalan cangkang (<em>Time-to-Failure</em>).
               </CardDescription>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
-              <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3 text-right font-mono min-w-[170px]">
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-sans font-semibold">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+              <div className={`border rounded-[10px] px-4 py-2.5 text-right font-mono min-w-[180px] ${
+                isDelugeActive
+                  ? "bg-emerald-50 border-emerald-200"
+                  : timeToFailureCountdown < 300
+                  ? "bg-red-50 border-red-200"
+                  : "bg-[#F8FAFC] border-[#E2E8F0]"
+              }`}>
+                <div className="text-[10px] text-[#64748B] uppercase tracking-wider font-sans font-semibold">
                   Hitung Mundur Kegagalan
                 </div>
-                <div className={`text-2xl font-black mt-0.5 ${
-                  isDelugeActive ? "text-emerald-400" : timeToFailureCountdown < 300 ? "text-rose-400 animate-pulse" : "text-amber-400"
+                <div className={`text-xl font-bold mt-0.5 tabular-nums ${
+                  isDelugeActive ? "text-emerald-700" : timeToFailureCountdown < 300 ? "text-red-700" : "text-amber-700"
                 }`}>
                   {isDelugeActive ? (
                     "STABIL (DELUGE)"
@@ -564,7 +572,7 @@ export default function OverviewPage() {
                     `${Math.floor(timeToFailureCountdown / 60)}m ${String(timeToFailureCountdown % 60).padStart(2, "0")}s`
                   )}
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-[#64748B]">
                   {isDelugeActive ? "Laju kenaikan tekanan terhenti" : "BLEVE Rupture Threat"}
                 </div>
               </div>
@@ -572,10 +580,10 @@ export default function OverviewPage() {
               <Button
                 type="button"
                 onClick={toggleDelugeSystem}
-                className={`h-12 px-4 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer ${
+                className={`h-12 px-4 rounded-[10px] font-semibold text-xs transition-colors cursor-pointer ${
                   isDelugeActive
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-[#4B6BFB] hover:bg-[#3B5BEB] text-white"
                 }`}
               >
                 <Droplets className="w-4 h-4 mr-1.5" aria-hidden="true" />
@@ -586,123 +594,123 @@ export default function OverviewPage() {
             </div>
           </CardHeader>
 
-          <CardContent className="p-5 sm:p-6 space-y-6">
+          <CardContent className="p-5 sm:p-6 space-y-5">
             {/* Top Telemetry & Probability Bar */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="text-xs text-slate-500 font-medium">Probabilitas Ledakan BLEVE</div>
+              <div className="p-4 rounded-xl bg-[#FAFBFC] border border-[#E2E8F0]">
+                <div className="text-xs text-[#64748B] font-medium">Probabilitas Ledakan BLEVE</div>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className={`text-2xl font-bold font-mono ${
-                    aiExplosionPrediction.probabilityPct > 50 ? "text-rose-600" : "text-emerald-600"
+                  <span className={`text-2xl font-bold font-mono tabular-nums ${
+                    aiExplosionPrediction.probabilityPct > 50 ? "text-red-600" : "text-emerald-600"
                   }`}>
                     {aiExplosionPrediction.probabilityPct}%
                   </span>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
                     aiExplosionPrediction.probabilityPct > 50
-                      ? "bg-rose-100 text-rose-700"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-red-50 text-red-700 border border-red-200"
+                      : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                   }`}>
                     {aiExplosionPrediction.threatLevel}
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">
+                <div className="text-[11px] text-[#64748B] mt-1">
                   {isDelugeActive ? "Ditekan oleh semprotan pendingin air" : "Radiasi panas dari Manifold PIPE-01"}
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="text-xs text-slate-500 font-medium">Suhu Cangkang Tangki</div>
+              <div className="p-4 rounded-xl bg-[#FAFBFC] border border-[#E2E8F0]">
+                <div className="text-xs text-[#64748B] font-medium">Suhu Cangkang Tangki</div>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-2xl font-bold font-mono text-slate-900">
+                  <span className="text-2xl font-bold font-mono text-[#0F172A] tabular-nums">
                     {aiExplosionPrediction.telemetryFactors.shellTemperatureC}°C
                   </span>
-                  <span className="text-xs text-rose-600 font-semibold">
+                  <span className="text-xs text-red-600 font-semibold">
                     Ambang &gt;65.0°C
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">
+                <div className="text-[11px] text-[#64748B] mt-1">
                   Sensor IR Bund: FIR-01 (68 IR index)
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="text-xs text-slate-500 font-medium">Tekanan Uap Dalam Tangki</div>
+              <div className="p-4 rounded-xl bg-[#FAFBFC] border border-[#E2E8F0]">
+                <div className="text-xs text-[#64748B] font-medium">Tekanan Uap Dalam Tangki</div>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-2xl font-bold font-mono text-slate-900">
+                  <span className="text-2xl font-bold font-mono text-[#0F172A] tabular-nums">
                     {aiExplosionPrediction.telemetryFactors.internalPressureBar} bar
                   </span>
                   <span className="text-xs text-amber-600 font-semibold">
                     Kritis &gt;3.0 bar
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">
+                <div className="text-[11px] text-[#64748B] mt-1">
                   Relief valve venting: {aiExplosionPrediction.telemetryFactors.reliefValveVentingKgS} kg/s
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="text-xs text-slate-500 font-medium">Stress Akustik Material</div>
+              <div className="p-4 rounded-xl bg-[#FAFBFC] border border-[#E2E8F0]">
+                <div className="text-xs text-[#64748B] font-medium">Stress Akustik Material</div>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-2xl font-bold font-mono text-slate-900">
+                  <span className="text-2xl font-bold font-mono text-[#0F172A] tabular-nums">
                     {aiExplosionPrediction.telemetryFactors.acousticMicroStressDb} dB
                   </span>
-                  <span className="text-xs text-slate-500 font-semibold">
+                  <span className="text-xs text-[#64748B] font-semibold">
                     Micro-crack sensor
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">
+                <div className="text-[11px] text-[#64748B] mt-1">
                   Emisi akustik cangkang baja T-102
                 </div>
               </div>
             </div>
 
-            {/* Blast Wave Radii & Safety Perimeter Diagram */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 text-white space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+            {/* Blast Wave Radii & Safety Perimeter Diagram (clean light engineering cards) */}
+            <div className="p-4 sm:p-5 rounded-xl bg-[#FAFBFC] border border-[#E2E8F0] space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
                 <div className="flex items-center gap-2">
-                  <ShieldAlert className="w-4 h-4 text-rose-400" aria-hidden="true" />
-                  <span className="font-bold text-sm text-white">
+                  <ShieldAlert className="w-4 h-4 text-red-600" aria-hidden="true" />
+                  <span className="font-semibold text-sm text-[#0F172A]">
                     Radius Gelombang Kejut Ledakan (Blast Wave Overpressure Radii)
                   </span>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">
-                  Standar API 581 & NFPA 30 Damage Estimation
+                <span className="text-xs text-[#64748B] font-mono">
+                  Standar API 581 &amp; NFPA 30 Damage Estimation
                 </span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-rose-950/60 border border-rose-800/80 space-y-1">
+                <div className="p-3.5 rounded-[10px] bg-red-50/80 border border-red-200 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-rose-300">ZONA LETHAL (&gt;10 psi)</span>
-                    <span className="text-xs font-mono font-bold text-rose-400">
+                    <span className="text-xs font-bold text-red-800">ZONA LETHAL (&gt;10 psi)</span>
+                    <span className="text-xs font-mono font-bold text-red-700">
                       {aiExplosionPrediction.blastWaveRadii.lethalOverpressureMeters}m
                     </span>
                   </div>
-                  <p className="text-[11px] text-rose-200/90 leading-relaxed">
+                  <p className="text-[11px] text-red-900/80 leading-relaxed">
                     100% fatalitas bagi personel di luar ruangan; kehancuran total fasilitas dan pipa. Evakuasi seketika tanpa jeda.
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-amber-950/60 border border-amber-800/80 space-y-1">
+                <div className="p-3.5 rounded-[10px] bg-amber-50/80 border border-amber-200 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-300">KERUSAKAN STRUKTURAL (&gt;3 psi)</span>
-                    <span className="text-xs font-mono font-bold text-amber-400">
+                    <span className="text-xs font-bold text-amber-800">KERUSAKAN STRUKTURAL (&gt;3 psi)</span>
+                    <span className="text-xs font-mono font-bold text-amber-700">
                       {aiExplosionPrediction.blastWaveRadii.structuralDamageMeters}m
                     </span>
                   </div>
-                  <p className="text-[11px] text-amber-200/90 leading-relaxed">
-                    Kerusakan tangki tetangga (T-101 & T-103), robohnya rak pipa manifold, dan pecahan proyektil logam.
+                  <p className="text-[11px] text-amber-900/80 leading-relaxed">
+                    Kerusakan tangki tetangga (T-101 &amp; T-103), robohnya rak pipa manifold, dan pecahan proyektil logam.
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-800/80 space-y-1">
+                <div className="p-3.5 rounded-[10px] bg-emerald-50/80 border border-emerald-200 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-300">BATAS AMAN EVAKUASI (&gt;1 psi)</span>
-                    <span className="text-xs font-mono font-bold text-emerald-400">
+                    <span className="text-xs font-bold text-emerald-800">BATAS AMAN EVAKUASI (&gt;1 psi)</span>
+                    <span className="text-xs font-mono font-bold text-emerald-700">
                       {aiExplosionPrediction.blastWaveRadii.glassBreakageMeters}m
                     </span>
                   </div>
-                  <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                  <p className="text-[11px] text-emerald-900/80 leading-relaxed">
                     Titik Kumpul AP-ALPHA (82, 132) dan AP-BRAVO (530, 472) berada di luar batas ini (&gt;150m) sehingga aman bagi personel.
                   </p>
                 </div>
@@ -714,17 +722,17 @@ export default function OverviewPage() {
         {/* ================================================================
             POS STASIONER EVAKUASI MATRIX (8 POS SELURUH LEVEL TBBM)
             ================================================================ */}
-        <Card className="border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
-          <CardHeader className="p-5 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <Card className="border-[#E2E8F0]">
+          <CardHeader className="p-5 sm:p-6 border-b border-[#E2E8F0] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-blue-600" aria-hidden="true" />
-                <CardTitle className="text-lg sm:text-xl font-bold text-slate-900">
+                <Building className="w-5 h-5 text-[#4B6BFB]" aria-hidden="true" />
+                <CardTitle className="text-lg sm:text-xl font-bold text-[#0F172A]">
                   Matriks Evakuasi Pos Stasioner Seluruh Level Depo (8 Pos Stasioner)
                 </CardTitle>
               </div>
-              <CardDescription className="text-xs sm:text-sm text-slate-600">
-                Instruksi evakuasi terdistribusi per pos operasional — tidak hanya pekerja dekat kilang, melainkan seluruh level dari operator gantry hingga pos jaga gerbang.
+              <CardDescription className="text-xs sm:text-sm text-[#64748B]">
+                Instruksi evakuasi terdistribusi per pos operasional: mencakup seluruh level mulai dari operator gantry hingga pos jaga gerbang.
               </CardDescription>
             </div>
 
@@ -919,8 +927,8 @@ export default function OverviewPage() {
                       onClick={() => setSelectedTrendType(tab.key)}
                       className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                         active
-                          ? "bg-white text-slate-900 shadow-xs"
-                          : "text-slate-600 hover:text-slate-900"
+                          ? "bg-white text-[#0F172A] shadow-sm"
+                          : "text-[#64748B] hover:text-[#0F172A]"
                       }`}
                     >
                       {tab.label}

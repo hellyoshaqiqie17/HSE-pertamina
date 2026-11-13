@@ -23,7 +23,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   Users,
   Wind,
   X,
@@ -103,7 +102,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        setSearchFocused(true);
+        setNotificationsOpen(false);
+        setSettingsOpen(false);
+        setCopilotOpen(false);
+        setTimeout(() => searchInputRef.current?.focus(), 20);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -192,21 +195,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       items: [
         {
           href: "/simulation",
-          label: "Simulasi Multi-Agent",
+          label: "Simulasi Agen",
           icon: Activity,
           badge: `${workers.length} Agen`,
           badgeVariant: "neutral",
         },
         {
           href: "/sensors",
-          label: "Sensor IoT Telemetri",
+          label: "Sensor & IoT",
           icon: Radio,
           badge: criticalSensorsCount > 0 ? `${criticalSensorsCount} Crit` : undefined,
           badgeVariant: "danger",
         },
         {
           href: "/incidents",
-          label: "Skenario & Bahaya",
+          label: "Skenario Bahaya",
           icon: Flame,
           badge: unacknowledgedCount > 0 ? unacknowledgedCount : undefined,
           badgeVariant: "danger",
@@ -218,34 +221,41 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const roleLevelOptions: {
     value: import("@/types/evora").UserRoleLevel;
     label: string;
+    shortLabel: string;
     badge: string;
     desc: string;
   }[] = [
     {
       value: "level-1-operator",
-      label: "Level 1 · Operator Lapangan",
+      label: "L1 · Operator Lapangan",
+      shortLabel: "L1 · Operator",
       badge: "L1 OPR",
       desc: "Operasional gantry & pompa, eksekusi ESD lokal",
     },
     {
       value: "level-2-inspector",
-      label: "Level 2 · Inspektur K3 (Sidak Lapangan B)",
+      label: "L2 · Inspektur K3 (Sidak B)",
+      shortLabel: "L2 · Inspektur",
       badge: "L2 SIDAK",
       desc: "Audit kepatuhan di Side B, evakuasi koridor selatan mandiri",
     },
     {
       value: "level-3-manager",
-      label: "Level 3 · Incident Commander / Depot Manager",
+      label: "L3 · Depot Manager",
+      shortLabel: "L3 · Manager",
       badge: "L3 MGR",
       desc: "Komando krisis depot penuh & aktivasi Deluge T-102",
     },
     {
       value: "level-4-ert",
-      label: "Level 4 · Tim Tanggap Darurat (ERT)",
+      label: "L4 · Tim Tanggap Darurat",
+      shortLabel: "L4 · Tim ERT",
       badge: "L4 ERT",
       desc: "Penanggulangan busa api & perimeter Ex-Zone 1",
     },
   ];
+  const activeRoleMeta =
+    roleLevelOptions.find((r) => r.value === currentRoleLevel) ?? roleLevelOptions[0];
 
   const isNavActive = (href: string) => {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -269,21 +279,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           sidebarCollapsed ? "-translate-x-full" : "translate-x-0"
         }`}
       >
-        {/* Sidebar Header / Logo */}
-        <div className="p-5 border-b border-slate-200/80">
+        {/* Sidebar Header / Logo matching C:/ti & C:/pkm .admin-sidebar-header */}
+        <div className="h-14 px-5 border-b border-[#E2E8F0] flex items-center shrink-0">
           <Link
             href="/"
             className="flex items-center gap-3 group cursor-pointer"
             title="EVORA HSE Incident Command System"
           >
-            <div className="w-9 h-9 rounded-xl bg-blue-600 group-hover:bg-blue-700 text-white flex items-center justify-center transition-all shadow-xs shrink-0">
+            <div className="w-9 h-9 rounded-[10px] bg-[#4B6BFB] group-hover:bg-[#3B5BEB] text-white flex items-center justify-center transition-colors shrink-0">
               <Compass className="w-5 h-5 text-white" aria-hidden="true" />
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="font-bold text-[15px] text-slate-900 tracking-tight leading-snug">
+              <span className="font-bold text-[15px] text-[#0F172A] tracking-tight leading-tight">
                 EVORA
               </span>
-              <span className="text-[11px] font-medium text-slate-500 truncate leading-none">
+              <span className="text-[11px] font-medium text-[#64748B] truncate leading-tight">
                 HSE Decision Support
               </span>
             </div>
@@ -291,9 +301,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Navigation Sections */}
-        <nav aria-label="Sidebar main navigation" className="flex-1 px-3 py-4 overflow-y-auto space-y-6">
+        <nav aria-label="Sidebar main navigation" className="flex-1 px-3 py-3 overflow-y-auto space-y-5">
           {navGroups.map((group) => (
-            <div key={group.groupLabel} className="space-y-1">
+            <div key={group.groupLabel} className="space-y-0.5">
               <div className="nav-group-label">{group.groupLabel}</div>
               {group.items.map((item) => {
                 const active = isNavActive(item.href);
@@ -308,17 +318,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   >
                     <IconComponent
                       className={`w-4 h-4 shrink-0 transition-colors ${
-                        active ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"
+                        active ? "text-[#4B6BFB]" : "text-[#94A3B8]"
                       }`}
                       aria-hidden="true"
                     />
                     <span className="flex-1 truncate">{item.label}</span>
                     {item.badge !== undefined && (
                       <span
-                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                        className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md shrink-0 ${
                           item.badgeVariant === "danger"
-                            ? "bg-rose-100 text-rose-700 animate-pulse"
-                            : "bg-slate-100 text-slate-600"
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "bg-[#F1F5F9] text-[#475569]"
                         }`}
                       >
                         {item.badge}
@@ -332,18 +342,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Sidebar Footer: Active Facility Status Card */}
-        <div className="p-3.5 border-t border-slate-200/80 bg-slate-50/70">
-          <div className="bg-white border border-slate-200/80 rounded-xl p-3 shadow-2xs space-y-1.5">
+        <div className="p-3.5 border-t border-[#E2E8F0] bg-[#FAFBFC]">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-3 space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-700">Depot Fasilitas</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] font-semibold text-[#64748B]">Active Depot</span>
+              <span className="h-2 w-2 rounded-full bg-[#10B981]" aria-hidden="true" />
             </div>
-            <div className="text-xs font-bold text-slate-900 truncate">
+            <div className="text-xs font-semibold text-[#0F172A] truncate">
               {currentFacility.name.replace("Synthetic ", "")}
             </div>
-            <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+            <div className="flex items-center justify-between text-[11px] text-[#64748B] font-mono">
               <span>{currentFacility.code}</span>
-              <span className="text-emerald-600 font-semibold">Ex-Zone 1 Sync</span>
+              <span className="text-emerald-700 font-medium">Telemetry Ready</span>
             </div>
           </div>
         </div>
@@ -357,11 +367,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           sidebarCollapsed ? "lg:ml-0" : "lg:ml-[260px]"
         }`}
       >
-        {/* Sticky TopBar (height: 56px, background: #ffffff, border-b: slate-200) */}
-        <header className="h-14 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 sticky top-0 z-30 flex items-center justify-between gap-3 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-          {/* TopBar Left: Hamburger Toggle + Facility Status Pill + Live Telemetry Badge */}
-          <div className="flex items-center gap-3">
-            {/* Sidebar Collapse Toggle Button */}
+        {/* Sticky TopBar (height: 56px, background: #ffffff, matching C:/ti & C:/pkm TopBar) */}
+        <header className="h-14 bg-white border-b border-[#E2E8F0] px-4 sm:px-6 sticky top-0 z-30 flex items-center justify-between gap-4">
+          {/* TopBar Left: Toggle + Single-Line Facility Telemetry Status */}
+          <div className="flex items-center gap-3 min-w-0 shrink">
             <button
               type="button"
               onClick={() => {
@@ -371,103 +380,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   setSidebarCollapsed((prev) => !prev);
                 }
               }}
-              className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-[10px] border border-[#E2E8F0] bg-white hover:bg-[#F1F5F9] text-[#475569] hover:text-[#0F172A] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               aria-label="Toggle Navigation Sidebar"
               title="Toggle Sidebar"
             >
-              <Menu className="w-5 h-5" aria-hidden="true" />
+              <Menu className="w-4 h-4" aria-hidden="true" />
             </button>
 
-            {/* Live Facility Telemetry Status Pill */}
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="font-bold text-slate-800">{currentFacility.code}</span>
-              <span className="w-px h-3 bg-slate-200 shrink-0" />
-              <span className="text-slate-500 hidden sm:inline">28 IoT Sensor Aktif</span>
+            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-[#E2E8F0] text-xs whitespace-nowrap shrink-0">
+              <span className="w-2 h-2 rounded-full bg-[#10B981] shrink-0" aria-hidden="true" />
+              <span className="font-semibold text-[#0F172A]">{currentFacility.code}</span>
+              <span className="text-[#94A3B8] hidden md:inline">·</span>
+              <span className="font-mono text-[11px] text-[#64748B] hidden md:inline">
+                {sensors.length} Nodes
+              </span>
             </div>
-
-            {/* Live Telemetry Pill */}
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200/80 rounded-md text-xs text-emerald-800 font-medium">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Live Telemetry Active</span>
-            </div>
-
-            {/* Level 2 Sidak Active Badge */}
-            {(currentRoleLevel === "level-2-inspector" || isSideBScenarioActive) && (
-              <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800 font-semibold animate-pulse">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" aria-hidden="true" />
-                <span>Sidak Lapangan B Aktif · INSP-01 (Side B)</span>
-              </div>
-            )}
           </div>
 
-          {/* TopBar Right: Search + Role Switcher + AI Copilot + Alerts + Profile */}
-          <div className="flex items-center gap-2">
-            {/* Global Search Input */}
-            <div className="relative hidden xl:block w-56">
-              <input
-                ref={searchInputRef}
-                type="search"
-                value={globalQuery}
-                onFocus={() => setSearchFocused(true)}
-                onChange={(e) => {
-                  setGlobalQuery(e.target.value);
-                  setSearchFocused(true);
-                }}
-                placeholder="Cari aset, sensor... (Ctrl+K)"
-                className="w-full h-8 pl-3 pr-7 rounded-xl bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 border border-slate-200 focus:bg-white focus:border-blue-500 focus:outline-none transition-all"
-              />
-              <Search
-                className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none"
-                aria-hidden="true"
-              />
-
-              {searchFocused && globalQuery.trim().length > 0 && (
-                <div
-                  role="region"
-                  aria-label="Hasil pencarian cepat"
-                  className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-2 text-xs"
-                >
-                  {searchResults.length === 0 ? (
-                    <div className="p-2.5 text-slate-500">
-                      Tidak ditemukan hasil untuk &quot;{globalQuery}&quot;.
-                    </div>
-                  ) : (
-                    <ul className="divide-y divide-slate-100">
-                      {searchResults.map((res) => (
-                        <li key={res.id}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSearchFocused(false);
-                              setGlobalQuery("");
-                              router.push(res.href);
-                            }}
-                            className="w-full text-left px-2.5 py-2 hover:bg-slate-50 rounded-lg flex items-center justify-between gap-2 cursor-pointer"
-                          >
-                            <span className="font-semibold text-slate-900 truncate">
-                              {res.title}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-500 shrink-0">
-                              {res.category}
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Role Perspective Switcher (matching C:/ti) */}
-            <div className="hidden sm:flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 rounded-xl px-2.5 py-1 text-xs">
-              <span className="text-slate-400 text-[11px] font-medium hidden md:inline">Level Otoritas:</span>
+          {/* TopBar Right: Role Perspective + Quick Search + Decision Support + Alerts + Profile */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Concise Single-Line Role Perspective Switcher */}
+            <div className="hidden sm:inline-flex items-center h-9 px-3 rounded-[10px] bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] transition-colors shrink-0">
               <select
                 aria-label="Pilih Level Otoritas & Peran"
                 value={currentRoleLevel}
                 onChange={(e) => setCurrentRoleLevel(e.target.value as import("@/types/evora").UserRoleLevel)}
-                className="bg-transparent font-bold text-slate-800 text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-[#0F172A] focus:outline-none cursor-pointer whitespace-nowrap"
               >
                 {roleLevelOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -477,19 +415,111 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </select>
             </div>
 
-            {/* AI Copilot Trigger Button (matching C:/ti & C:/pkm) */}
+            {/* Quick Search Popover Trigger (Ctrl+K) */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchFocused((prev) => !prev);
+                  setCopilotOpen(false);
+                  setNotificationsOpen(false);
+                  setSettingsOpen(false);
+                  setTimeout(() => searchInputRef.current?.focus(), 20);
+                }}
+                aria-expanded={searchFocused}
+                aria-label="Cari aset dan sensor (Ctrl+K)"
+                title="Cari aset, rute, sensor (Ctrl+K)"
+                className="w-9 h-9 rounded-[10px] bg-white hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#475569] hover:text-[#0F172A] flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <Search className="w-4 h-4" aria-hidden="true" />
+              </button>
+
+              {searchFocused && (
+                <div
+                  role="dialog"
+                  aria-label="Pencarian cepat aset & sensor"
+                  className="absolute right-0 mt-2 w-80 bg-white border border-[#E2E8F0] rounded-xl shadow-elevated z-50 p-3 space-y-2.5"
+                >
+                  <div className="relative">
+                    <Search
+                      className="w-3.5 h-3.5 text-[#94A3B8] absolute left-3 top-2.5 pointer-events-none"
+                      aria-hidden="true"
+                    />
+                    <input
+                      ref={searchInputRef}
+                      type="search"
+                      value={globalQuery}
+                      onChange={(e) => setGlobalQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") {
+                          setSearchFocused(false);
+                        }
+                      }}
+                      placeholder="Cari tangki, sensor, rute..."
+                      className="w-full h-9 pl-8 pr-8 rounded-[10px] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder:text-[#94A3B8] border border-[#E2E8F0] focus:bg-white focus:border-[#4B6BFB] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setSearchFocused(false)}
+                      aria-label="Tutup pencarian"
+                      className="absolute right-2 top-2 p-0.5 rounded text-[#94A3B8] hover:text-[#0F172A]"
+                    >
+                      <X className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  {globalQuery.trim().length > 0 ? (
+                    searchResults.length === 0 ? (
+                      <div className="py-2 px-1 text-xs text-[#64748B]">
+                        Tidak ditemukan hasil untuk &quot;{globalQuery}&quot;.
+                      </div>
+                    ) : (
+                      <ul className="divide-y divide-[#F1F5F9] max-h-64 overflow-y-auto text-xs">
+                        {searchResults.map((res) => (
+                          <li key={res.id}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSearchFocused(false);
+                                setGlobalQuery("");
+                                router.push(res.href);
+                              }}
+                              className="w-full text-left px-2.5 py-2 hover:bg-[#F8FAFC] rounded-lg flex items-center justify-between gap-2 cursor-pointer"
+                            >
+                              <span className="font-semibold text-[#0F172A] truncate">
+                                {res.title}
+                              </span>
+                              <span className="text-[10px] font-mono text-[#64748B] shrink-0">
+                                {res.category}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )
+                  ) : (
+                    <div className="text-[11px] text-[#64748B] px-1">
+                      Ketik kode aset (mis. T-102, AP-BRAVO) atau ID sensor. Tekan Ctrl+K kapan saja.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Decision Support Trigger Button */}
             <button
               type="button"
               onClick={() => {
                 setCopilotOpen((prev) => !prev);
                 setNotificationsOpen(false);
                 setSettingsOpen(false);
+                setSearchFocused(false);
               }}
-              className="flex items-center gap-1.5 bg-[#EEF2FF] hover:bg-[#E0E7FF] border border-[#C7D2FE] text-[#2563EB] px-3 py-1.5 rounded-xl text-xs font-semibold shadow-2xs transition-all cursor-pointer"
-              title="AI Decision Copilot"
+              className="h-9 flex items-center gap-1.5 bg-[#EEF2FF] hover:bg-[#E0E7FF] text-[#4B6BFB] px-3 rounded-[10px] text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              title="Buka Panel Decision Support"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
-              <span className="hidden sm:inline">AI Copilot</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-[#4B6BFB] shrink-0" aria-hidden="true" />
+              <span className="hidden sm:inline">Decision Support</span>
             </button>
 
             {/* Safety Notifications Bell Button */}
@@ -500,15 +530,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   setNotificationsOpen((prev) => !prev);
                   setCopilotOpen(false);
                   setSettingsOpen(false);
+                  setSearchFocused(false);
                 }}
                 aria-expanded={notificationsOpen}
                 aria-label={`Notifikasi keselamatan (${unacknowledgedCount} aktif)`}
-                className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center relative cursor-pointer transition-colors"
+                className="w-9 h-9 rounded-[10px] bg-white hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#475569] hover:text-[#0F172A] flex items-center justify-center relative cursor-pointer transition-colors"
                 title="Notifikasi & Peringatan Bahaya"
               >
                 <Bell className="w-4 h-4" aria-hidden="true" />
                 {unacknowledgedCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-rose-600 text-white rounded-full text-[9px] font-bold flex items-center justify-center font-mono animate-pulse">
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-600 text-white rounded-full text-[9px] font-bold flex items-center justify-center font-mono">
                     {unacknowledgedCount}
                   </span>
                 )}
@@ -582,10 +613,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   setSettingsOpen((prev) => !prev);
                   setCopilotOpen(false);
                   setNotificationsOpen(false);
+                  setSearchFocused(false);
                 }}
                 aria-expanded={settingsOpen}
                 aria-label="Simulation settings and controls"
-                className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
+                className="w-9 h-9 rounded-[10px] bg-white hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#475569] hover:text-[#0F172A] flex items-center justify-center cursor-pointer transition-colors"
                 title="Pengaturan Simulasi & Fasilitas"
               >
                 <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
@@ -595,16 +627,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div
                   role="dialog"
                   aria-label="Simulation configuration panel"
-                  className="absolute right-0 mt-2 w-80 rounded-2xl bg-white border border-slate-200 shadow-xl z-50 p-4 text-xs space-y-3.5"
+                  className="absolute right-0 mt-2 w-80 rounded-xl bg-white border border-[#E2E8F0] shadow-elevated z-50 p-4 text-xs space-y-3.5"
                 >
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="font-bold text-sm text-slate-900">
+                  <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-2.5">
+                    <span className="font-bold text-sm text-[#0F172A]">
                       Pengaturan Skenario EVORA
                     </span>
                     <button
                       type="button"
                       onClick={() => setSettingsOpen(false)}
-                      className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                      className="p-1 rounded-lg text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
                     </button>
@@ -613,7 +645,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <div>
                     <label
                       htmlFor="header-facility-select"
-                      className="block font-semibold text-slate-700 mb-1"
+                      className="block font-semibold text-[#334155] mb-1"
                     >
                       Fasilitas Aktif:
                     </label>
@@ -621,7 +653,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       id="header-facility-select"
                       value={selectedFacilityId}
                       onChange={(e) => setSelectedFacilityId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-semibold text-slate-800"
+                      className="w-full px-3 py-2 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0] font-semibold text-[#0F172A]"
                     >
                       {facilities.map((fac) => (
                         <option key={fac.id} value={fac.id}>
@@ -634,15 +666,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <div>
                     <label
                       htmlFor="header-ui-state-select"
-                      className="block font-semibold text-slate-700 mb-1"
+                      className="block font-semibold text-[#334155] mb-1"
                     >
-                      Uji Ketahanan UI (R-27):
+                      Uji Ketahanan UI:
                     </label>
                     <select
                       id="header-ui-state-select"
                       value={uiState}
                       onChange={(e) => setUiState(e.target.value as UIViewState)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-slate-800"
+                      className="w-full px-3 py-2 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0] font-mono text-[#0F172A]"
                     >
                       <option value="ready">Operational (Ready)</option>
                       <option value="loading">Loading Telemetry</option>
@@ -657,7 +689,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       resetDemoState();
                       setSettingsOpen(false);
                     }}
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Reset Data Simulasi Baseline</span>
@@ -666,19 +698,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            {/* Profile Avatar Pill */}
-            <div className="flex items-center gap-2 pl-1 border-l border-slate-200 ml-1">
-              <div className="w-8 h-8 rounded-xl bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center shadow-xs">
-                HQ
+            {/* Profile Summary + Monogram matching C:/pkm & C:/ti */}
+            <div className="flex items-center gap-2.5 pl-3 border-l border-[#E2E8F0] ml-1 shrink-0">
+              <div className="text-right hidden xl:block leading-tight">
+                <div className="text-xs font-semibold text-[#0F172A]">PT EVORA</div>
+                <div className="text-[11px] font-mono text-[#64748B]">
+                  {activeRoleMeta.shortLabel}
+                </div>
+              </div>
+              <div className="w-9 h-9 rounded-[10px] bg-[#0F172A] text-white font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                {activeRoleMeta.badge.split(" ")[0]}
               </div>
             </div>
           </div>
         </header>
 
-        {/* Content Wrapper (matching C:/pkm & C:/ti .content-wrapper) */}
+        {/* Content Wrapper (matching C:/pkm & C:/ti clean #FAFBFC surface) */}
         <main
           id="main-workspace"
-          className="flex-1 p-4 sm:p-6 pb-24 lg:pb-8 bg-[#FAFBFC] bg-grid-pattern overflow-y-auto"
+          className="flex-1 p-4 sm:p-6 pb-24 lg:pb-8 bg-[#FAFBFC] overflow-y-auto"
         >
           <div className="max-w-[1600px] mx-auto w-full space-y-6">
             {children}
@@ -686,12 +724,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </main>
 
         {/* Footer Landmark */}
-        <footer className="bg-white border-t border-slate-200/80 px-6 py-3 text-xs text-slate-500 hidden sm:block">
+        <footer className="bg-white border-t border-[#E2E8F0] px-6 py-3 text-xs text-[#64748B] hidden sm:block">
           <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <strong>EVORA R&amp;D Decision-Support System</strong>: IoT Multi-Hazard, Digital Twin 3D &amp; Hybrid Multi-Agent Evacuation.
+              <strong className="text-[#0F172A]">EVORA Decision-Support System</strong>: IoT Multi-Hazard, Digital Twin 3D &amp; Hybrid Multi-Agent Evacuation.
             </div>
-            <div className="font-mono text-[11px] text-slate-400">
+            <div className="font-mono text-[11px] text-[#94A3B8]">
               Pertamina TBBM Demo Dataset ({currentFacility.code}) · Live Telemetry Engine
             </div>
           </div>
@@ -699,30 +737,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* ====================================================================
-          AI COPILOT SLIDE-OUT DRAWER (matching C:/ti AICopilotDrawer)
+          DECISION SUPPORT SLIDE-OUT DRAWER (matching C:/ti panel structure)
           ==================================================================== */}
       {copilotOpen && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="AI Decision Copilot"
+          aria-label="EVORA Decision Support"
           className="fixed inset-0 z-50 flex justify-end"
         >
           <div
-            className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-[#0F172A]/25 transition-opacity"
             onClick={() => setCopilotOpen(false)}
           />
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 border-l border-slate-200">
-            {/* Copilot Header */}
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+          <div className="relative w-full max-w-md bg-white h-full shadow-elevated flex flex-col z-10 border-l border-[#E2E8F0]">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F8FAFC]">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                <div className="w-8 h-8 rounded-[10px] bg-[#4B6BFB] text-white flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4 text-white" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">EVORA AI Copilot</h3>
-                  <p className="text-[11px] text-slate-500 font-mono">
-                    Autonomous Decision Support Active
+                  <h3 className="text-sm font-bold text-[#0F172A]">EVORA Decision Support</h3>
+                  <p className="text-[11px] text-[#64748B] font-mono">
+                    Adaptive Evacuation &amp; Hazard Engine
                   </p>
                 </div>
               </div>
@@ -808,44 +846,44 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
 
               {/* Status Alert Banner */}
-              <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200/80 text-blue-900 space-y-1.5">
-                <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+              <div className="p-3.5 rounded-xl bg-[#EEF2FF] border border-[#4B6BFB]/20 text-[#0F172A] space-y-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-[#0F172A]">
+                  <ShieldCheck className="w-4 h-4 text-[#4B6BFB] shrink-0" aria-hidden="true" />
                   <span>Rekomendasi Rute Evakuasi Optimal</span>
                 </div>
-                <p className="text-blue-800 leading-relaxed">
+                <p className="text-[#475569] leading-relaxed">
                   Berdasarkan sensor LEL pada koridor pipa dan vektor angin <strong>4.8 m/s SE</strong>, rute evakuasi terbaik saat ini:
                 </p>
-                <div className="font-bold font-mono text-sm text-blue-950 bg-white/80 p-2 rounded-lg border border-blue-200">
+                <div className="font-bold font-mono text-sm text-[#0F172A] bg-white p-2 rounded-[10px] border border-[#E2E8F0]">
                   {recommendedRoute.shortCode}: {recommendedRoute.name} ({recommendedRoute.destinationName})
                 </div>
               </div>
 
               {/* Multi-Agent Telemetry Card */}
-              <div className="bg-white border border-slate-200 rounded-xl p-3.5 space-y-2 shadow-2xs">
+              <div className="bg-white border border-[#E2E8F0] rounded-xl p-3.5 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800">Dinamika Evakuasi Agen</span>
-                  <span className="font-mono text-[11px] text-slate-500">{workers.length} Personel</span>
+                  <span className="font-bold text-[#0F172A]">Dinamika Evakuasi Agen</span>
+                  <span className="font-mono text-[11px] text-[#64748B]">{workers.length} Personel</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-center">
-                  <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200">
+                  <div className="p-2 rounded-[10px] bg-emerald-50 border border-emerald-200">
                     <div className="text-lg font-bold text-emerald-700">
                       {workers.filter((w) => w.status === "evacuated" || w.status === "moving").length}
                     </div>
                     <div className="text-[10px] text-emerald-800 font-medium">Bergerak Aman</div>
                   </div>
-                  <div className="p-2 rounded-lg bg-rose-50 border border-rose-200">
-                    <div className="text-lg font-bold text-rose-700">
+                  <div className="p-2 rounded-[10px] bg-red-50 border border-red-200">
+                    <div className="text-lg font-bold text-red-700">
                       {affectedWorkersCount}
                     </div>
-                    <div className="text-[10px] text-rose-800 font-medium">Di Zona Terpapar</div>
+                    <div className="text-[10px] text-red-800 font-medium">Di Zona Terpapar</div>
                   </div>
                 </div>
               </div>
 
               {/* Quick Actions */}
               <div className="space-y-2 pt-2">
-                <span className="font-bold text-slate-700 block">Tindakan Cepat AI:</span>
+                <span className="font-bold text-[#334155] block">Aksi Cepat Kontrol:</span>
 
                 <button
                   type="button"
@@ -939,22 +977,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className="fixed inset-0 z-50 lg:hidden flex"
         >
           <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-[#0F172A]/35"
             onClick={() => setMobileNavOpen(false)}
           />
-          <div className="relative w-72 max-w-[85vw] bg-white h-full p-4 flex flex-col justify-between z-10 border-r border-slate-200 shadow-xl">
+          <div className="relative w-72 max-w-[85vw] bg-white h-full p-4 flex flex-col justify-between z-10 border-r border-[#E2E8F0] shadow-elevated">
             <div>
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-[10px] bg-[#4B6BFB] text-white flex items-center justify-center">
                     <Compass className="w-4 h-4 text-white" aria-hidden="true" />
                   </div>
-                  <span className="font-bold text-base text-slate-900">EVORA HSE</span>
+                  <span className="font-bold text-base text-[#0F172A]">EVORA HSE</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                  className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
                 >
                   <X className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -963,7 +1001,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <nav aria-label="Mobile navigation list" className="space-y-4">
                 {navGroups.map((group) => (
                   <div key={group.groupLabel} className="space-y-1">
-                    <div className="text-[10px] font-bold uppercase text-slate-400 px-2 tracking-wider">
+                    <div className="text-[10px] font-bold uppercase text-[#94A3B8] px-2 tracking-wider">
                       {group.groupLabel}
                     </div>
                     {group.items.map((item) => {
@@ -974,10 +1012,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                           key={item.href}
                           href={item.href}
                           onClick={() => setMobileNavOpen(false)}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold ${
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-xs font-semibold ${
                             active
-                              ? "bg-blue-50 text-blue-600"
-                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                              ? "bg-[#EEF2FF] text-[#4B6BFB]"
+                              : "text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
                           }`}
                         >
                           <IconComponent className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -990,14 +1028,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </nav>
             </div>
 
-            <div className="pt-4 border-t border-slate-200">
+            <div className="pt-4 border-t border-[#E2E8F0]">
               <button
                 type="button"
                 onClick={() => {
                   resetDemoState();
                   setMobileNavOpen(false);
                 }}
-                className="w-full py-2.5 rounded-xl bg-rose-600 text-white text-xs font-semibold"
+                className="w-full py-2.5 rounded-[10px] bg-red-600 text-white text-xs font-semibold cursor-pointer"
               >
                 Reset Demo Baseline
               </button>

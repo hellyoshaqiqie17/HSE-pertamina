@@ -89,7 +89,7 @@ export function ManifoldArmCard({
             y="31"
             width="66"
             height="7"
-            fill="#C84B28"
+            fill="#DC2626"
             opacity="0.85"
           />
           <line x1="26" y1="56" x2="94" y2="56" stroke="#C4C0B6" strokeWidth="1" />
@@ -130,7 +130,7 @@ export function ManifoldArmCard({
             cy="60"
             r="6"
             fill="#FFFFFF"
-            stroke="#C84B28"
+            stroke="#DC2626"
             strokeWidth="1.8"
           />
 
@@ -140,7 +140,7 @@ export function ManifoldArmCard({
             cy="78"
             r="26"
             fill="rgba(200, 75, 40, 0.16)"
-            stroke="#C84B28"
+            stroke="#DC2626"
             strokeWidth="1.5"
             strokeDasharray="4 3"
           />
@@ -148,7 +148,7 @@ export function ManifoldArmCard({
             cx="125"
             cy="78"
             r="4.5"
-            fill="#C84B28"
+            fill="#DC2626"
             stroke="#FFFFFF"
             strokeWidth="1.5"
           />
@@ -260,7 +260,7 @@ export function DynamicSignageArmCard({
             stroke="#475569"
             strokeWidth="1.4"
           />
-          <rect x="46" y="76" width="60" height="5" rx="2" fill="#C84B28" />
+          <rect x="46" y="76" width="60" height="5" rx="2" fill="#DC2626" />
           <path
             d="M 114 70 L 134 70 L 138 82 L 138 96 L 114 96 Z"
             fill="#E5E3DD"

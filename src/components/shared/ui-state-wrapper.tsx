@@ -34,9 +34,9 @@ export function UIStateWrapper({
           {pageTitle}.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-          <div className="h-20 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] animate-pulse" />
-          <div className="h-20 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] animate-pulse" />
-          <div className="h-20 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] animate-pulse" />
+          <div className="h-20 rounded-xl skeleton skeleton-shimmer border border-[#E2E8F0]" />
+          <div className="h-20 rounded-xl skeleton skeleton-shimmer border border-[#E2E8F0]" />
+          <div className="h-20 rounded-xl skeleton skeleton-shimmer border border-[#E2E8F0]" />
         </div>
         <div>
           <Button
@@ -92,9 +92,9 @@ export function UIStateWrapper({
         className="p-6 sm:p-8 my-4 max-w-xl mx-auto border-[#E2E8F0]"
       >
         <div className="flex items-start gap-3.5">
-          <div className="w-9 h-9 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[#FEF2F2] border border-red-200 flex items-center justify-center shrink-0">
             <AlertCircle
-              className="w-4 h-4 text-[#C84B28]"
+              className="w-4 h-4 text-red-600"
               aria-hidden="true"
             />
           </div>

@@ -20,6 +20,7 @@ import {
   Search,
 } from "lucide-react";
 import { useEvora } from "@/lib/evora-context";
+import { EmergencyReportingFlow } from "@/components/shared/emergency-reporting-flow";
 import { RiskBadge } from "@/components/shared/status-badge";
 import { UIStateWrapper } from "@/components/shared/ui-state-wrapper";
 import { Card } from "@/components/ui/card";
@@ -86,17 +87,8 @@ export default function IncidentsAndScenariosPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E8F0] pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Badge variant="outline" dot>
-              Evaluation Benchmarks
-            </Badge>
-            <span className="text-xs text-[#64748B]">
-              · 5-Dimension Method Comparison
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight">
-            Incidents &amp; Scenarios{" "}
-            <span className="font-normal text-[#64748B]">#2026</span>
+            Incidents &amp; Scenarios
           </h1>
           <p className="text-xs sm:text-sm text-[#475569] mt-1">
             Review multi-hazard incident logs and evaluate outcomes across
@@ -116,7 +108,10 @@ export default function IncidentsAndScenariosPage() {
       </div>
 
       <UIStateWrapper pageTitle="Incidents & Scenario Management">
-        {/* Top Section: Scenario Library & 5-Dimension Method Comparison */}
+        {/* Emergency Reporting, Verification, Escalation & Activation Flow */}
+        <EmergencyReportingFlow />
+
+        {/* Scenario Library & 5-Dimension Method Comparison */}
         <Card
           aria-labelledby="scenario-comparison-heading"
           className="p-5 sm:p-6 space-y-5"
@@ -191,7 +186,7 @@ export default function IncidentsAndScenariosPage() {
                   }}
                   className={`p-4 rounded-2xl border text-xs transition-all bg-white ${
                     isSelected
-                      ? "border-[#0F172A] ring-1 ring-[#0F172A]/10 shadow-xs"
+                      ? "border-[#4B6BFB] ring-1 ring-[#4B6BFB]/20 shadow-sm"
                       : "border-[#E2E8F0] hover:border-[#CBD5E1]"
                   }`}
                 >
@@ -310,7 +305,7 @@ export default function IncidentsAndScenariosPage() {
                     <Bar
                       dataKey="hazardExposureIndex"
                       name="Exposure (0-100)"
-                      fill="#C84B28"
+                      fill="#DC2626"
                       radius={[4, 4, 0, 0]}
                     />
                     <Bar

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Clock,
   Compass,
@@ -11,6 +12,7 @@ import {
   Wind,
 } from "lucide-react";
 import { useEvora } from "@/lib/evora-context";
+import { evaluateFacilityRoutes } from "@/lib/route-scoring";
 import {
   RiskBadge,
   SensorStatusBadge,
@@ -21,10 +23,26 @@ import {
   FacilitySchematicMap,
   MapLayerVisibility,
 } from "@/components/shared/facility-schematic-map";
-import { DepotTechnicalStage } from "@/components/shared/depot-technical-stage";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+const InteractiveDigitalTwinSection = dynamic(
+  () =>
+    import("@/components/digital-twin-3d/InteractiveDigitalTwinSection").then(
+      (mod) => mod.InteractiveDigitalTwinSection
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[680px] w-full rounded-xl border border-[#E2E8F0] bg-white p-6">
+        <div className="skeleton skeleton-shimmer h-6 w-64 rounded-lg" />
+        <div className="skeleton skeleton-shimmer mt-3 h-4 w-96 max-w-full rounded-lg" />
+        <div className="skeleton skeleton-shimmer mt-6 h-[540px] w-full rounded-xl" />
+      </div>
+    ),
+  }
+);
 
 const REPLAY_TIMELINE_STEPS = [
   {
@@ -61,6 +79,7 @@ export default function DigitalTwinPage() {
     hazards,
     routes,
     workers,
+    scoringConfig,
     triggerHazardExpansion,
     resetDemoState,
     hazardExpansionStep,
@@ -94,40 +113,45 @@ export default function DigitalTwinPage() {
 
   const currentReplay = REPLAY_TIMELINE_STEPS[replayIndex];
 
-  const replayAdjustedHazards = hazards.map((h) => {
-    if (h.id === "HAZ-WEST-EXP") {
-      const shouldShow =
-        currentReplay.includeWestExpansion || hazardExpansionStep > 0;
-      return {
-        ...h,
-        active: shouldShow,
-        radius: shouldShow ? 98 : 0,
-      };
-    }
-    return {
-      ...h,
-      radius: Math.round(h.baseRadius * currentReplay.radiusScale),
-    };
-  });
+  const replayAdjustedHazards = useMemo(
+    () =>
+      hazards.map((h) => {
+        if (h.id === "HAZ-WEST-EXP") {
+          const shouldShow =
+            currentReplay.includeWestExpansion || hazardExpansionStep > 0;
+          return {
+            ...h,
+            active: shouldShow,
+            radius: shouldShow ? 98 : 0,
+          };
+        }
+        return {
+          ...h,
+          radius: Math.round(h.baseRadius * currentReplay.radiusScale),
+        };
+      }),
+    [hazards, currentReplay, hazardExpansionStep]
+  );
+
+  const replayAdjustedRoutes = useMemo(
+    () => evaluateFacilityRoutes(routes, replayAdjustedHazards, scoringConfig),
+    [routes, replayAdjustedHazards, scoringConfig]
+  );
 
   const handleStepReplay = () => {
     const nextIdx = (replayIndex + 1) % REPLAY_TIMELINE_STEPS.length;
     setReplayIndex(nextIdx);
     if (nextIdx === 2 && hazardExpansionStep === 0) {
       triggerHazardExpansion();
-    } else if (nextIdx === 0 && hazardExpansionStep > 0) {
+    } else if (nextIdx !== 2 && hazardExpansionStep > 0) {
       resetDemoState();
     }
   };
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Multi-Plane Elevation & Isometric Stage */}
-      <DepotTechnicalStage
-        stageTitle="Digital Twin"
-        stageNumber="#102"
-        defaultPlane="front"
-      />
+      {/* Primary Interactive 3D Isometric Digital Twin */}
+      <InteractiveDigitalTwinSection />
 
       <UIStateWrapper pageTitle="Digital Twin Monitoring">
         {/* Time-Step Sensor & Plume Replay Control Bar */}
@@ -167,12 +191,14 @@ export default function DigitalTwinPage() {
                       setReplayIndex(idx);
                       if (idx === 2 && hazardExpansionStep === 0) {
                         triggerHazardExpansion();
+                      } else if (idx !== 2 && hazardExpansionStep > 0) {
+                        resetDemoState();
                       }
                     }}
                     aria-pressed={replayIndex === idx}
                     className={`px-3 py-1.5 h-8 rounded-lg text-xs font-mono font-medium transition-colors ${
                       replayIndex === idx
-                        ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                        ? "bg-white text-[#0F172A] shadow-sm border border-[#E2E8F0]"
                         : "text-[#64748B] hover:text-[#0F172A]"
                     }`}
                   >
@@ -226,7 +252,7 @@ export default function DigitalTwinPage() {
               assets={assets}
               sensors={sensors}
               hazards={replayAdjustedHazards}
-              routes={routes}
+              routes={replayAdjustedRoutes}
               workers={workers}
               layers={layers}
               onToggleLayer={handleToggleLayer}
@@ -261,7 +287,7 @@ export default function DigitalTwinPage() {
                 <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between gap-2">
                   <div>
                     <div className="font-semibold text-[#0F172A] flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#C84B28]" aria-hidden="true" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-600" aria-hidden="true" />
                       <span>Hydrocarbon Gas (% LEL)</span>
                     </div>
                     <div className="text-[#64748B] mt-0.5">
@@ -322,7 +348,7 @@ export default function DigitalTwinPage() {
                   onClick={() => setSelectedAssetTab("assets")}
                   className={`py-1.5 h-8 rounded-lg text-xs font-medium transition-colors ${
                     selectedAssetTab === "assets"
-                      ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                      ? "bg-white text-[#0F172A] shadow-sm border border-[#E2E8F0]"
                       : "text-[#64748B] hover:text-[#0F172A]"
                   }`}
                 >
@@ -335,7 +361,7 @@ export default function DigitalTwinPage() {
                   onClick={() => setSelectedAssetTab("hazards")}
                   className={`py-1.5 h-8 rounded-lg text-xs font-medium transition-colors ${
                     selectedAssetTab === "hazards"
-                      ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                      ? "bg-white text-[#0F172A] shadow-sm border border-[#E2E8F0]"
                       : "text-[#64748B] hover:text-[#0F172A]"
                   }`}
                 >
@@ -348,7 +374,7 @@ export default function DigitalTwinPage() {
                   onClick={() => setSelectedAssetTab("sensors")}
                   className={`py-1.5 h-8 rounded-lg text-xs font-medium transition-colors ${
                     selectedAssetTab === "sensors"
-                      ? "bg-white text-[#0F172A] shadow-xs border border-[#E2E8F0]"
+                      ? "bg-white text-[#0F172A] shadow-sm border border-[#E2E8F0]"
                       : "text-[#64748B] hover:text-[#0F172A]"
                   }`}
                 >
